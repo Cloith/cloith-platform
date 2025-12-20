@@ -1,0 +1,12 @@
+# Local terraform state
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# The Kubeconfig will fetch later
+k3s-vps.yaml

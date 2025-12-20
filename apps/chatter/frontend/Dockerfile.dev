@@ -1,0 +1,21 @@
+ARG NODE_VERSION=20.10.0
+FROM node:${NODE_VERSION}-alpine
+
+# Use the same non-root user for security consistency
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+WORKDIR /app
+
+# Only copy package files first to cache the 'npm install' layer
+COPY package*.json ./
+RUN npm install
+
+# Copy everything else
+COPY . .
+
+# Expose Vite's default port
+EXPOSE 5173
+
+# Run Vite in host mode so it's accessible from outside the container
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

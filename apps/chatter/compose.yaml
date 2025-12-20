@@ -1,0 +1,55 @@
+services:
+  server-backend:
+    build:
+      context: ./backend
+    environment:
+      NODE_ENV: development
+    env_file:
+      - ./backend/.env.development.vps
+    ports:
+      - "3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./backend
+          target: /usr/src/app/backend
+          ignore:
+            - node_modules/
+            - .git/
+            - .env.development.vps/
+        - action: rebuild
+          path: ./backend/package.json
+
+  server-frontend:
+    build:
+      context: ./frontend
+    environment:
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "5173"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /usr/src/app/frontend
+          ignore:
+            - node_modules/
+            - dist/
+            - .git/
+        - action: rebuild
+          path: ./frontend/package.json
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - server-frontend
+      - server-backend
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./nginx/nginx.conf
+          target: /etc/nginx/nginx.conf

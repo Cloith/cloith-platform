@@ -1,0 +1,31 @@
+nginx:
+  # 1. Use the VPS physical network
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+
+  # 2. Resources (Optional but good to prevent crashes)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# 3. Disable the redundant Kubernetes service
+service:
+  create: false
+
+# 4. Optional: Enable Prometheus metrics if you want to see graphs later
+prometheus:
+  create: true
+
+
+# install NGF using this command:
+#  cat ngf-values.yaml | ssh root@72.62.1.178 "helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
+#  --version 2.3.0 \
+#  -f - \
+#  -n default"
+
+#if there are some certificate error use this
+#  cat ngf-values.yaml | ssh root@72.62.1.178 "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml && helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --version 2.3.0 -f - -n default"

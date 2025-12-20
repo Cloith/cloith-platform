@@ -1,0 +1,22 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: cloith-platform
+build:
+  artifacts:
+    - image: docker.io/cloith/frontend
+      context: apps/chatter/frontend
+      sync:
+        manual:
+          - src: 'src/**/*.jsx'
+            dest: .
+          - src: 'src/**/*.js'
+            dest: .
+          - src: 'src/**/*.css'
+            dest: .
+manifests:
+  rawYaml:
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/chatter-route.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-deployment.yaml
+deploy:
+  kubectl: {}

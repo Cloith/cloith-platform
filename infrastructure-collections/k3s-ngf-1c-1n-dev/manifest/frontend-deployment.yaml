@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatter-frontend
+  namespace: chatter-dev # Good practice to use a specific namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatter-frontend
+  template:
+    metadata:
+      labels:
+        app: chatter-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: docker.io/cloith/frontend:v1 # The image you just pushed!
+          command: ["npm", "run", "dev", "--", "--host"]
+          ports:
+            - containerPort: 5173
+          imagePullPolicy: Always # Forces K3s to check Hub for changes
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatter-frontend-service
+  namespace: chatter-dev
+spec:
+  selector:
+    app: chatter-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5173
