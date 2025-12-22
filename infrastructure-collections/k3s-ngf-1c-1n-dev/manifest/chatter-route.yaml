@@ -13,7 +13,21 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /backend     # SPECIFIC: Must be 'value' (singular) and 'PathPrefix'
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: chatter-backend-service
+          port: 3000
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /              # GENERAL: Catch-all for frontend
       backendRefs:
         - name: chatter-frontend-service
           port: 80
+

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: chatter-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatter-backend
+  template:
+    metadata:
+      labels:
+        app: chatter-backend
+    spec:
+      containers:
+        - name: chatter-backend
+          image: docker.io/cloith/backend # This matches your skaffold image name
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "300Mi" # Buffer for Node.js overhead
+              cpu: "500m"
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "development"
+            # Injecting all secrets at once
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: MONGODB_URI
+            # Add any other variables here following the same pattern
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatter-backend-service
+  namespace: chatter-dev
+spec:
+  selector:
+    app: chatter-backend
+  ports:
+    - protocol: TCP
+      port: 3000      # Port other pods use to talk to it
+      targetPort: 3000 # Port inside the container
+  type: ClusterIP      # Internal-only; use Ingress later to expose it

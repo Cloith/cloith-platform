@@ -1,0 +1,7 @@
+# Ignore the cluster master key
+vps-config.yaml
+
+# Ignore unencrypted secrets
+*-secrets-*.yaml
+**/*.secret.yaml
+

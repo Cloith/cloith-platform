@@ -1,17 +1,9 @@
-import {config} from "dotenv";
+import { config } from "dotenv";
 
-config({path: `.env.${process.env.NODE_ENV || 'development'}.vps`});
-
+if (process.env.KUBERNETES_SERVICE_HOST === undefined) {
+    config({ path: `.env.${process.env.NODE_ENV || 'development'}.vps` });
+}
 export const {
     PORT,
-    NODE_ENV,
-    DB_URI,
-    JWT_EXPIRES_IN,
-    JWT_SECRET,
-    ARCJET_ENV,
-    ARCJET_KEY,
-    QSTASH_TOKEN,
-    QSTASH_URL,
-    SERVER_URL,
-    EMAIL_PASSWORD
+    MONGODB_URI,
 } = process.env;

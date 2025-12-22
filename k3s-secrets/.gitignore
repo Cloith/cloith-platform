@@ -1,0 +1,5 @@
+# Ignore the real secret file
+backend-secrets-dev.yaml
+
+# But do NOT ignore the example file
+!backend-secrets-test.yaml
