@@ -14,9 +14,16 @@ build:
             dest: .
           - src: 'src/**/*.css'
             dest: .
+    - image: docker.io/cloith/backend
+      context: apps/chatter/backend
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
 manifests:
   rawYaml:
     - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/chatter-route.yaml
-    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-deployment.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-dev.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/backend-dev.yaml
 deploy:
   kubectl: {}

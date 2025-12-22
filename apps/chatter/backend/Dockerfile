@@ -11,8 +11,8 @@ ARG NODE_VERSION=24.9.0
 FROM node:${NODE_VERSION}-alpine
 
 # Use production node environment by default.
-RUN addgroup -S app && adduser -S app -G app
-USER app
+
+USER root
 
 ENV NODE_ENV development
 
@@ -25,7 +25,7 @@ WORKDIR /usr/src/app/backend
 # into this layer.
 
 COPY package.json .
-RUN npm install
+
 
 RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \

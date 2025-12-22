@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());// req.body
 
-app.use("/auth", authRoutes);
+app.get("/", (req, res) => {res.send("Welcome to backend!")});
 app.use("/messages", messagesRoutes);
 
 app.listen(PORT, async () => {
