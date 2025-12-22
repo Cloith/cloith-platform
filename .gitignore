@@ -5,3 +5,4 @@ vps-config.yaml
 *-secrets-*.yaml
 **/*.secret.yaml
 
+config-k3s
