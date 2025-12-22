@@ -6,3 +6,4 @@ vps-config.yaml
 **/*.secret.yaml
 
 .idea
+config-k3s
