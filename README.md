@@ -7,16 +7,22 @@ Project Cloith is a Cloud-Native real-time platform designed to showcase highly 
 
 <img width="328" height="213" alt="image" src="https://github.com/user-attachments/assets/6783848e-888a-4056-b7d1-500ba0f70897" />
 
-# WebSocket Handshake Verification:
+# 🚦 WebSocket Handshake Verification:
 
 Manual Handshake Simulation
 You can use powershell for this
 
-Command 1:
+Command 1 (windows power shell)1:
 * $headers = @{"Connection"="Upgrade"; "Upgrade"="websocket"; "Sec-WebSocket-Key"="SGVsbG8sIHdvcmxkIQ=="; "Sec-WebSocket-Version"="13"}
+* Invoke-WebRequest -Uri "http://srv1154036.hstgr.cloud/mqtt" -Headers $headers -Method Get -UseBasicParsing
 
-Command 2:
-* Invoke-WebRequest -Uri "http://srv1154036.hstgr.cloud/mqtt" -Headers $headers -Method Get
+Command 2 (curl):
+* curl.exe -i -N \
+  -H "Connection: Upgrade" \
+  -H "Upgrade: websocket" \
+  -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+  -H "Sec-WebSocket-Version: 13" \
+  http://srv1154036.hstgr.cloud/mqtt
 
 Expected Output: StatusCode: 101 (Switching Protocols) This confirms the Gateway-to-Service bridge is functional and ready for real-time streams.
 
