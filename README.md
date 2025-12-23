@@ -1,3 +1,4 @@
+![Status](https://img.shields.io/badge/Status-Active%20Development-green)
 # Cloud-Native Real-Time Event Platform
 
 # 📖 The Project
