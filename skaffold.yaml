@@ -22,8 +22,12 @@ build:
             dest: .
 manifests:
   rawYaml:
-    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/chatter-route.yaml
-    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-dev.yaml
-    - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/backend-dev.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/namespaces/mqtt-broker.yaml  # Namespace first!
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/mosquitto-config.yaml
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/mosquitto-dev.yaml
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/reference-grant.yaml # Permission next
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/chatter-route.yaml   # Route last
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-dev.yaml
+      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/backend-dev.yaml
 deploy:
   kubectl: {}

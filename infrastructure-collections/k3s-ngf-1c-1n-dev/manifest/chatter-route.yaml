@@ -13,6 +13,14 @@ spec:
     - matches:
         - path:
             type: PathPrefix
+            value: /mqtt
+      backendRefs:
+          - name: mosquitto-internal  # Just the service name
+            namespace: mqtt-infra
+            port: 9001
+    - matches:
+        - path:
+            type: PathPrefix
             value: /backend     # SPECIFIC: Must be 'value' (singular) and 'PathPrefix'
       filters:
         - type: URLRewrite
