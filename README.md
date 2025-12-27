@@ -8,6 +8,9 @@ Project Cloith is a Cloud-Native real-time platform designed to showcase highly 
 
 <img width="328" height="213" alt="image" src="https://github.com/user-attachments/assets/6783848e-888a-4056-b7d1-500ba0f70897" />
 
+
+
+![Offline](https://img.shields.io/badge/Demo-Offline-red?style=for-the-badge&logo=statuspage)
 # 🚦 WebSocket Handshake Verification:
 
 Manual Handshake Simulation
@@ -26,6 +29,7 @@ Command 2 (curl):
   http://srv1154036.hstgr.cloud/mqtt
 
 Expected Output: StatusCode: 101 (Switching Protocols) This confirms the Gateway-to-Service bridge is functional and ready for real-time streams.
+
 
 # 🚀 Roadmap
 * [x] Establish K3s Cluster & NGINX Gateway Fabric
