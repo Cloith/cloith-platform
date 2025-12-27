@@ -11,6 +11,7 @@ Project Cloith is a Cloud-Native real-time platform designed to showcase highly 
 
 
 ![Offline](https://img.shields.io/badge/Demo-Offline-red?style=for-the-badge&logo=statuspage)
+[!WARNING] System Migration in Progress The live demo links are currently being redirected to a new VPS infrastructure. Deployment via Terraform and K3s is under active documentation.
 # 🚦 WebSocket Handshake Verification:
 
 Manual Handshake Simulation
