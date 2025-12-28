@@ -16,6 +16,7 @@ spec:
       containers:
         - name: chatter-backend
           image: docker.io/cloith/backend # This matches your skaffold image name
+          command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
           ports:
             - containerPort: 3000
           resources:
@@ -48,6 +49,6 @@ spec:
     app: chatter-backend
   ports:
     - protocol: TCP
-      port: 3000      # Port other pods use to talk to it
+      port: 80      # Port other pods use to talk to it
       targetPort: 3000 # Port inside the container
   type: ClusterIP      # Internal-only; use Ingress later to expose it

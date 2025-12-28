@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());// req.body
 
-app.get("/", (req, res) => {res.send("Welcome to backend!")});
+app.get("/api", (req, res) => {res.send("Hi!!! Welcome to backend!")});
 app.use("/messages", messagesRoutes);
 
 app.listen(PORT, async () => {

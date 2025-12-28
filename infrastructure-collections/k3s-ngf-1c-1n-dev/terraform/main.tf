@@ -27,7 +27,7 @@ resource "null_resource" "vps_clean_setup" {
       "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml",
 
       "echo '--- Phase 3: Installing NGINX Gateway Fabric ---'",
-      # Using the edge-case manifest or stable release
+      # Using the edge-case shared-services or stable release
       "::",
 
       "echo '--- Phase 4: Configuring Gateway Resources ---'",
