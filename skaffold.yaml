@@ -8,11 +8,9 @@ build:
       context: apps/chatter/frontend
       sync:
         manual:
-          - src: 'src/**/*.jsx'
+          - src: 'src/**/*'
             dest: .
-          - src: 'src/**/*.js'
-            dest: .
-          - src: 'src/**/*.css'
+          - src: 'index.html'
             dest: .
     - image: docker.io/cloith/backend
       context: apps/chatter/backend
@@ -22,12 +20,22 @@ build:
             dest: .
 manifests:
   rawYaml:
-    - infrastructure-collections/k3s-ngf-1c-1n-dev/namespaces/mqtt-broker.yaml  # Namespace first!
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/mosquitto-config.yaml
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/mosquitto-dev.yaml
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/reference-grant.yaml # Permission next
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/chatter-route.yaml   # Route last
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/frontend-dev.yaml
-      - infrastructure-collections/k3s-ngf-1c-1n-dev/manifest/backend-dev.yaml
+    # 1. Namespaces & Infrastructure
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/namespaces/*.yaml
+
+    # 2. Configuration & Secrets (Apply before Apps)
+    - k3s-secrets/backend-secrets-dev.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/shared-services/mqtt/mosquitto-config.yaml
+
+    # 3. Applications (Deployments & Services)
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/shared-services/mqtt/mosquitto-dev.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/apps/chatter/frontend/frontend-dev.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/apps/chatter/backend/backend-dev.yaml
+
+    # 4. Networking (Routes & Permissions)
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/shared-services/mqtt/mqtt-route.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/shared-services/mqtt/reference-grant.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/apps/chatter/frontend/frontend-route.yaml
+    - infrastructure-collections/k3s-ngf-1c-1n-dev/apps/chatter/backend/backend-route.yaml
 deploy:
   kubectl: {}

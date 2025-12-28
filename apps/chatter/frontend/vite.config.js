@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     server: {
-        host: true,
+        host: '0.0.0.0',
         port: 5173,
         strictPort: true,
         allowedHosts: [
@@ -14,8 +14,7 @@ export default defineConfig({
             usePolling: true, // Crucial for syncing files to a remote VPS
         },
         hmr: {
-            clientPort: 80,
-            host: 'srv1154036.hstgr.cloud'
+            clientPort: 80
         },
 
     }
