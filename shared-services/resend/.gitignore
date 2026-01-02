@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+src/.env.development.vps
+
+# IDE Settings
+.idea/
+.vscode/
+
