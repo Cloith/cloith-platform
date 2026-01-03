@@ -7,3 +7,5 @@ vps-config.yaml
 
 .idea
 config-k3s
+
+k3s.yaml
