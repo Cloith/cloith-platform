@@ -4,16 +4,22 @@ metadata:
   name: cloith-platform
 build:
   artifacts:
-    - image: docker.io/cloith/frontend
-      context: apps/chatter/frontend
+    - image: docker.io/cloith/chatter-frontend
+      context: ../../apps/chatter/frontend
       sync:
         manual:
           - src: 'src/**/*'
             dest: .
           - src: 'index.html'
             dest: .
-    - image: docker.io/cloith/backend
-      context: apps/chatter/backend
+    - image: docker.io/cloith/chatter-backend
+      context: ../../apps/chatter/backend
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    - image: docker.io/cloith/resend
+      context: ../../shared-services/resend
       sync:
         manual:
           - src: '**/*.js'
@@ -32,12 +38,13 @@ manifests:
     - platform-core/mqtt/mosquitto-dev.yaml
     - platform-apps/chatter/frontend/frontend-dev.yaml
     - platform-apps/chatter/backend/backend-dev.yaml
-    - platform-services/resend
+    - platform-services/resend/resend-dev.yaml
 
     # 4. Networking (Routes & Permissions)
     - platform-core/mqtt/mqtt-route.yaml
-    - platform-core/mqtt/reference-grant.yaml
     - platform-apps/chatter/frontend/frontend-route.yaml
     - platform-apps/chatter/backend/backend-route.yaml
+    - platform-services/resend/resend-route.yaml
+
 deploy:
   kubectl: {}

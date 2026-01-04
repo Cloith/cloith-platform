@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: docker.io/cloith/frontend:v1
+          image: docker.io/cloith/chatter-frontend:v1
           # We use "sh -c" to ensure environment variables are picked up
           command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
           env:

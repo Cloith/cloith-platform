@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
-  namespace: chatter-dev
+  name: resend-deployment
+  namespace: shared-services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: chatter-backend
+      app: service-resend
   template:
     metadata:
       labels:
-        app: chatter-backend
+        app: service-resend
     spec:
       containers:
-        - name: chatter-backend
-          image: docker.io/cloith/chatter-backend # This matches your skaffold image name
+        - name: service-resend
+          image: docker.io/cloith/resend # This matches your skaffold image name
           command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
           ports:
             - containerPort: 3000
@@ -32,21 +32,21 @@ spec:
             - name: NODE_ENV
               value: "development"
             # Injecting all secrets at once
-            - name: MONGODB_URI
+            - name: RESEND_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: backend-secrets
-                  key: MONGODB_URI
+                  name: resend-secrets
+                  key: RESEND_API_KEY
             # Add any other variables here following the same pattern
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: chatter-backend-service
-  namespace: chatter-dev
+  name: resend-email-service
+  namespace: shared-services
 spec:
   selector:
-    app: chatter-backend
+    app: service-resend
   ports:
     - protocol: TCP
       port: 80      # Port other pods use to talk to it
