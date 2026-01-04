@@ -14,4 +14,4 @@ spec:
   to:
     - group: ""
       kind: Service
-      # name: mosquitto-internal # You can be specific or remove 'name' to allow all services in this ns
+      name: mosquitto-internal

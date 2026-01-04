@@ -12,6 +12,12 @@ spec:
         - path:
             type: PathPrefix
             value: /api
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /  # Strips '/resend' and replaces it with '/'
       backendRefs:
         - name: chatter-backend-service
           port: 80 # The port exposed by your Backend Service

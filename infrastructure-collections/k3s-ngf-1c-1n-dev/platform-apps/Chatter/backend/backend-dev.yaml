@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: chatter-backend
-          image: docker.io/cloith/backend # This matches your skaffold image name
+          image: docker.io/cloith/chatter-backend # This matches your skaffold image name
           command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
           ports:
             - containerPort: 3000
