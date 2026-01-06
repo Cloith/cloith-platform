@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespaces/auth-service.yaml
+  - namespaces/chatter-namespace.yaml
+  - namespaces/mqtt-broker.yaml
+  - namespaces/shared-services.yaml
+  - gateway/external-gateway.yaml
+  - gateway/internal-gateway.yaml

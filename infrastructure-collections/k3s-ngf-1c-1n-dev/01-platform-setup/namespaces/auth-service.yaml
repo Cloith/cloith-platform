@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: auth-services
+  labels:
+    env: development
+    app: auth

@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - platform-core/mqtt/mosquitto-dev.yaml
+  - platform-apps/chatter/backend/chatter-backend-dev.yaml
+  - platform-apps/chatter/frontend/chatter-frontend-dev.yaml
+  - platform-auth/firebase/backend/firebase-backend-dev.yaml
+  - platform-services/resend/resend-dev.yaml

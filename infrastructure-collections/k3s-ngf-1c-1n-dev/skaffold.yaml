@@ -24,27 +24,30 @@ build:
         manual:
           - src: '**/*.js'
             dest: .
+    - image: docker.io/cloith/firebase-backend
+      context: ../../auth-services/firebase/firebase-backend
+      sync:
+        manual:
+          # Sync all Go files in the root or subfolders
+          - src: '**/*.go'
+            dest: .
+          # Sync the Air config if you make changes to how it watches
+          - src: '.air.toml'
+            dest: .
 manifests:
-  rawYaml:
-    # 1. Namespaces & Infrastructure
-    - platform-setup/namespaces/*.yaml
+  kustomize:
+    paths:
+    # 1. Setup everything first
+    - 01-platform-setup
 
-    # 2. Configuration & Secrets (Apply before Apps)
-    - k3s-secrets/backend-secrets-dev.yaml
-    - k3s-secrets/resend-secrets-dev.yaml
-    - platform-core/mqtt/mosquitto-config.yaml
+    # 2. Secrets
+    - 02-platform-secrets/*.yaml
 
-    # 3. Applications (Deployments & Services)
-    - platform-core/mqtt/mosquitto-dev.yaml
-    - platform-apps/chatter/frontend/frontend-dev.yaml
-    - platform-apps/chatter/backend/backend-dev.yaml
-    - platform-services/resend/resend-dev.yaml
+    # 3. Applications
+    - 03-platform-deployments/**/*.yaml
 
-    # 4. Networking (Routes & Permissions)
-    - platform-core/mqtt/mqtt-route.yaml
-    - platform-apps/chatter/frontend/frontend-route.yaml
-    - platform-apps/chatter/backend/backend-route.yaml
-    - platform-services/resend/resend-route.yaml
+    # 4. Routes
+    - 04-platform-routes/*.yaml
 
 deploy:
   kubectl: {}

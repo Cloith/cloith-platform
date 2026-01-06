@@ -1,0 +1,24 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: firebase-backend-route
+  namespace: auth-services
+spec:
+  parentRefs:
+    - name: tailscale-gateway
+      namespace: nginx-gateway
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /auth
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /  # Strips '/resend' and replaces it with '/'
+      backendRefs:
+          - name: firebase-backend-service
+            port: 80 # The port exposed by your Backend Service
+

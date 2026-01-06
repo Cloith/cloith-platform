@@ -1,0 +1,18 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public-nginx-gateway
+  namespace: nginx-gateway
+  annotations:
+    # Forces K3s to use your VPS Public IP
+    gateway.nginx.org/service-external-ip: "YOUR_PUBLIC_IP"
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "api.yourdomain.com" # Security: Only traffic for your domain gets in
+      allowedRoutes:
+        namespaces:
+          from: All
