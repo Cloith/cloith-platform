@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firebase-backend-deployment
+  namespace: auth-services # Ensure this matches your namespace name exactly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: firebase-backend
+  template:
+    metadata:
+      labels:
+        app: firebase-backend
+    spec:
+      containers:
+        - name: firebase-backend
+          image: docker.io/cloith/firebase-backend
+          # If using Air, just call air. It will look for .air.toml
+          command: ["air"]
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: GO_ENV
+              value: "development"
+            # Tell your Go code where to find the mounted file
+            - name: FIREBASE_KEY_PATH
+              value: "/app/secrets/serviceAccountKey.json"
+          volumeMounts:
+            - name: firebase-key-volume
+              mountPath: "/app/secrets"
+              readOnly: true
+      volumes:
+        - name: firebase-key-volume
+          secret:
+            secretName: firebase-secret # Must match your Secret YAML metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firebase-backend-service
+  namespace: auth-services
+spec:
+  selector:
+    app: firebase-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

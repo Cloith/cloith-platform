@@ -1,0 +1,6 @@
+# Ignore the real secret file
+*-secrets-dev.yaml
+
+
+# But do NOT ignore the example file
+!*-secrets-test.yaml

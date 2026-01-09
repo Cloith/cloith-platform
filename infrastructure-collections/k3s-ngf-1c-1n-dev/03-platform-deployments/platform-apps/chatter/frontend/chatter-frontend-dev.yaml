@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatter-frontend
+  namespace: chatter-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatter-frontend
+  template:
+    metadata:
+      labels:
+        app: chatter-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: docker.io/cloith/chatter-frontend:v1
+          # We use "sh -c" to ensure environment variables are picked up
+          command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+          env:
+            - name: WATCHPACK_POLLING
+              value: "true" # Helps Vite pick up file changes in some VM/container environments
+            - name: NODE_ENV
+              value: "development"
+          ports:
+            - name: http
+              containerPort: 5173
+            - name: hmr # Vite Hot Module Replacement port
+              containerPort: 5173
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatter-frontend-service
+  namespace: chatter-dev
+spec:
+  selector:
+    app: chatter-frontend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5173

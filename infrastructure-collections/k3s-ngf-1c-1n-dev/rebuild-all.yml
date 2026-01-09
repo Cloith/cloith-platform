@@ -1,0 +1,22 @@
+---
+# PLAY 1: The Safety Gate (Self-contained)
+- name: "Safety Confirmation"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_prompt:
+    - name: "confirm_nuke"
+      prompt: "WARNING: This will wipe your VPS. Type 'RECREATE' to continue"
+      private: no
+  tasks:
+    - name: "Validate Confirmation"
+      ansible.builtin.fail:
+        msg: "Run aborted. You did not type 'RECREATE' correctly."
+      when: confirm_nuke != "RECREATE"
+
+# PLAY 2: Run the Provisioning (Imported)
+- name: "Nuke and Reinstall VPS"
+  ansible.builtin.import_playbook: 00-infra-bootstrap/recreate-vps.yml
+
+
+
