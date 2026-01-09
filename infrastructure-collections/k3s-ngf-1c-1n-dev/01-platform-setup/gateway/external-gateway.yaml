@@ -5,14 +5,14 @@ metadata:
   namespace: nginx-gateway
   annotations:
     # Forces K3s to use your VPS Public IP
-    gateway.nginx.org/service-external-ip: "YOUR_PUBLIC_IP"
+    gateway.nginx.org/service-external-ip: "${VPS_PUBLIC_IP}"
 spec:
   gatewayClassName: nginx
   listeners:
     - name: http
       port: 80
       protocol: HTTP
-      hostname: "api.yourdomain.com" # Security: Only traffic for your domain gets in
+      hostname: "${MY_DOMAIN}"
       allowedRoutes:
         namespaces:
           from: All

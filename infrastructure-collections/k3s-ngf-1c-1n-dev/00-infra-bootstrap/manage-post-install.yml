@@ -1,0 +1,51 @@
+---
+- name: "Sync Post-Install Script to Hostinger"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../vars/secrets.yml
+
+  vars:
+    # This is the actual bash script that will run on the VPS
+    script_content: |
+      #!/bin/bash
+      # Redirect all output to log for debugging
+      exec > /post_install.log 2>&1
+      
+      echo "Starting Bootstrap at $(date)"
+
+      # 2. Setup Tailscale
+      curl -fsSL https://tailscale.com/install.sh | sh
+      tailscale up --authkey={{ tailscale_auth_key }} --ssh
+
+      # 3. Firewall - Locked down but allowing Tailscale
+      ufw default deny incoming
+      ufw default allow outgoing
+      ufw allow in on tailscale0
+      ufw --force enable
+      
+      echo "Bootstrap complete at $(date)"
+
+  tasks:
+    - name: "Create or Update the Script in Hostinger"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/post-install-scripts"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          name: "Tailscale-Setup"
+          content: "{{ script_content }}"
+        status_code: [200, 201]
+      register: script_response
+
+    - name: "Save Script ID for the Nuke Task"
+      ansible.builtin.set_fact:
+        bootstrap_script_id: "{{ script_response.json.id }}"
+
+    - name: "Confirmation"
+      ansible.builtin.debug:
+        msg: "Post-install script created with ID: {{ bootstrap_script_id }}"

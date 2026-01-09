@@ -1,0 +1,115 @@
+---
+- name: "Self-Discover and Recreate VPS"
+  hosts: localhost
+  connection: local
+  vars_files:
+    - ../vars/secrets.yml
+
+  tasks:
+    # --- PHASE 0: SCRIPT DISCOVERY ---
+    - name: "Phase 0: Fetch Bootstrap Script ID"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/post-install-scripts"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+      register: script_list
+
+    - name: "Filter for Tailscale-Bootstrap ID"
+      ansible.builtin.set_fact:
+        target_script_id: "{{ (script_list.json.data | selectattr('name', 'equalto', 'Tailscale-Setup') | map(attribute='id') | list).0 | default(none) }}"
+
+    - name: "Fail if script not found"
+      ansible.builtin.fail:
+        msg: "Could not find a script named 'Tailscale-Bootstrap' in Hostinger."
+      when: target_script_id is none
+
+    # --- PHASE 1: DISCOVERY & VARIABLES ---
+    - name: "Step 1: Discover VPS Details from Account"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/virtual-machines"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+      register: vps_list
+
+    - name: "Set Internal Variables"
+      ansible.builtin.set_fact:
+        discovered_vps_id: "{{ vps_list.json[0].id }}"
+        discovered_vps_public_ip: "{{ vps_list.json[0].ipv4[0].address }}"
+        vps_full_name: "{{ vps_list.json[0].hostname }}"
+        vps_short_name: "{{ vps_list.json[0].hostname.split('.')[0] }}"
+
+    # --- PHASE 1.5: TAILSCALE CLEANUP ---
+    - name: "Tailscale Discovery and Cleanup Block"
+      block:
+        - name: "Fetch Tailscale Devices"
+          ansible.builtin.uri:
+            url: "https://api.tailscale.com/api/v2/tailnet/-/devices"
+            method: GET
+            headers:
+              Authorization: "Bearer {{ tailscale_api_key }}"
+          register: ts_devices
+
+        - name: "Identify Tailscale ID for cleanup"
+          ansible.builtin.set_fact:
+            tailscale_id: "{{ (ts_devices.json.devices | selectattr('name', 'search', vps_short_name) | map(attribute='id') | list).0 | default(none) }}"
+
+        - name: "Remove existing device from Tailscale"
+          ansible.builtin.uri:
+            url: "https://api.tailscale.com/api/v2/device/{{ tailscale_id }}"
+            method: DELETE
+            headers:
+              Authorization: "Bearer {{ tailscale_api_key }}"
+            status_code: [ 200, 404 ]
+          when: tailscale_id is not none
+
+      rescue:
+        - name: "Cleanup Warning"
+          ansible.builtin.debug:
+            msg: "Tailscale cleanup skipped or failed. Proceeding anyway..."
+
+        - name: "Force continue"
+          ansible.builtin.meta: clear_host_errors
+
+    # --- PHASE 2: RECREATE ---
+    - name: "Step 2: Trigger Recreate"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/virtual-machines/{{ discovered_vps_id }}/recreate"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+        body_format: json
+        body:
+          template_id: 1077 #Ubuntu 24.04 lts template id
+          password: "{{ vps_root_password }}"
+          post_install_script_id: "{{ target_script_id }}"
+        status_code: [200, 201, 202]
+      register: recreate_api_response
+
+
+    # --- PHASE 3: TAILSCALE WAIT ---
+    - name: "Wait for VPS to appear on Tailscale"
+      # This will now use the symlink we created above
+      ansible.builtin.command: "tailscale status"
+      register: ts_status
+      # Search is more robust for cross-platform status outputs
+      until: "ts_status.stdout is search(vps_short_name)"
+      retries: 40
+      delay: 15
+      changed_when: false
+
+    - name: "Extract Tailscale IP"
+      ansible.builtin.set_fact:
+        tailscale_ip: "{{ ts_status.stdout | regex_search('(\\d+\\.\\d+\\.\\d+\\.\\d+)\\s+' ~ vps_short_name, '\\1') | first }}"
+
+    - name: "Step 4: Inject Tailscale IP into Inventory"
+      ansible.builtin.add_host:
+        name: "vps_server"
+        ansible_host: "{{ tailscale_ip }}"
+        ansible_user: root
+        groups: ["active_vps"]
+
+    - name: "Final Report"
+      ansible.builtin.debug:
+        msg: "Nuke successful. VPS {{ vps_short_name }} is ready at {{ tailscale_ip }}"

@@ -37,17 +37,24 @@ build:
 manifests:
   kustomize:
     paths:
+
+    # env injections
+    - 00-platform-env
+
     # 1. Setup everything first
     - 01-platform-setup
 
     # 2. Secrets
-    - 02-platform-secrets/*.yaml
+    - 02-platform-secrets
 
     # 3. Applications
-    - 03-platform-deployments/**/*.yaml
+    - 03-platform-deployments
 
     # 4. Routes
-    - 04-platform-routes/*.yaml
+    - 04-platform-routes
+
+    # Policies
+    - 05-platform-policies
 
 deploy:
   kubectl: {}
