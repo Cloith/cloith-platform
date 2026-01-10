@@ -1,0 +1,50 @@
+---
+- name: "System Hardening: Updates and User Creation (Tailscale SSH Mode)"
+  hosts: my_server
+  become: yes
+  vars_files:
+    - ../vars/secrets.yml
+
+  tasks:
+    - name: "Update apt cache and perform dist-upgrade"
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+        cache_valid_time: 3600
+
+    - name: "Create a dedicated admin user"
+      ansible.builtin.user:
+        name: "{{ admin_username }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        state: present
+        create_home: yes  # Critical: Tailscale SSH requires a home dir to function
+
+    - name: "Allow passwordless sudo for the new admin"
+      ansible.builtin.lineinfile:
+        path: "/etc/sudoers.d/{{ admin_username }}"
+        line: "{{ admin_username }} ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: "Save IP to static inventory for later use"
+      delegate_to: localhost
+      ansible.builtin.lineinfile:
+        path: ../inventory.ini
+        regexp: '^my_server'
+        line: "my_server ansible_host={{ ansible_host }} ansible_user={{ admin_username }}"
+
+    - name: "Disable Root Login"
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: "PermitRootLogin no"
+      notify: "Restart SSH"
+
+  handlers:
+    - name: "Restart SSH"
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

@@ -82,7 +82,6 @@
         body_format: json
         body:
           template_id: 1077 #Ubuntu 24.04 lts template id
-          password: "{{ vps_root_password }}"
           post_install_script_id: "{{ target_script_id }}"
         status_code: [200, 201, 202]
       register: recreate_api_response
@@ -109,6 +108,13 @@
         ansible_host: "{{ tailscale_ip }}"
         ansible_user: root
         groups: ["active_vps"]
+
+    - name: "Save IP to static inventory for later use"
+      delegate_to: localhost
+      ansible.builtin.lineinfile:
+        path: ../inventory.ini
+        regexp: '^my_server'
+        line: "my_server ansible_host={{ tailscale_ip }} ansible_user=root"
 
     - name: "Final Report"
       ansible.builtin.debug:
