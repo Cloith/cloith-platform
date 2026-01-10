@@ -82,7 +82,6 @@
         body_format: json
         body:
           template_id: 1077 #Ubuntu 24.04 lts template id
-          password: "{{ vps_root_password }}"
           post_install_script_id: "{{ target_script_id }}"
         status_code: [200, 201, 202]
       register: recreate_api_response
