@@ -1,4 +1,3 @@
 hosts.ini
-vars/secrets.yml
 *.retry
 .vault_pass

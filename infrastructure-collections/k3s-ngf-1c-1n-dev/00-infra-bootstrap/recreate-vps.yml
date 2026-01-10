@@ -110,6 +110,13 @@
         ansible_user: root
         groups: ["active_vps"]
 
+    - name: "Save IP to static inventory for later use"
+      delegate_to: localhost
+      ansible.builtin.lineinfile:
+        path: ../inventory.ini
+        regexp: '^my_server'
+        line: "my_server ansible_host={{ tailscale_ip }} ansible_user=root"
+
     - name: "Final Report"
       ansible.builtin.debug:
         msg: "Nuke successful. VPS {{ vps_short_name }} is ready at {{ tailscale_ip }}"
