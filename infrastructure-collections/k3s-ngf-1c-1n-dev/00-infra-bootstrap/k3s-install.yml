@@ -1,0 +1,82 @@
+---
+- name: "Install Hardened K3s on Tailnet"
+  hosts: my_server
+  become: yes
+  tasks:
+    - name: "Get Tailscale IPv4"
+      # Fetches the 100.x.x.x address. Using -4 ensures we don't accidentally get an IPv6 address.
+      shell: "tailscale ip -4"
+      register: tailscale_ip_raw
+      changed_when: false
+
+    - name: "Set TS_IP variable"
+      set_fact:
+        ts_ip: "{{ tailscale_ip_raw.stdout | trim }}"
+
+    - name: "Install K3s with Tailscale & NGF Readiness"
+      shell: |
+        curl -sfL https://get.k3s.io | sh -s - server \
+        --node-ip={{ ts_ip }} \
+        --node-external-ip={{ ts_ip }} \
+        --flannel-iface=tailscale0 \
+        --disable=traefik \
+        --write-kubeconfig-mode=644
+      args:
+        # Prevents re-running the install if the binary already exists
+        creates: /usr/local/bin/k3s
+
+    - name: "Wait for Node to be Ready"
+      shell: "k3s kubectl get nodes"
+      register: nodes_ready
+      until: "' Ready ' in nodes_ready.stdout"
+      retries: 10
+      delay: 5
+
+
+    - name: "Fetch kubeconfig from VPS"
+      # We need become because /etc/rancher/k3s/k3s.yaml is root-owned
+      become: yes
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
+        flat: yes
+
+    - name: "Update Server IP in local kubeconfig"
+      # This task runs on your MSI laptop, not the server!
+      delegate_to: localhost
+      become: no
+      ansible.builtin.replace:
+        path: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
+        regexp: 'https://127.0.0.1:6443'
+        replace: "https://{{ ts_ip }}:6443"
+
+    - name: "Instructions for local access"
+      delegate_to: localhost
+      debug:
+        msg: "To use your new cluster, run: export KUBECONFIG=~/.kube/config-hostinger && kubectl get nodes"
+
+    - name: "Add alias to local shell configuration"
+      delegate_to: localhost
+      become: no
+      ansible.builtin.lineinfile:
+        # This detects if you are using Bash or Zsh
+        path: "{{ lookup('env', 'HOME') }}/{{ '.zshrc' if lookup('env', 'SHELL') is search('zsh') else '.bashrc' }}"
+        # The line to look for (to prevent duplicates)
+        regexp: '^alias k-hostinger='
+        # The line to add
+        line: 'alias k-hostinger="export KUBECONFIG=~/.kube/config-hostinger"'
+        state: present
+        create: yes # Creates the file if it doesn't exist
+
+    - name: "🏁 FINAL STEP: REFRESH YOUR TERMINAL"
+      delegate_to: localhost
+      debug:
+        msg:
+          - "###########################################################"
+          - "SUCCESS! Your cluster is ready."
+          - "To enable the 'k-hostinger' command in this window, run:"
+          - ""
+          - "      exec $SHELL"
+          - ""
+          - "Then you can simply type: k-hostinger && kubectl get nodes"
+          - "###########################################################"
