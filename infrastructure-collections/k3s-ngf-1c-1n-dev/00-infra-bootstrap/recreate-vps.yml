@@ -116,6 +116,12 @@
         regexp: '^my_server'
         line: "my_server ansible_host={{ tailscale_ip }} ansible_user=root"
 
+
+    - name: "Waiting for port 22 to open"
+      ansible.builtin.wait_for_connection:
+        delay: 10      # Don't even try for the first 10 seconds
+        timeout: 300   # Give up after 5 minutes
+
     - name: "Final Report"
       ansible.builtin.debug:
         msg: "Nuke successful. VPS {{ vps_short_name }} is ready at {{ tailscale_ip }}"
