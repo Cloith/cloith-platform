@@ -3,6 +3,10 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
+    // This tells Docker to use the host's network stack directly
+    "runArgs": [
+        "--network=host"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -14,5 +18,7 @@
         }
     },
     "remoteUser": "vscode",
-    "postStartCommand": "ansible-playbook container-setup/main.yml"
+    
+    // We'll use this to run your 'rebuild' playbook automatically
+    // "postCreateCommand": "ansible-playbook container-setup/main.yml"
 }

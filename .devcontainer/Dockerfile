@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
 # Avoid prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Install Basic Essentials
+# 1. Install Basic Essentials (Update this section)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
     gnupg2 \
+    unzip \   
     software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2. Install Ansible (via Pip for latest version)
 RUN pip3 install --no-cache-dir ansible
@@ -34,6 +35,9 @@ RUN curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o bw
     && unzip bw.zip -d /usr/local/bin \
     && chmod +x /usr/local/bin/bw \
     && rm bw.zip
+
+# 7. install this tools for my custom platform manager
+RUN pip install questionary rich pexpect
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
