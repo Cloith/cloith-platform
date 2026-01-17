@@ -6,9 +6,6 @@ from rich.console import Console
 console = Console()
 
 def login_to_bitwarden():
-    # PRE-FLIGHT RESET
-    with console.status("[bold green]Initializing secure environment...[/bold green]"):
-        pexpect.run("bw logout")
 
     while True:
         # Spawn inside the loop so each attempt is fresh
