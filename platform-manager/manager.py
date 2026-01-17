@@ -10,6 +10,7 @@ import questionary
 from auth import login_to_bitwarden 
 from tools.tailscale import network_check
 
+
 console = Console()
 
 # Define the timeout 
@@ -46,6 +47,8 @@ def main():
         session_key = login_to_bitwarden()
         if not session_key:
             sys.exit(1)
+
+        
 
         # tailscale network check
         network_check(session_key)
@@ -94,6 +97,8 @@ def main():
     except TimeoutError:
         console.print("\n[red]⏰ Session timed out due to inactivity.[/red]")
     finally:
+        with console.status("[bold yellow]Logging out of Tailscale...[/bold yellow]"):
+            pexpect.run("sudo tailscale logout")
         with console.status("[bold yellow]🔥 Burning the bridge (Shutting down Tailscale)...[/bold yellow]"):
             pexpect.run("sudo pkill tailscaled")
 

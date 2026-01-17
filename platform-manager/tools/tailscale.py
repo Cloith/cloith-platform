@@ -1,17 +1,17 @@
 import subprocess
 import os
+import sys
 import time
 import pexpect
-import pexpect
+
 from rich.console import Console
+from tools.vault import fetch_tailscale_auth
 
 console = Console()
 
 def network_check(session_key):
-    # 1. Start the status spinner
-    with console.status("[bold green]Starting Tailscale daemon...[/bold green]", spinner="dots"):
-        
-        # 2. Launch the process silently in the background
+    
+    with console.status("[bold green]Starting Tailscale daemon...[/bold green]") as status:
         subprocess.Popen(
             ["sudo", "tailscaled", "--tun=userspace-networking"],
             stdout=subprocess.DEVNULL,
@@ -19,18 +19,54 @@ def network_check(session_key):
             start_new_session=True
         )
 
-        # 3. Stay inside the 'with' block while waiting for the socket
-        # This keeps the animation running!
-        socket_path = "/var/run/tailscale/tailscaled.sock"
-        success = False
-        
-        for _ in range(15):  # Slightly longer timeout for safety
-            if os.path.exists(socket_path):
-                success = True
-                break
-            time.sleep(0.5) # Check every half second for better responsiveness
+    socket_path = "/var/run/tailscale/tailscaled.sock"
+    success = False
+    
+    for _ in range(15):  # Slightly longer timeout for safety
+        if os.path.exists(socket_path):
+            success = True
+            break
+        time.sleep(0.5) # Check every half second for better responsiveness
 
-    # 4. Feedback after the spinner finishes
+        
+    auth_key = fetch_tailscale_auth(session_key)
+    if auth_key:
+        with console.status("[bold green]Connecting to Tailscale net...[/bold green]"):
+            
+               
+    
+           
+            # Authenticate with Tailscale using the retrieved key
+           
+            child = pexpect.spawn(f"sudo tailscale up --auth-key={auth_key} --accept-routes --accept-dns=false", timeout=30, encoding='utf-8')
+            
+            try:
+                # We wait for Tailscale to either finish (EOF) or hit your specific error
+                index = child.expect(["invalid key", pexpect.EOF])
+                
+                child.wait() 
+                console.print(child.before)
+
+                if index == 0:
+                    console.print("[red]✘ Error:[/red] The Tailscale Auth Key in your vault is invalid.")
+                    
+                    sys.exit(1)
+
+                    # child.wait() ensures the process is totally cleaned up
+                    
+                console.print(f"[green]✔ Tailscale connected successfully.[/green]")
+                return True
+            
+                
+                    
+
+            except pexpect.TIMEOUT:
+                console.print("[red]✘ Error:[/red] Tailscale connection timed out.")
+                return False
+        
+    else:
+        success = False
+  
     if success:
         console.print("[green]✓ Tailscale daemon is live.[/green]")
     else:

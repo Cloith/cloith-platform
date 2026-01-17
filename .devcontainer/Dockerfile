@@ -43,7 +43,7 @@ RUN curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o bw
     && rm bw.zip
 
 # 7. Install Manager Dependencies
-RUN pip install --no-cache-dir questionary rich pexpect
+RUN pip install --no-cache-dir questionary rich pexpect requests
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
