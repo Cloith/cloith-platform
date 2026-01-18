@@ -1,5 +1,5 @@
 
-from asyncio import subprocess
+import subprocess
 import sys
 import os
 import json
@@ -45,6 +45,11 @@ def main():
         
         # 1. AUTHENTICATION (The Gatekeeper)
         session_key = login_to_bitwarden()
+
+        #2 . SYNC TO ENSURE LATEST VAULT DATA
+        with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
+            subprocess.run(["bw", "sync", "--session", session_key], check=True, capture_output=True)
+
         if not session_key:
             sys.exit(1)
 

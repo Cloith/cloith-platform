@@ -17,12 +17,12 @@ def login_to_bitwarden():
                 "Enter your Bitwarden Email:",
                 validate=lambda text: True if "@" in text and "." in text else "Please enter a valid email"
             ).ask()
-
-            if email is None: return False
             child.sendline(email)
 
-            password = questionary.password("Enter your Master Password:").ask()
-            if password is None: return False
+            password = questionary.password(
+                "Enter your Master Password:",
+                validate=lambda text: True if text.strip() else "Must not be empty"
+            ).ask()
             child.sendline(password)
 
             # Step 2: Check for 2FA or Direct Success

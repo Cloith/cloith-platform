@@ -60,12 +60,54 @@ def create_bitwarden_item(item_name, value, session_key):
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Failed Bitwarden operation: {e.stderr}[/red]")
         return None
+    
+def update_key(new_value, session_key, name):
+    """
+    Updates an existing secret in Bitwarden with a new value.
+    """
+    
+    try:
+        # 1. Get the existing item to find its unique ID
+        # We search by name
+        get_cmd = ["bw", "get", "item", name, "--session", session_key]
+        item_data = json.loads(subprocess.check_output(get_cmd))
+        item_id = item_data['id']
+
+        # 2. Update the secret value in the JSON object
+        # In a 'login' type item, the password field is usually where keys go
+        if item_data.get('login'):
+            item_data['login']['password'] = new_value
+
+        # 3. Bitwarden 'edit' command requires the JSON to be encoded
+        # We turn the dict back to a string, then to Base64
+        json_string = json.dumps(item_data)
+        encode_process = subprocess.run(
+            ["bw", "encode"], 
+            input=json_string, 
+            capture_output=True, 
+            text=True, 
+            check=True
+        )
+        encoded_json = encode_process.stdout.strip()
+
+        # 4. Push the update back to Bitwarden
+        edit_cmd = ["bw", "edit", "item", item_id, encoded_json, "--session", session_key]
+        
+        
+        subprocess.run(edit_cmd, check=True, capture_output=True)
+        
+        console.print(f"[green]✔ Vault item '{name}' updated successfully![/green]")
+        return True
+
+    except Exception as e:
+        console.print(f"[red]✘ Failed to update vault: {e}[/red]")
+        return False
 
 def get_secret(item_name, session_key=None):
     
     cmd = ["bw", "get", "item", item_name, "--session", session_key]
     
-    with console.status(f"[bold green]Fetching '{item_name}' from Bitwarden...[/bold green]") as status:
+    with console.status(f"[bold yellow]Fetching '{item_name}' from Bitwarden...[/bold yellow]") as status:
         result = subprocess.run(cmd, capture_output=True, text=True)
 
     if result.returncode != 0:
@@ -73,7 +115,6 @@ def get_secret(item_name, session_key=None):
         if "Not found" in result.stderr:
             console.print(f"Item '{item_name}' not found. Triggering creation logic...")
             value = questionary.password(f"Enter the value for '{item_name}':").ask()
-            
 
             if not value:
                 console.print("No value provided. Aborting item creation.")
