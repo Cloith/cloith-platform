@@ -6,8 +6,8 @@ import pexpect
 import questionary
 
 from rich.console import Console
-from tools.vault import fetch_tailscale_auth
-from tools.vault import update_key
+from providers.bitwarden.vault import fetch_tailscale_auth
+from providers.bitwarden.vault import update_key
 
 console = Console()
 
@@ -25,7 +25,7 @@ def network_check(session_key):
         if os.path.exists(socket_path): break
         time.sleep(0.5)
 
-    # 3. CONNECTION LOOP (The "While" way is safer than recursion)
+   
     connected = False
     while not connected:
         auth_key = fetch_tailscale_auth(session_key)
@@ -52,8 +52,11 @@ def network_check(session_key):
                     validate=lambda text: True if text.strip() else "Must not be empty"
                 ).ask()
                 
+                # if user cancels input while new_key is empty then it exits prevents uploading empty key
+                if new_key is None:
+                    sys.exit(1)
                 with console.status("[bold yellow]Updating Tailscale Auth Key in vault...[/bold yellow]"):
-                    update_key(new_key, session_key, name="ts_auth_key")
+                    update_key(new_key, session_key, name="tailscale_auth_key")
                 continue # Retry connection with new key
             sys.exit(1)
 

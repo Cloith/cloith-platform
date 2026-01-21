@@ -1,10 +1,10 @@
 import subprocess
 import json
 import questionary
-import os
 import sys
 from rich.console import Console
-import tools.key_validator as validator 
+from core.key_validator import validate_key
+
 
 
 console = Console()
@@ -104,38 +104,61 @@ def update_key(new_value, session_key, name):
         return False
 
 def get_secret(item_name, session_key=None):
-    
     cmd = ["bw", "get", "item", item_name, "--session", session_key]
-    
-    with console.status(f"[bold yellow]Fetching '{item_name}' from Bitwarden...[/bold yellow]") as status:
-        result = subprocess.run(cmd, capture_output=True, text=True)
 
-    if result.returncode != 0:
+    while True:
+        with console.status(f"[bold yellow]Fetching '{item_name}' from Bitwarden...[/bold yellow]") as status:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+
         # Check if the error is specifically "Not found."
         if "Not found" in result.stderr:
             console.print(f"Item '{item_name}' not found. Triggering creation logic...")
-            value = questionary.password(f"Enter the value for '{item_name}':").ask()
+            while True:
+                value = questionary.password(f"Enter the value for '{item_name}':").ask()
 
-            if not value:
-                console.print("No value provided. Aborting item creation.")
-                sys.exit(1)
-            val = create_bitwarden_item(item_name, value, session_key)
+                if not value:
+                    console.print("No value provided. Aborting item creation.")
+                    sys.exit(1)
+                val = create_bitwarden_item(item_name, value, session_key)
+
+                # no validation endpoint that requires tailscale_auth_key so skip for now
+                if item_name != "tailscale_auth_key":
+                    with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+                        valid = validate_key(item_name, val)
+                    if not valid:
+                        console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+                        if not questionary.confirm("Try again?").ask(): sys.exit(1)
+                        continue
+
+                console.print(f"[green]✓ {item_name} is Valid and ready to use.[/green]")
+                return val
             
-            console.print(f"[green]✓ Created and stored '{item_name}' in Bitwarden.[/green]")
-            return val
-            
-        else:
-            console.print(f"Bitwarden Error: {result.stderr}")
-            return None
+
+        data = json.loads(result.stdout)
+        key = data.get('login', {}).get('password')
+
+        if item_name != "tailscale_auth_key":
+                with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+                    valid = validate_key(item_name, key)
+                if not valid:
+
+                    console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+                    console.print("Triggering update logic...")
+                    
+                    value = questionary.password(f"Enter the value for '{item_name}':").ask()
+                    if not value:
+                        console.print("No value provided. Aborting item creation.")
+                        sys.exit(1) 
+                    with console.status(f"[bold yellow]Updating '{item_name}' in Bitwarden...[/bold yellow]"):
+                        update_key(value, session_key, name=item_name)
+                    continue  # Retry fetching after update
+        return key
         
-    data = json.loads(result.stdout)
-
-    return data.get('login', {}).get('password')
-    
 
 # Dedicated functions for your specific project needs
 def fetch_tailscale_auth(session_key):
-    return get_secret("ts_auth_key", session_key=session_key)
-
+    return get_secret("tailscale_auth_key", session_key=session_key)
+def fetch_tailscale_api(session_key):
+    return get_secret("tailscale_api_key", session_key=session_key)
 def get_hostinger_api(session_key):
     return get_secret("Hostinger", session_key=session_key)

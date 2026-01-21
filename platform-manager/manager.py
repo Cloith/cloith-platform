@@ -7,8 +7,9 @@ import signal
 import pexpect
 from rich.console import Console
 import questionary
-from auth import login_to_bitwarden 
-from tools.tailscale import network_check
+from providers.bitwarden.auth import login_to_bitwarden 
+from providers.tailscale.tailscale import network_check
+from core.template_scanner import scan_and_provision
 
 
 console = Console()
@@ -16,17 +17,7 @@ console = Console()
 # Define the timeout 
 IDLE_TIMEOUT = 600 # 10 minutes
 
-STATE_FILE = "/workspaces/cloith-platform/platform-manager/.manager_state.json"
 
-def load_manager_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, 'r') as f:
-            return json.load(f)
-    return {"active_templates": []}
-
-def save_manager_state(state):
-    with open(STATE_FILE, 'w') as f:
-        json.dump(state, f, indent=4)
 
 def handler(signum, frame):
     """This function runs when the alarm goes off."""
@@ -41,30 +32,24 @@ def main():
     console.rule("[bold blue]Cloith Platform Manager[/bold blue]")
     
     try:
-        state = load_manager_state()
-        
         # 1. AUTHENTICATION (The Gatekeeper)
         session_key = login_to_bitwarden()
-
-        #2 . SYNC TO ENSURE LATEST VAULT DATA
-        with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
-            subprocess.run(["bw", "sync", "--session", session_key], check=True, capture_output=True)
 
         if not session_key:
             sys.exit(1)
 
-        
+        # 2. SYNC TO ENSURE LATEST VAULT DATA
+        with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
+            subprocess.run(["bw", "sync", "--session", session_key], check=True, capture_output=True)
 
-        # tailscale network check
+        # 3. TAILSCALE NETWORK CHECK
         network_check(session_key)
 
-        if state["active_templates"]:
-            console.print(f"[green]Active Environment Detected:[/green] {state['active_templates']}")
-        
-        else:
-            console.print("[yellow]No active environments found. Please select a template to begin.[/yellow]")
-                
+        # 4. TEMPLATE SCANNING & PROVISIONING CHECK
+        if not scan_and_provision(session_key):
+            sys.exit(1)
 
+                
         # 2. THE APPLICATION LOOP (The "Living" App)
         while True:
             # Show the menu and get the user's choice
@@ -101,14 +86,14 @@ def main():
         console.print("\n[yellow]⚠ Force shutdown (Ctrl+C).[/yellow]")
     except TimeoutError:
         console.print("\n[red]⏰ Session timed out due to inactivity.[/red]")
+
     finally:
+        # this make sures to reset everything after you close the app
         with console.status("[bold yellow]Logging out of Tailscale...[/bold yellow]"):
             pexpect.run("sudo tailscale logout")
         with console.status("[bold yellow]🔥 Burning the bridge (Shutting down Tailscale)...[/bold yellow]"):
             pexpect.run("sudo pkill tailscaled")
-
         console.print("[green]✓ Tunnel destroyed. Attack surface minimized.[/green]")
-    
         with console.status("[bold yellow]Logging out of bitwarden...[/bold yellow]"):
             pexpect.run("bw logout")
         console.print("[bold red]🔒 Session terminated. Goodbye![/bold red]")
