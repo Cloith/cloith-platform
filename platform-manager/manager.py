@@ -1,13 +1,10 @@
-
-import subprocess
 import sys
-import os
-import json
-import signal
 import pexpect
-from rich.console import Console
 import questionary
+import subprocess
+from rich.console import Console
 from providers.bitwarden.auth import login_to_bitwarden 
+from providers.bitwarden.sync import sync_bitwarden_vault
 from providers.tailscale.tailscale import network_check
 from core.template_scanner import scan_and_provision
 
@@ -26,8 +23,8 @@ def handler(signum, frame):
 def main():
     # PRE-FLIGHT RESET
     with console.status("[bold green]Initializing secure environment...[/bold green]"):
-        pexpect.run("bw logout")
-        pexpect.run("sudo pkill tailscaled")
+        subprocess.run(["bw", "logout"])
+        subprocess.run(["sudo", "pkill", "tailscaled"])
 
     console.rule("[bold blue]Cloith Platform Manager[/bold blue]")
     
@@ -40,7 +37,7 @@ def main():
 
         # 2. SYNC TO ENSURE LATEST VAULT DATA
         with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
-            subprocess.run(["bw", "sync", "--session", session_key], check=True, capture_output=True)
+            sync_bitwarden_vault(session_key)
 
         # 3. TAILSCALE NETWORK CHECK
         network_check(session_key)
@@ -50,30 +47,27 @@ def main():
             sys.exit(1)
 
                 
-        # 2. THE APPLICATION LOOP (The "Living" App)
         while True:
             # Show the menu and get the user's choice
-            signal.signal(signal.SIGALRM, handler)
-            signal.alarm(IDLE_TIMEOUT)
+            # signal.signal(signal.SIGALRM, handler)
+            # signal.alarm(IDLE_TIMEOUT)
             
             choice = questionary.select(
                 "Main Menu - Select an Action:",
                 choices=[
-                    "🚀 Infrastructure (Terraform)",
-                    "🛠️  Configuration (Ansible)",
-                    "📦 Kubernetes (Skaffold)",
+                    "🛠️  Rebuild (Ansible)",
                     "🔑 View Session Info",
                     "❌ Exit Manager"
                 ]
             ).ask()
 
-            signal.alarm(0)  # Reset the alarm after user input
+            # signal.alarm(0)  # Reset the alarm after user input
 
             if choice == "❌ Exit Manager" or choice is None:
                 console.print("[yellow]Shutting down manager...[/yellow]")
                 break  # This breaks the 'while' loop and hits 'finally'
 
-            elif choice == "🚀 Infrastructure (Terraform)":
+            elif choice == "🛠️  Rebuild (Ansible)":
                 # Call your terraform function here
                 # run_terraform(session_key)
                 input("\nPress Enter to return to menu...") # Keeps output on screen

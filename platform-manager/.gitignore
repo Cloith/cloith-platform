@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 /__pycache__
 
-.manager_state.json
+.template_state.json

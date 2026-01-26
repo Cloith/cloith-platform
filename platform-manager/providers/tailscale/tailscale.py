@@ -4,9 +4,8 @@ import sys
 import time
 import pexpect
 import questionary
-
 from rich.console import Console
-from providers.bitwarden.vault import fetch_tailscale_auth
+from providers.bitwarden.vault import get_secret
 from providers.bitwarden.vault import update_key
 
 console = Console()
@@ -15,7 +14,7 @@ def network_check(session_key):
     # 1. Start Daemon (Only needs to happen once)
     with console.status("[bold green]Starting Tailscale daemon...[/bold green]"):
         subprocess.Popen(
-            ["sudo", "tailscaled", "--tun=userspace-networking"],
+            ["sudo", "tailscaled", "--tun=userspace-networking", "--socks5-server=localhost:1055"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True
         )
 
@@ -28,10 +27,9 @@ def network_check(session_key):
    
     connected = False
     while not connected:
-        auth_key = fetch_tailscale_auth(session_key)
-        
-        
-        child = pexpect.spawn(f"sudo tailscale up --auth-key={auth_key} --accept-routes --accept-dns=false", timeout=30, encoding='utf-8')
+        auth_key = get_secret("tailscale_auth_key", session_key)
+
+        child = pexpect.spawn(f"sudo tailscale up --auth-key={auth_key} --accept-routes --accept-dns=false", timeout=60, encoding='utf-8')
         with console.status("[bold yellow]Starting Tailscale net...[/bold yellow]") as status:    
             index = child.expect(["invalid key", "backend error", pexpect.EOF, pexpect.TIMEOUT])
         output = child.before if child.before else ""
@@ -67,5 +65,4 @@ def network_check(session_key):
                 sys.exit(1)
             connected = True # Breaks the loop
             console.print("[green]✓ Tailscale connected successfully.[/green]")
-
     return True

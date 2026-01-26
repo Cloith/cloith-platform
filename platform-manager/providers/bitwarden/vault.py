@@ -114,51 +114,57 @@ def get_secret(item_name, session_key=None):
         if "Not found" in result.stderr:
             console.print(f"Item '{item_name}' not found. Triggering creation logic...")
             while True:
-                value = questionary.password(f"Enter the value for '{item_name}':").ask()
+                value = questionary.password(
+                    f"Enter the value for '{item_name}':",
+                    validate=lambda text: True if text.strip() else "Must not be empty"    
+                ).ask()
 
                 if not value:
                     console.print("No value provided. Aborting item creation.")
                     sys.exit(1)
+
+                with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+                    valid = validate_key(item_name, value)
+
+                if not valid:
+                    console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+                    if not questionary.confirm("Try again?").ask(): sys.exit(1)
+                    continue
+
                 val = create_bitwarden_item(item_name, value, session_key)
-
-                # no validation endpoint that requires tailscale_auth_key so skip for now
-                if item_name != "tailscale_auth_key":
-                    with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
-                        valid = validate_key(item_name, val)
-                    if not valid:
-                        console.print(f"[red]✘ {item_name} is Invalid.[/red]")
-                        if not questionary.confirm("Try again?").ask(): sys.exit(1)
-                        continue
-
+  
                 console.print(f"[green]✓ {item_name} is Valid and ready to use.[/green]")
                 return val
             
 
         data = json.loads(result.stdout)
-        key = data.get('login', {}).get('password')
+        key = data.get('login', {}).get('password')    
+        
+        with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+            valid = validate_key(item_name, key)
 
-        if item_name != "tailscale_auth_key":
+        if not valid:
+            while not valid:
+                console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+                console.print("Triggering update logic...")
+                
+                value = questionary.password(
+                    f"Enter the value for '{item_name}':",
+                    validate=lambda text: True if text.strip() else "Must not be empty"
+                ).ask()
+                if not value:
+                    console.print("No value provided. Aborting item creation.")
+                    sys.exit(1) 
                 with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
-                    valid = validate_key(item_name, key)
+                    valid = validate_key(item_name, value)
                 if not valid:
-
                     console.print(f"[red]✘ {item_name} is Invalid.[/red]")
-                    console.print("Triggering update logic...")
-                    
-                    value = questionary.password(f"Enter the value for '{item_name}':").ask()
-                    if not value:
-                        console.print("No value provided. Aborting item creation.")
-                        sys.exit(1) 
-                    with console.status(f"[bold yellow]Updating '{item_name}' in Bitwarden...[/bold yellow]"):
-                        update_key(value, session_key, name=item_name)
-                    continue  # Retry fetching after update
+                    if not questionary.confirm("Try again?").ask(): sys.exit(1)
+                    continue
+                with console.status(f"[bold yellow]Updating '{item_name}' in Bitwarden...[/bold yellow]"):
+                    update_key(value, session_key, name=item_name)
+                    valid = True
+                    console.print(f"[green]✓ {item_name} is Valid and updated in vault.[/green]")
+            continue  # Retry fetching after update
         return key
         
-
-# Dedicated functions for your specific project needs
-def fetch_tailscale_auth(session_key):
-    return get_secret("tailscale_auth_key", session_key=session_key)
-def fetch_tailscale_api(session_key):
-    return get_secret("tailscale_api_key", session_key=session_key)
-def get_hostinger_api(session_key):
-    return get_secret("Hostinger", session_key=session_key)

@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     gnupg2 \
     unzip \
+    netcat-openbsd \
     lsb-release \
     software-properties-common \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -42,8 +43,12 @@ RUN curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o bw
     && chmod +x /usr/local/bin/bw \
     && rm bw.zip
 
-# 7. Install Manager Dependencies
-RUN pip install --no-cache-dir questionary rich pexpect requests textual[syntax]
+# 7. Use the Venv's Pip to install everything (Guarantees the CLI tools go here)
+RUN pip install --no-cache-dir \
+    questionary \
+    rich \
+    pexpect \
+    requests 
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
