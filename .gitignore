@@ -1,15 +1,10 @@
-# Ignore the cluster master key
-vps-config.yaml
-
-# Ignore unencrypted secrets
-*-secrets-*.yaml
-**/*.secret.yaml
-
-.idea
-config-k3s
-
-k3s.yaml
-
-logs
-
-# hello
+__pycache__/
+*.py[cod]
+*$py.class
+.idea/
+.vscode/
+node_modules/
+dist/
+build/
+EOF
+.venv/

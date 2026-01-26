@@ -35,10 +35,10 @@
 
     - name: "Set Internal Variables"
       ansible.builtin.set_fact:
-        discovered_vps_id: "{{ vps_list.json[0].id }}"
-        discovered_vps_public_ip: "{{ vps_list.json[0].ipv4[0].address }}"
-        vps_full_name: "{{ vps_list.json[0].hostname }}"
-        vps_short_name: "{{ vps_list.json[0].hostname.split('.')[0] }}"
+        discovered_vps_id: "{{ vps_list.json[1].id }}"
+        discovered_vps_public_ip: "{{ vps_list.json[1].ipv4[0].address }}"
+        vps_full_name: "{{ vps_list.json[1].hostname }}"
+        vps_short_name: "{{ vps_list.json[1].hostname.split('.')[0] }}"
 
     # --- PHASE 1.5: TAILSCALE CLEANUP ---
     - name: "Tailscale Discovery and Cleanup Block"
@@ -115,7 +115,6 @@
         path: ../inventory.ini
         regexp: '^my_server'
         line: "my_server ansible_host={{ tailscale_ip }} ansible_user=root"
-
 
     - name: "Waiting for port 22 to open"
       ansible.builtin.wait_for_connection:

@@ -13,6 +13,5 @@
             ]
         }
     },
-    "remoteUser": "vscode",
-    "postStartCommand": "ansible-playbook container-setup/main.yml"
+    "remoteUser": "vscode"
 }
