@@ -3,15 +3,28 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
+    "remoteUser": "vscode",
+    "runArgs": [
+        "--cap-drop=SYS_PTRACE"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
-                "redhat.ansible",
-                "ms-kubernetes-tools.vscode-kubernetes-tools",
-                "redhat.vscode-yaml",
-                "tailscale.vscode-tailscale"
-            ]
+                "ms-python.python",              
+                "ms-python.vscode-pylance",     
+                "redhat.vscode-yaml"            
+            ],
+            "settings": {
+                "remote.portsAttributes": {
+                    "32768-60999": {
+                        "onAutoForward": "ignore"
+                    },
+                    "1055": {
+                        "label": "Tailscale SOCKS5",
+                        "onAutoForward": "notify"
+                    }
+                }
+            }
         }
-    },
-    "remoteUser": "vscode"
+    }
 }

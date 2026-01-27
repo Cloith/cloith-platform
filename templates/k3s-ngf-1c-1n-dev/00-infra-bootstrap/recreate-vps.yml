@@ -2,8 +2,6 @@
 - name: "Self-Discover and Recreate VPS"
   hosts: localhost
   connection: local
-  vars_files:
-    - ../vars/secrets.yml
 
   tasks:
     # --- PHASE 0: SCRIPT DISCOVERY ---
@@ -104,10 +102,10 @@
 
     - name: "Step 4: Inject Tailscale IP into Inventory"
       ansible.builtin.add_host:
-        name: "vps_server"
+        name: "my_server"
         ansible_host: "{{ tailscale_ip }}"
         ansible_user: root
-        groups: ["active_vps"]
+        groups: ["dynamic_vps_group"]
 
     - name: "Save IP to static inventory for later use"
       delegate_to: localhost

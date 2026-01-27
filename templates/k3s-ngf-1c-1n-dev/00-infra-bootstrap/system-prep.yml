@@ -1,9 +1,7 @@
 ---
 - name: "System Hardening: Updates and User Creation (Tailscale SSH Mode)"
-  hosts: my_server
+  hosts: my_server  
   become: yes
-  vars_files:
-    - ../vars/secrets.yml
 
   tasks:
     - name: "Update apt cache and perform dist-upgrade"

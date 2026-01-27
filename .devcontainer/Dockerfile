@@ -52,3 +52,10 @@ RUN pip install --no-cache-dir \
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
+
+# type "manager" on the terminal as a shortcut for running the manager app
+RUN echo 'alias manager="/usr/bin/python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc
+
+RUN echo "vscode ALL=(ALL) NOPASSWD: /usr/sbin/tailscaled, /usr/bin/tailscale, /usr/bin/pkill tailscaled" > /etc/sudoers.d/tailscale \
+    && chmod 0440 /etc/sudoers.d/tailscale
+
