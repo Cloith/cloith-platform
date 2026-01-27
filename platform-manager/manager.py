@@ -87,7 +87,6 @@ def main():
         with console.status("[bold yellow]Logging out of bitwarden...[/bold yellow]"):
             pexpect.run("bw logout")
         console.print("[bold red]🔒 Session terminated. Goodbye![/bold red]")
-        # test change
 
 if __name__ == "__main__":
     main()
