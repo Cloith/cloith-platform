@@ -101,7 +101,7 @@ def requirements_met(requirements, session_key):
         get_secret(req, session_key)
     return None
 
-def scan_and_provision(session_key):
+def scan_and_provision():
     state = load_template_state()
     active_template = state.get("active_template")
 
@@ -135,8 +135,7 @@ def scan_and_provision(session_key):
 
     # 3. Proceed with the logic for the (now confirmed) active template
     console.print(f"[green]✓ Active template: {active_template}[/green]")
-    requirements = load_requirements(active_template)
-    requirements_met(requirements, session_key)
-    return True
+
+    return active_template
     
     

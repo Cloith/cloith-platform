@@ -5,14 +5,33 @@ import sys
 from rich.console import Console
 from core.key_validator import validate_key
 
-
-
 console = Console()
 
-def create_bitwarden_item(item_name, value, session_key):
+def create_bitwarden_item(item_name, session_key):
     """
     Creates a new Login item in Bitwarden following the official CLI workflow.
     """
+   
+    while True:
+        value = questionary.password(
+            f"Enter the value for '{item_name}':",
+            validate=lambda text: True if text.strip() else "Must not be empty"    
+        ).ask()
+
+        if not value:
+            console.print("No value provided. Aborting item creation.")
+            sys.exit(1)
+
+         # vaildate first before creating
+        with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+            valid = validate_key(item_name, value)
+
+        if not valid:
+            console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+            if not questionary.confirm("Try again?").ask(): sys.exit(1)
+            continue
+        break  # Exit loop if valid
+
     # 1. Build the exact template Bitwarden expects for a Login (Type 1)
     item_template = {
         "type": 1,
@@ -54,50 +73,64 @@ def create_bitwarden_item(item_name, value, session_key):
         else:
             console.print(f"[red]Failed to create item in Bitwarden: {result.stderr}[/red]")
             sys.exit(1)
-
-        
-        
+  
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Failed Bitwarden operation: {e.stderr}[/red]")
         return None
     
-def update_key(new_value, session_key, name):
+def update_key(item_name, session_key):
     """
     Updates an existing secret in Bitwarden with a new value.
     """
+    while True:
+        value = questionary.password(
+            f"Enter the value for '{item_name}':",
+            validate=lambda text: True if text.strip() else "Must not be empty"
+        ).ask()
+        if not value:
+            console.print("No value provided. Aborting item creation.")
+            sys.exit(1) 
+        with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
+            valid = validate_key(item_name, value)
+        if not valid:
+            console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+            if not questionary.confirm("Try again?").ask(): sys.exit(1)
+            continue
+        break # continue if valid
     
     try:
-        # 1. Get the existing item to find its unique ID
-        # We search by name
-        get_cmd = ["bw", "get", "item", name, "--session", session_key]
-        item_data = json.loads(subprocess.check_output(get_cmd))
-        item_id = item_data['id']
+         with console.status(f"[bold yellow] Updating {item_name}....[/bold yellow]"):
+            # 1. Get the existing item to find its unique ID
+            # We search by name
+            get_cmd = ["bw", "get", "item", item_name, "--session", session_key]
+            item_data = json.loads(subprocess.check_output(get_cmd))
+            item_id = item_data['id']
 
-        # 2. Update the secret value in the JSON object
-        # In a 'login' type item, the password field is usually where keys go
-        if item_data.get('login'):
-            item_data['login']['password'] = new_value
+            # 2. Update the secret value in the JSON object
+            # In a 'login' type item, the password field is usually where keys go
+            if item_data.get('login'):
+                item_data['login']['password'] = value
 
-        # 3. Bitwarden 'edit' command requires the JSON to be encoded
-        # We turn the dict back to a string, then to Base64
-        json_string = json.dumps(item_data)
-        encode_process = subprocess.run(
-            ["bw", "encode"], 
-            input=json_string, 
-            capture_output=True, 
-            text=True, 
-            check=True
-        )
-        encoded_json = encode_process.stdout.strip()
+            # 3. Bitwarden 'edit' command requires the JSON to be encoded
+            # We turn the dict back to a string, then to Base64
+            json_string = json.dumps(item_data)
+            encode_process = subprocess.run(
+                ["bw", "encode"], 
+                input=json_string, 
+                capture_output=True, 
+                text=True, 
+                check=True
+            )
+            encoded_json = encode_process.stdout.strip()
 
-        # 4. Push the update back to Bitwarden
-        edit_cmd = ["bw", "edit", "item", item_id, encoded_json, "--session", session_key]
+            # 4. Push the update back to Bitwarden
+            edit_cmd = ["bw", "edit", "item", item_id, encoded_json, "--session", session_key]
+            
         
-        
-        subprocess.run(edit_cmd, check=True, capture_output=True)
-        
-        console.print(f"[green]✔ Vault item '{name}' updated successfully![/green]")
-        return True
+            subprocess.run(edit_cmd, check=True, capture_output=True)
+            
+            console.print(f"[green]✔ Vault item '{item_name}' updated successfully![/green]")
+            return True
 
     except Exception as e:
         console.print(f"[red]✘ Failed to update vault: {e}[/red]")
@@ -107,36 +140,17 @@ def get_secret(item_name, session_key=None):
     cmd = ["bw", "get", "item", item_name, "--session", session_key]
 
     while True:
-        with console.status(f"[bold yellow]Fetching '{item_name}' from Bitwarden...[/bold yellow]") as status:
+        with console.status(f"[bold yellow]Fetching '{item_name}' from Bitwarden...[/ bold yellow]") as status:
             result = subprocess.run(cmd, capture_output=True, text=True)
 
         # Check if the error is specifically "Not found."
         if "Not found" in result.stderr:
-            console.print(f"Item '{item_name}' not found. Triggering creation logic...")
-            while True:
-                value = questionary.password(
-                    f"Enter the value for '{item_name}':",
-                    validate=lambda text: True if text.strip() else "Must not be empty"    
-                ).ask()
-
-                if not value:
-                    console.print("No value provided. Aborting item creation.")
-                    sys.exit(1)
-
-                with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
-                    valid = validate_key(item_name, value)
-
-                if not valid:
-                    console.print(f"[red]✘ {item_name} is Invalid.[/red]")
-                    if not questionary.confirm("Try again?").ask(): sys.exit(1)
-                    continue
-
-                val = create_bitwarden_item(item_name, value, session_key)
-  
-                console.print(f"[green]✓ {item_name} is Valid and ready to use.[/green]")
-                return val
+            console.print(f"[red]✘ {item_name} not found in vault.[/red]")
+            console.print("Triggering creation logic...")
+            val = create_bitwarden_item(item_name, session_key)
+            console.print(f"[green]✓ {item_name} is Valid and ready to use.[/green]")
+            return val
             
-
         data = json.loads(result.stdout)
         key = data.get('login', {}).get('password')    
         
@@ -144,27 +158,9 @@ def get_secret(item_name, session_key=None):
             valid = validate_key(item_name, key)
 
         if not valid:
-            while not valid:
-                console.print(f"[red]✘ {item_name} is Invalid.[/red]")
-                console.print("Triggering update logic...")
-                
-                value = questionary.password(
-                    f"Enter the value for '{item_name}':",
-                    validate=lambda text: True if text.strip() else "Must not be empty"
-                ).ask()
-                if not value:
-                    console.print("No value provided. Aborting item creation.")
-                    sys.exit(1) 
-                with console.status(f"[bold yellow]Validating '{item_name}'...[/bold yellow]"):
-                    valid = validate_key(item_name, value)
-                if not valid:
-                    console.print(f"[red]✘ {item_name} is Invalid.[/red]")
-                    if not questionary.confirm("Try again?").ask(): sys.exit(1)
-                    continue
-                with console.status(f"[bold yellow]Updating '{item_name}' in Bitwarden...[/bold yellow]"):
-                    update_key(value, session_key, name=item_name)
-                    valid = True
-                    console.print(f"[green]✓ {item_name} is Valid and updated in vault.[/green]")
-            continue  # Retry fetching after update
+            console.print(f"[red]✘ {item_name} is Invalid.[/red]")
+            console.print("Triggering update logic...")
+            update_key(item_name, session_key)
+            console.print(f"[green]✓ {item_name} is Valid and updated in vault.[/green]")
         return key
         

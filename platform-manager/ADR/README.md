@@ -18,10 +18,7 @@ What it does: Since userspace mode doesn't create a global network interface, lo
 
 Why: This flag opens a doorway on port 1055. Any tool configured to use this SOCKS5 proxy can now "see" and communicate with other nodes (like your VPS) through the encrypted tunnel.
 
-3. In-Memory State (--state=mem:)
-What it does: Forces Tailscale to store its machine identity and session keys in RAM instead of writing a persistent file to /var/lib/tailscale.
 
-Why: This ensures the container is Ephemeral. When the container stops, the "Identity" is wiped. This prevents the Tailscale Admin Console from being cluttered with "ghost" nodes from old container sessions and forces a clean authentication check via the Manager's Bitwarden integration every time.
 
 4. Process Decoupling (subprocess.Popen)
 What it does: The tailscaled engine is birthed as a detached background process group using os.setpgrp.
@@ -36,7 +33,7 @@ Why: The tailscale CLI communicates with the tailscaled daemon via a Unix Domain
 Lifecycle Flow
 Directory Setup: Ensure the /var/run/tailscale path exists for the communication socket.
 
-Engine Start: Launch the daemon in the background with Userspace, SOCKS5, and In-Memory flags.
+Engine Start: Launch the daemon in the background with Userspace and SOCKS5
 
 Socket Validation: Poll the filesystem until the .sock file appears, confirming the engine is ready.
 

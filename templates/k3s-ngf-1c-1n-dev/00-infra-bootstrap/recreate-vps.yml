@@ -2,8 +2,6 @@
 - name: "Self-Discover and Recreate VPS"
   hosts: localhost
   connection: local
-  vars_files:
-    - ../vars/secrets.yml
 
   tasks:
     # --- PHASE 0: SCRIPT DISCOVERY ---

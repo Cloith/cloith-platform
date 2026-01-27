@@ -7,14 +7,12 @@ from providers.bitwarden.auth import login_to_bitwarden
 from providers.bitwarden.sync import sync_bitwarden_vault
 from providers.tailscale.tailscale import network_check
 from core.template_scanner import scan_and_provision
-
+from core.deploy import deploy_template
 
 console = Console()
 
 # Define the timeout 
 IDLE_TIMEOUT = 600 # 10 minutes
-
-
 
 def handler(signum, frame):
     """This function runs when the alarm goes off."""
@@ -42,11 +40,8 @@ def main():
         # 3. TAILSCALE NETWORK CHECK
         network_check(session_key)
 
-        # 4. TEMPLATE SCANNING & PROVISIONING CHECK
-        if not scan_and_provision(session_key):
-            sys.exit(1)
-
-                
+        template = scan_and_provision()
+       
         while True:
             # Show the menu and get the user's choice
             # signal.signal(signal.SIGALRM, handler)
@@ -55,7 +50,7 @@ def main():
             choice = questionary.select(
                 "Main Menu - Select an Action:",
                 choices=[
-                    "🛠️  Rebuild (Ansible)",
+                    "🛠️ Redeploy: (Runs the main playbook to apply changes)",
                     "🔑 View Session Info",
                     "❌ Exit Manager"
                 ]
@@ -67,9 +62,10 @@ def main():
                 console.print("[yellow]Shutting down manager...[/yellow]")
                 break  # This breaks the 'while' loop and hits 'finally'
 
-            elif choice == "🛠️  Rebuild (Ansible)":
+            elif choice == "🛠️ Redeploy: (Runs the main playbook to apply changes)":
                 # Call your terraform function here
                 # run_terraform(session_key)
+                deploy_template(template, session_key)
                 input("\nPress Enter to return to menu...") # Keeps output on screen
 
             elif choice == "🔑 View Session Info":

@@ -50,10 +50,12 @@ def validate_ts_api(token):
     return False
 
 def validate_ts_auth(token):
-    cmd = f"sudo tailscale login --authkey {token}"
+    # Pass as a LIST, not a string. 'sudo' is the command, the rest are args.
+    # This prevents the token from ever being interpreted as code.
+    args = ["tailscale", "login", "--authkey", token]
     
     try:
-        child = pexpect.spawn(cmd, timeout=15, encoding='utf-8')
+        child = pexpect.spawn("sudo", args, timeout=15, encoding='utf-8')
         index = child.expect(["invalid key", "backend error", pexpect.EOF, pexpect.TIMEOUT])
 
         if index == 0 or index == 1:
