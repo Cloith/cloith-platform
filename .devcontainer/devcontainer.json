@@ -5,8 +5,7 @@
     },
     "remoteUser": "vscode",
     "runArgs": [
-        "--cap-drop=SYS_PTRACE",
-        "--security-opt=no-new-privileges"
+        "--cap-drop=SYS_PTRACE"
     ],
     "customizations": {
         "vscode": {
@@ -14,7 +13,18 @@
                 "ms-python.python",              
                 "ms-python.vscode-pylance",     
                 "redhat.vscode-yaml"            
-            ]
+            ],
+            "settings": {
+                "remote.portsAttributes": {
+                    "32768-60999": {
+                        "onAutoForward": "ignore"
+                    },
+                    "1055": {
+                        "label": "Tailscale SOCKS5",
+                        "onAutoForward": "notify"
+                    }
+                }
+            }
         }
     }
 }

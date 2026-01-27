@@ -10,12 +10,12 @@
       #!/bin/bash
       # Redirect all output to log for debugging
       exec > /post_install.log 2>&1
-      
+   
       echo "Starting Bootstrap at $(date)"
 
       # 2. Setup Tailscale
       curl -fsSL https://tailscale.com/install.sh | sh
-      tailscale up --authkey={{ tailscale_auth_key }} --ssh
+      tailscale up --authkey={{ tailscale_auth_key }} --ssh --accept-dns=true
 
       # 3. Firewall - Locked down but allowing Tailscale
       ufw default deny incoming
@@ -26,6 +26,25 @@
       echo "Bootstrap complete at $(date)"
 
   tasks:
+    - name: "Get all existing scripts"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/post-install-scripts"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+      register: all_scripts
+
+    - name: "Delete old script if it exists"
+      ansible.builtin.uri:
+        url: "https://developers.hostinger.com/api/vps/v1/post-install-scripts/{{ item.id }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ hostinger_api_token }}"
+        status_code: [200, 204]
+      loop: "{{ all_scripts.json.data }}"
+      when: item.name == "Tailscale-Setup"
+      no_log: true
+
     - name: "Create or Update the Script in Hostinger"
       ansible.builtin.uri:
         url: "https://developers.hostinger.com/api/vps/v1/post-install-scripts"

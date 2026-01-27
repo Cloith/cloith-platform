@@ -1,6 +1,6 @@
 ---
 - name: "System Hardening: Updates and User Creation (Tailscale SSH Mode)"
-  hosts: my_server
+  hosts: my_server  
   become: yes
 
   tasks:

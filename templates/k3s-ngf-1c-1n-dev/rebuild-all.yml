@@ -1,17 +1,21 @@
 ---
 
+- name: "Mange post-install scripts"
+  ansible.builtin.import_playbook: 00-infra-bootstrap/manage-post-install.yml
+
 # PLAY 1: Run the Provisioning (Imported)
 - name: "Nuke and Reinstall VPS"
   ansible.builtin.import_playbook: 00-infra-bootstrap/recreate-vps.yml
-
-- name: "Preflight ssh test"
-  ansible.builtin.import_playbook: 00-infra-bootstrap/preflight.yml
 
 # reload new values for PLAY 3
 - name: "Refresh Inventory to pick up the new IP"
   hosts: localhost
   tasks:
-    - name: "Reload inventory file from disk"
+    - name: "Wait for the file to actually exist (safety check)"
+      ansible.builtin.wait_for:
+        path: "./inventory.ini"
+        search_regex: "my_server"
+    - name: "Force Ansible to reload inventory from disk"
       ansible.builtin.meta: refresh_inventory
 
 # PLAY 2: Run the Setup (Imported)
