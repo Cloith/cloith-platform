@@ -1,44 +1,45 @@
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
-# Cloud-Native Real-Time Event Platform
+📖 New README Structure
+🛰️ Project Cloith: Cloud-Native IaC & Event Platform
+🏗️ Overview
+Project Cloith is a self-orchestrating cloud infrastructure. Moving beyond manual configuration, the platform now features a Custom Python Orchestrator that manages secure deployments via Tailscale Zero-Trust tunnels, Bitwarden Secret injection, and Ansible.
 
-# 📖 The Project
-Project Cloith is a Cloud-Native real-time platform designed to showcase highly available, containerized infrastructure. By leveraging Microservices architecture and Kubernetes orchestration, the platform facilitates sub-second latency event streaming between a Node.js backend and a React frontend via an MQTT-over-WebSockets bridge.
+The platform hosts a high-performance MQTT-over-WebSockets bridge, facilitating sub-second latency between a Node.js microservice backend and a React frontend.
 
-# 🛠️ Tech Stack
+🛠️ Infrastructure Orchestration (The "Manager")
+The heart of this monorepo is the Platform Manager, a Python-based CLI tool designed for secure, idempotent environment management.
 
-<img width="328" height="213" alt="image" src="https://github.com/user-attachments/assets/6783848e-888a-4056-b7d1-500ba0f70897" />
+Key Engineering Features:
 
+Zero-Trust Networking: Automatic Tailscale tunnel provisioning and teardown (Burning the Bridge policy).
 
+Secure Secret Injection: Dynamic Bitwarden vault syncing; no secrets are ever stored on disk.
 
-![Offline](https://img.shields.io/badge/Demo-Offline-red?style=for-the-badge&logo=statuspage)
-[!WARNING] System Migration in Progress The live demo links are currently being redirected to a new VPS infrastructure. Deployment via Terraform and K3s is under active documentation.
-# 🚦 WebSocket Handshake Verification:
+Singleton Execution: Implemented a system-level fcntl file lock to prevent race conditions during deployments.
 
-Manual Handshake Simulation
-You can use powershell for this
+Pre-Flight Sanitization: Automatic environment cleanup (purging sessions and pilling background daemons) before ogni run.
 
-Command 1 (windows power shell)1:
-* $headers = @{"Connection"="Upgrade"; "Upgrade"="websocket"; "Sec-WebSocket-Key"="SGVsbG8sIHdvcmxkIQ=="; "Sec-WebSocket-Version"="13"}
-* Invoke-WebRequest -Uri "http://srv1154036.hstgr.cloud/mqtt" -Headers $headers -Method Get -UseBasicParsing
+🚦 Technical Architecture
+Current VPS Specs: 2 vCPU | 8GB RAM | K3s Cluster
 
-Command 2 (curl):
-* curl.exe -i -N \
-  -H "Connection: Upgrade" \
-  -H "Upgrade: websocket" \
-  -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
-  -H "Sec-WebSocket-Version: 13" \
-  http://srv1154036.hstgr.cloud/mqtt
+System Flow:
+Identity: Admin authenticates via the Manager using Bitwarden session keys.
 
-Expected Output: StatusCode: 101 (Switching Protocols) This confirms the Gateway-to-Service bridge is functional and ready for real-time streams.
+Tunnel: Manager establishes an ephemeral Tailscale node for secure ingress.
 
+Provision: Ansible templates are scanned, provisioned, and deployed to the K3s cluster.
 
-# 🚀 Roadmap
-* [x] Establish K3s Cluster & NGINX Gateway Fabric
+Verification: The WebSocket Handshake (Status 101) confirms the Gateway-to-Service bridge.
 
-* [x] Implement WebSocket Protocol Switching via Gateway API
+🚀 Updated Roadmap
+[x] Establish K3s Cluster & NGINX Gateway Fabric
 
-* [x] Connect Node.js Backend to MongoDB Atlas
+[x] [New] Custom Python Platform Manager for automated orchestration.
 
-* [ ] Infrastructure-as-Code (IaC): Provision server resources via Terraform.
+[x] [New] Zero-Trust security integration via Tailscale.
 
-* [ ] Observability: Deploy Prometheus/Grafana for real-time broker monitoring.
+[x] [New] Bitwarden CLI integration for secure secret management.
+
+[ ] In Progress: CI/CD Quality Gates (Linter/Tester Pods) via GitHub Actions.
+
+[ ] Planned: Real-time Chat App deployment within the secure mesh.
