@@ -4,6 +4,7 @@ import tempfile
 import shlex
 import os
 import time
+import re
 from rich.console import Console
 from providers.bitwarden.vault import get_secret
 
@@ -58,11 +59,18 @@ def deploy_template(template_name, session_key):
                 if not line:
                     break
                 
-                # Filter out the vars_json if it somehow leaks into the PTY buffer
-                if vars_json[:20] in line:
+                # 1. Strip ANSI escape sequences (the [0;32m stuff)
+                ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+                clean_line = ansi_escape.sub('', line).strip()
+                
+                if not clean_line: # Skip empty lines
+                    continue
+
+                # 2. Filter out the vars_json leak
+                if vars_json[:20] in clean_line:
                     continue
                 
-                clean_line = line.strip()
+                # 3. Now your logic works on clean text
                 if "ok:" in clean_line:
                     console.print(f"[green]{clean_line}[/green]")
                 elif "changed:" in clean_line:
@@ -71,7 +79,6 @@ def deploy_template(template_name, session_key):
                     console.print(f"[red][bold]{clean_line}[/bold][/red]")
                 else:
                     console.print(f"[dim]{clean_line}[/dim]")
-                    
             except pexpect.EOF:
                 break
 
