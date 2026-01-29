@@ -1,6 +1,9 @@
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
+
 📖 New README Structure
+
 🛰️ Project Cloith: Cloud-Native IaC & Event Platform
+
 🏗️ Overview
 Project Cloith is a self-orchestrating cloud infrastructure. Moving beyond manual configuration, the platform now features a Custom Python Orchestrator that manages secure deployments via Tailscale Zero-Trust tunnels, Bitwarden Secret injection, and Ansible.
 
