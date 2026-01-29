@@ -9,7 +9,6 @@ import threading
 import termios
 import time
 import shutil
-import asyncio
 from rich.console import Console
 from providers.bitwarden.auth import login_to_bitwarden 
 from providers.bitwarden.sync import sync_bitwarden_vault
@@ -25,53 +24,55 @@ attributes = termios.tcgetattr(fd)
 internet_available.set()
 
 IDLE_TIMEOUT = 600 
-def handler(signum, frame):
-    """This function runs when the alarm goes off."""
-    raise TimeoutError
+# TODO implement a batter session timeout function
+# def handler(signum, frame):
+#     """This function runs when the alarm goes off."""
+#     raise TimeoutError
 
-def net_interrupt():
-    """
-    displays fancy waiting animation
-    returns to last cursor position after the animation
-    """
-    while True:
-        if not internet_available.is_set():
-            cols, rows = shutil.get_terminal_size()
-            sys.stdout.write("\033[s")
-            sys.stdout.flush()
-            # sys.stdout.write(f"\033[{rows};1H")
-            # sys.stdout.flush()
-            sys.stdout.write("\033[S")
-            sys.stdout.write(f"\033[{rows};1H\033[2K")
-            sys.stdout.flush()
-            with console.status("waiting for connection...."):
-                while not internet_available.wait():  
-                    continue
-            sys.stdout.write("\033[T")
-            # sys.stdout.write("\033[M")
-            sys.stdout.write("\033[u")
-            sys.stdout.flush()  
-            # sys.stdout.write("\033[u")
-            # sys.stdout.flush()
+#TODO fix the internet health monitor later
+# def net_interrupt():
+#     """
+#     displays fancy waiting animation
+#     returns to last cursor position after the animation
+#     """
+#     while True:
+#         if not internet_available.is_set():
+#             cols, rows = shutil.get_terminal_size()
+#             sys.stdout.write("\033[s")
+#             sys.stdout.flush()
+#             # sys.stdout.write(f"\033[{rows};1H")
+#             # sys.stdout.flush()
+#             sys.stdout.write("\033[S")
+#             sys.stdout.write(f"\033[{rows};1H\033[2K")
+#             sys.stdout.flush()
+#             with console.status("waiting for connection...."):
+#                 while not internet_available.wait():  
+#                     continue
+#             sys.stdout.write("\033[T")
+#             # sys.stdout.write("\033[M")
+#             sys.stdout.write("\033[u")
+#             sys.stdout.flush()  
+#             # sys.stdout.write("\033[u")
+#             # sys.stdout.flush()
 
-def connection_monitor():
-    last_state = True
-    while True:
-        connected = True
-        try:
-            socket.create_connection(("8.8.8.8", 53), timeout=1)
-        except OSError:
-            connected = False
+# def connection_monitor():
+#     last_state = True
+#     while True:
+#         connected = True
+#         try:
+#             socket.create_connection(("8.8.8.8", 53), timeout=1)
+#         except OSError:
+#             connected = False
 
-        if connected and not last_state:
-            internet_available.set()
-            last_state = True
+#         if connected and not last_state:
+#             internet_available.set()
+#             last_state = True
 
-        elif not connected and last_state:
-            internet_available.clear()
-            last_state = False
+#         elif not connected and last_state:
+#             internet_available.clear()
+#             last_state = False
 
-        time.sleep(1)
+#         time.sleep(1)
 
 def acquire_lock():
     """
@@ -92,8 +93,9 @@ def acquire_lock():
         console.print("[dim]Please close the other terminal or wait for the deployment to finish.[/dim]")
         sys.exit(1)
 
-def worker_task():
-    while True:
+
+def main():
+     while True:
 
         # PRE-FLIGHT RESET
         with console.status("[bold green]Initializing secure environment...[/bold green]"):
@@ -129,7 +131,7 @@ def worker_task():
 
             if choice == "❌ Exit Manager" or choice is None:
                 console.print("[yellow]Shutting down manager...[/yellow]")
-                break  # This breaks the 'while' loop and hits 'finally'
+                break  
 
             elif choice == "🛠️ Redeploy: (Runs the main playbook to apply changes)":
                 deploy_template(template, session_key)
@@ -144,31 +146,21 @@ def worker_task():
         except TimeoutError:
             console.print("\n[red]⏰ Session timed out due to inactivity.[/red]")
 
-def main():
-    monitor_thread = threading.Thread(target=connection_monitor, daemon=True)
-    interrupt_thread = threading.Thread(target=net_interrupt, daemon=True)
-    worker_thread = threading.Thread(target=worker_task, daemon=True)
-    monitor_thread.start()
-    interrupt_thread.start()
-    worker_thread.start()
-    while True:
-        continue
+        finally:
+            manager_lock.close()
+            if os.path.exists("/tmp/platform_manager.lock"):
+                os.remove("/tmp/platform_manager.lock")
+            with console.status("[bold yellow]Logging out of Tailscale...[/bold yellow]"):
+                pexpect.run("sudo tailscale logout")
+            with console.status("[bold yellow]🔥 Burning the bridge (Shutting down Tailscale)...[/bold yellow]"):
+                pexpect.run("sudo pkill tailscaled")
+            console.print("[green]✓ Tunnel destroyed. Attack surface minimized.[/green]")
+            with console.status("[bold yellow]Logging out of bitwarden...[/bold yellow]"):
+                pexpect.run("bw logout")
+            console.print("[bold red]🔒 Session terminated. Goodbye![/bold red]")
         
 if __name__ == "__main__":
     manager_lock = acquire_lock()
-    try:
-        main()
-    finally:
-        # The lock is automatically released when the process dies, 
-        # but closing it explicitly is cleaner.
-        manager_lock.close()
-        if os.path.exists("/tmp/platform_manager.lock"):
-            os.remove("/tmp/platform_manager.lock")
-        with console.status("[bold yellow]Logging out of Tailscale...[/bold yellow]"):
-            pexpect.run("sudo tailscale logout")
-        with console.status("[bold yellow]🔥 Burning the bridge (Shutting down Tailscale)...[/bold yellow]"):
-            pexpect.run("sudo pkill tailscaled")
-        console.print("[green]✓ Tunnel destroyed. Attack surface minimized.[/green]")
-        with console.status("[bold yellow]Logging out of bitwarden...[/bold yellow]"):
-            pexpect.run("bw logout")
-        console.print("[bold red]🔒 Session terminated. Goodbye![/bold red]")
+    main()
+
+        
