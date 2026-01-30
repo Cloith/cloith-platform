@@ -14,6 +14,8 @@ What started as learning simple logic has evolved into a passion for "Systems Th
 This is my "Live Lab." I use this space to master the three pillars of modern engineering:
 
 1.🛡️ Security & Zero-TrustExploring how to protect assets in a "Default-Deny" world.Concepts: Ephemeral tunnels, Secret Injection, Identity-based SSH.Tools: Tailscale, Bitwarden CLI.
+
 2. 🏗️ Infrastructure-as-Code (IaC)Moving away from "manual" clicks to "declarative" systems.Concepts: Configuration Management, Orchestration, Singleton guards.Tools: Ansible, Python, Linux Internals.
-3. 💻 Software DevelopmentBuilding real-time, responsive applications that run on the infra I build.Concepts: WebSockets, Event-Driven Architecture, Microservices.Tools: Node.js, React, MQTT.
+   
+4. 💻 Software DevelopmentBuilding real-time, responsive applications that run on the infra I build.Concepts: WebSockets, Event-Driven Architecture, Microservices.Tools: Node.js, React, MQTT.
 
