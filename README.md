@@ -4,47 +4,16 @@
 
 [ 🛠️ Orchestrator ](./core/README.md) | [ ☁️ Infrastructure ](./ansible/README.md) | [ 💬 Chat App ](./apps/chat/README.md)
 
-🛰️ Project Cloith: Cloud-Native IaC & Event Platform
+# Project Jorunal
 
-🏗️ Overview
-Project Cloith is a self-orchestrating cloud infrastructure. Moving beyond manual configuration, the platform now features a Custom Python Orchestrator that manages secure deployments via Tailscale Zero-Trust tunnels, Bitwarden Secret injection, and Ansible.
+This repository isn't just a project; it is the culmination of my journey through the landscape of Software Engineering. It represents the bridge I built between writing code and managing the environments where that code lives.
 
-The platform hosts a high-performance MQTT-over-WebSockets bridge, facilitating sub-second latency between a Node.js microservice backend and a React frontend.
+What started as learning simple logic has evolved into a passion for "Systems Thinking." I realized that great software isn't just about the lines of code in an app—it’s about the security of the tunnel, the reliability of the deployment, and the automation that makes it all repeatable.
 
-🛠️ Infrastructure Orchestration (The "Manager")
-The heart of this monorepo is the Platform Manager, a Python-based CLI tool designed for secure, idempotent environment management.
+🏛️ What This Monorepo Explores
+This is my "Live Lab." I use this space to master the three pillars of modern engineering:
 
-Key Engineering Features:
+1.🛡️ Security & Zero-TrustExploring how to protect assets in a "Default-Deny" world.Concepts: Ephemeral tunnels, Secret Injection, Identity-based SSH.Tools: Tailscale, Bitwarden CLI.
+2. 🏗️ Infrastructure-as-Code (IaC)Moving away from "manual" clicks to "declarative" systems.Concepts: Configuration Management, Orchestration, Singleton guards.Tools: Ansible, Python, Linux Internals.
+3. 💻 Software DevelopmentBuilding real-time, responsive applications that run on the infra I build.Concepts: WebSockets, Event-Driven Architecture, Microservices.Tools: Node.js, React, MQTT.
 
-Zero-Trust Networking: Automatic Tailscale tunnel provisioning and teardown (Burning the Bridge policy).
-
-Secure Secret Injection: Dynamic Bitwarden vault syncing; no secrets are ever stored on disk.
-
-Singleton Execution: Implemented a system-level fcntl file lock to prevent race conditions during deployments.
-
-Pre-Flight Sanitization: Automatic environment cleanup (purging sessions and pilling background daemons) before ogni run.
-
-🚦 Technical Architecture
-Current VPS Specs: 2 vCPU | 8GB RAM | K3s Cluster
-
-System Flow:
-Identity: Admin authenticates via the Manager using Bitwarden session keys.
-
-Tunnel: Manager establishes an ephemeral Tailscale node for secure ingress.
-
-Provision: Ansible templates are scanned, provisioned, and deployed to the K3s cluster.
-
-Verification: The WebSocket Handshake (Status 101) confirms the Gateway-to-Service bridge.
-
-🚀 Updated Roadmap
-[x] Establish K3s Cluster & NGINX Gateway Fabric
-
-[x] [New] Custom Python Platform Manager for automated orchestration.
-
-[x] [New] Zero-Trust security integration via Tailscale.
-
-[x] [New] Bitwarden CLI integration for secure secret management.
-
-[ ] In Progress: CI/CD Quality Gates (Linter/Tester Pods) via GitHub Actions.
-
-[ ] Planned: Real-time Chat App deployment within the secure mesh.
