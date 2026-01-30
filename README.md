@@ -1,6 +1,8 @@
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
 
-📖 New README Structure
+# 🛰️ Project Cloith Monorepo
+
+[ 🛠️ Orchestrator ](./core/README.md) | [ ☁️ Infrastructure ](./ansible/README.md) | [ 💬 Chat App ](./apps/chat/README.md)
 
 🛰️ Project Cloith: Cloud-Native IaC & Event Platform
 
