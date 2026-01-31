@@ -6,15 +6,12 @@ The central entry point for the Cloith Platform. It coordinates between Authenti
 ## Key Technical Decisions
 - **Interactive UX:** Uses `questionary` to prevent "Command-Line Fatigue" and reduce human error during resource selection.
 - **Session Scoping:** The `session_key` is passed as a variable to sub-modules, ensuring that sub-processes (like Terraform) only have access to secrets when explicitly invoked.
-- **Visual Feedback:** Integrated `rich` for clear, color-coded status updates, making it easier to distinguish between "Plan" (Yellow), "Apply" (Green), and "Error" (Red).
+- **Visual Feedback:** Integrated `rich` for clear, color-coded status updates.
 
 ## Logic Flow
-1. **Auth:** Calls `auth.py` to retrieve a temporary JWT from Bitwarden.
+1. **Auth:** Calls `auth.py` to retrieve a temporary JWT session from Bitwarden.
 2. **Loop:** Enters a stateful loop where the user selects the "Scenario."
 3. **Cleanup:** On exit, triggers a vault lock to ensure no persistent access is left on the host.
-
-
-
 
 🔐 Authentication Module (auth.py)
 Overview
