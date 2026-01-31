@@ -1,4 +1,4 @@
-# 🛰️ Project Cloith Monorepo
+# Project Cloith Monorepo
 
 # Project Jorunal
 
@@ -9,7 +9,11 @@ What started as learning simple logic has evolved into a passion for "Systems Th
 My Projects Based on my skills
 
 DevOps/DevSecOps:
-[ 🛠️ platform-manager ](./platform-manager/README.md) 
 
-Software Engineering:
-[ 💬 Chat App ]![Status](https://img.shields.io/badge/Status-Active%20Development-green)
+
+| Project | Status |
+| :--- | :--- |
+| Chat App | ![Status](https://img.shields.io/badge/Status-Active%20Development-green) |
+| [  platform-manager ](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
+
+
