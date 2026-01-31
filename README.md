@@ -10,10 +10,28 @@ My Projects Based on my skills
 
 DevOps/DevSecOps:
 
+| Project | Status |
+| :--- | :--- |
+| [  platform-manager ](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
+
+Software Engineering:
 
 | Project | Status |
 | :--- | :--- |
 | Chat App | ![Status](https://img.shields.io/badge/Status-Active%20Development-green) |
-| [  platform-manager ](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
+
+Ai:
+
+| Project | Status |
+| :--- | :--- |
+| Coding Tutor | ![Status](https://img.shields.io/badge/Status-Planning%20Phase-green) |
+
+
+
+
+
+
+
+
 
 
