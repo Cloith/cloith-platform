@@ -1,3 +1,16 @@
+# 🛠️ Platform Manager
+
+The core orchestrator for my infrastructure. This project handles the "Heavy Lifting" of my ecosystem.
+
+### 🧩 Sub-System Breakdown
+
+* **🌐 [Networking & Zero-Trust](./docs/NETWORKING.md):** Explaining the Tailscale mesh, split-DNS, and how I secured the K3s API.
+* **🔐 [Secrets Management](./docs/SECURITY.md):** Documentation on the FIFO pipe implementation and Bitwarden integration.
+* **📜 [Infrastructure as Code](./ansible/README.md):** Deep dive into the Ansible roles for K3s and Helm.
+
+
+
+
 # 🖥️ Platform Manager (`manager.py`)
 
 ## Overview
