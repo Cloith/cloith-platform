@@ -13,11 +13,13 @@ DevOps/DevSecOps:
 | Project | Status |
 | :--- | :--- |
 | [  platform-manager ](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
+| [  infra-template ]() | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
 
 Software Engineering:
 
 | Project | Status |
 | :--- | :--- |
+| [  platform-manager ](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) |
 | Chat App | ![Status](https://img.shields.io/badge/Status-Active%20Development-green) |
 
 Ai:
