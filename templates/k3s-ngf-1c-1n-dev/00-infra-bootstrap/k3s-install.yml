@@ -4,7 +4,6 @@
   become: yes
   tasks:
     - name: "Get Tailscale IPv4"
-      # Fetches the 100.x.x.x address. Using -4 ensures we don't accidentally get an IPv6 address.
       shell: "tailscale ip -4"
       register: tailscale_ip_raw
       changed_when: false
@@ -22,7 +21,6 @@
         --disable=traefik \
         --write-kubeconfig-mode=644
       args:
-        # Prevents re-running the install if the binary already exists
         creates: /usr/local/bin/k3s
 
     - name: "Wait for Node to be Ready"
@@ -68,15 +66,13 @@
         state: present
         create: yes # Creates the file if it doesn't exist
 
-    - name: "🏁 FINAL STEP: REFRESH YOUR TERMINAL"
+    - name: "FINAL STEP: REFRESH YOUR TERMINAL"
       delegate_to: localhost
       debug:
         msg:
           - "###########################################################"
           - "SUCCESS! Your cluster is ready."
-          - "To enable the 'k-hostinger' command in this window, run:"
-          - ""
-          - "      exec $SHELL"
-          - ""
-          - "Then you can simply type: k-hostinger && kubectl get nodes"
+          - "You can now ssh to the server by opening another server"
+          - "and using the command below"     
+          - "tailscale ssh {{ ansible_user }}@{{ ansible_host }}" 
           - "###########################################################"

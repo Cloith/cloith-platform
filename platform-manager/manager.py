@@ -10,8 +10,7 @@ import termios
 import time
 import shutil
 from rich.console import Console
-from providers.bitwarden.auth import login_to_bitwarden 
-from providers.bitwarden.sync import sync_bitwarden_vault
+from providers.bitwarden import login_to_bitwarden, sync_bitwarden_vault
 from providers.tailscale.tailscale import network_check
 from core.template_scanner import scan_and_provision
 from core.deploy import deploy_template
@@ -24,12 +23,12 @@ attributes = termios.tcgetattr(fd)
 internet_available.set()
 
 IDLE_TIMEOUT = 600 
-# TODO implement a batter session timeout function
+# TODO: implement a batter session timeout function
 # def handler(signum, frame):
 #     """This function runs when the alarm goes off."""
 #     raise TimeoutError
 
-#TODO fix the internet health monitor later
+#TODO: fix the internet health monitor later
 # def net_interrupt():
 #     """
 #     displays fancy waiting animation
@@ -95,31 +94,32 @@ def acquire_lock():
 
 
 def main():
-     while True:
+    
 
-        # PRE-FLIGHT RESET
-        with console.status("[bold green]Initializing secure environment...[/bold green]"):
-            subprocess.run(["bw", "logout"])
-            subprocess.run(["sudo", "pkill", "tailscaled"])
-            time.sleep(1)
+    # PRE-FLIGHT RESET
+    with console.status("[bold green]Initializing secure environment...[/bold green]"):
+        subprocess.run(["bw", "logout"], capture_output= True)
+        subprocess.run(["sudo", "pkill", "tailscaled"], capture_output= True)
+        time.sleep(1)
 
-        console.rule("[bold blue]Cloith Platform Manager[/bold blue]")
-        try:
-            # 1. AUTHENTICATION (The Gatekeeper)
-            session_key = login_to_bitwarden()
+    console.rule("[bold blue]Cloith Platform Manager[/bold blue]")
+    try:
+        # 1. AUTHENTICATION (The Gatekeeper)
+        session_key = login_to_bitwarden()
 
-            if not session_key:
-                sys.exit(1)
+        if not session_key:
+            sys.exit(1)
 
-            # 2. SYNC TO ENSURE LATEST VAULT DATA
-            with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
-                sync_bitwarden_vault(session_key)
+        # 2. SYNC TO ENSURE LATEST VAULT DATA
+        with console.status("[bold yellow]Syncing Bitwarden vault...[/bold yellow]"):
+            sync_bitwarden_vault(session_key)
 
-            # 3. TAILSCALE NETWORK CHECK
-            network_check(session_key)
+        # 3. TAILSCALE NETWORK CHECK
+        network_check(session_key)
 
-            template = scan_and_provision()
+        template = scan_and_provision()
 
+        while True:
             choice = questionary.select(
                 "Main Menu - Select an Action:",
                 choices=[
@@ -131,7 +131,7 @@ def main():
 
             if choice == "❌ Exit Manager" or choice is None:
                 console.print("[yellow]Shutting down manager...[/yellow]")
-                break  
+                break 
 
             elif choice == "🛠️ Redeploy: (Runs the main playbook to apply changes)":
                 deploy_template(template, session_key)
@@ -141,26 +141,26 @@ def main():
                 console.print(f"Current Session: [cyan]{session_key[:12]}***[/cyan]")
                 input("\nPress Enter to return to menu...")
 
-        except KeyboardInterrupt:
-            console.print("\n[yellow]⚠ Force shutdown (Ctrl+C).[/yellow]")
-        except TimeoutError:
-            console.print("\n[red]⏰ Session timed out due to inactivity.[/red]")
-
-        finally:
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⚠ Force shutdown (Ctrl+C).[/yellow]")
+    except TimeoutError:
+        console.print("\n[red]⏰ Session timed out due to inactivity.[/red]")
+        
+if __name__ == "__main__":
+    manager_lock = acquire_lock()
+    try:
+        main()
+    finally:
             manager_lock.close()
             if os.path.exists("/tmp/platform_manager.lock"):
                 os.remove("/tmp/platform_manager.lock")
             with console.status("[bold yellow]Logging out of Tailscale...[/bold yellow]"):
-                pexpect.run("sudo tailscale logout")
+                subprocess.run(["sudo", "tailscale", "logout"], capture_output=True)
             with console.status("[bold yellow]🔥 Burning the bridge (Shutting down Tailscale)...[/bold yellow]"):
-                pexpect.run("sudo pkill tailscaled")
+                subprocess.run(["sudo", "pkill", "tailscaled"], capture_output=True)
             console.print("[green]✓ Tunnel destroyed. Attack surface minimized.[/green]")
             with console.status("[bold yellow]Logging out of bitwarden...[/bold yellow]"):
-                pexpect.run("bw logout")
+                subprocess.run(["bw", "logout"], capture_output=True)
             console.print("[bold red]🔒 Session terminated. Goodbye![/bold red]")
-        
-if __name__ == "__main__":
-    manager_lock = acquire_lock()
-    main()
 
         

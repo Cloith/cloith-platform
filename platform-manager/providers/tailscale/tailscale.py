@@ -28,7 +28,12 @@ def network_check(session_key):
     while not connected:
         auth_key = get_secret("tailscale_auth_key", session_key)
 
-        cmd = ["tailscale", "up", "--authkey=", auth_key, "--accept-routes=false", "--accept-dns=false"]
+        cmd = [
+            "tailscale","up",
+            f"--authkey={auth_key}",
+            "--accept-routes=false",
+            "--accept-dns=false"
+            ]
         child = pexpect.spawn("sudo", cmd , timeout=60, encoding='utf-8')
         with console.status("[bold yellow]Starting Tailscale net...[/bold yellow]") as status:    
             index = child.expect(["invalid key", "backend error", pexpect.EOF, pexpect.TIMEOUT])
