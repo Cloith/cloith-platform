@@ -94,7 +94,6 @@ def acquire_lock():
 
 
 def main():
-    
 
     # PRE-FLIGHT RESET
     with console.status("[bold green]Initializing secure environment...[/bold green]"):

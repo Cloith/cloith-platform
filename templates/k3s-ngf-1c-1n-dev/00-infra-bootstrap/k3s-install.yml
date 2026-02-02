@@ -72,7 +72,7 @@
         msg:
           - "###########################################################"
           - "SUCCESS! Your cluster is ready."
-          - "You can now ssh to the server by opening another server"
+          - "You can now ssh to the server by opening another terminal"
           - "and using the command below"     
           - "tailscale ssh {{ ansible_user }}@{{ ansible_host }}" 
           - "###########################################################"

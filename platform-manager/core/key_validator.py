@@ -1,6 +1,5 @@
-
 import sys
-import subprocess
+import os
 import requests
 import pexpect
 from rich.console import Console
@@ -12,11 +11,17 @@ def validate_key(name, token):
     Validates the given key based on its type.
     """
     if name == "hostinger_token":
-        return validate_hostinger_token(token)
+        valid = validate_hostinger_token(token)
+        token = None
+        return valid
     elif name == "tailscale_api_key":
-        return validate_ts_api(token)
+        valid = validate_ts_api(token)
+        token = None
+        return valid
     elif name == "tailscale_auth_key":
-        return validate_ts_auth(token)
+        valid = validate_ts_auth(token)
+        token = None
+        return valid
     elif name == "username":
         console.print(f"[green]✓ Username: [yellow]{token}[/yellow] fecthed from vault.[/green]")
         return True  # No validation needed for username
@@ -50,20 +55,21 @@ def validate_ts_api(token):
     return False
 
 def validate_ts_auth(token):
-    # Pass as a LIST, not a string. 'sudo' is the command, the rest are args.
-    # This prevents the token from ever being interpreted as code.
-    args = ["tailscale", "login", "--authkey", token]
+    targeted_env = {
+                "TS_AUTHKEY": token,
+                "PATH": "/usr/sbin:/usr/bin:/sbin:/bin", 
+                "TERM": os.environ.get("TERM", "xterm-256color")
+            }
+    cmd = ["sudo", "tailscale", "login", "--authkey=$TS_AUTHKEY"]
     
     try:
-        child = pexpect.spawn("sudo", args, timeout=15, encoding='utf-8')
+        child = pexpect.spawn(f"sh -c '{cmd}'", env=targeted_env, timeout=60, encoding='utf-8')
         index = child.expect(["invalid key", "backend error", pexpect.EOF, pexpect.TIMEOUT])
 
-        if index == 0 or index == 1:
-            return False 
-                
+        if index in [0,1]:
+            return False  
         if index == 2:
-            return True 
-        
+            return True
         if index == 3:
             console.print("[yellow]! Validation timed out.[/yellow]")
             return False
@@ -71,3 +77,5 @@ def validate_ts_auth(token):
     except Exception as e:
         console.print(f"[red]Error during validation: {e}[/red]")
         return False
+    finally:
+       token = None

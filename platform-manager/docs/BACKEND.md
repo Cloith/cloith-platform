@@ -7,7 +7,7 @@ The primary role of the Platform Manager is to act as a Controller. It must coor
 ### 1. The Interrogation Engine (Pexpect Logic)
 The Choice: Replacing standard subprocess calls with an interactive Pexpect stream.
 
-The Reason: Most CLI tools are designed for humans, not scripts. They print errors to stdout but don't always return useful exit codes. By using pexpect, the backend "interrogates" the process. It watches the buffer for specific strings like "invalid key" or "backend error". This allows the backend to make intelligent decisions—like triggering a re-authentication loop—rather than simply crashing.
+The Reason: Most CLI tools are designed for humans, not scripts. Well-designed CLI tools print errors to stderr, while some poorly designed tools may mix output streams, but don't always return useful exit codes. By using pexpect, the backend "interrogates" the process. It watches the buffer for specific strings like "invalid key" or "backend error". This allows the backend to make intelligent decisions—like triggering a re-authentication loop—rather than simply crashing.
 
 ### 2. State-Driven Validation Loops
 The Choice: Implementing a while not connected state-aware loop for network authentication.
