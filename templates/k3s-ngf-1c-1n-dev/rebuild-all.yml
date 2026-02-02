@@ -7,7 +7,7 @@
 - name: "Nuke and Reinstall VPS"
   ansible.builtin.import_playbook: 00-infra-bootstrap/recreate-vps.yml
 
-# reload new values for PLAY 3
+# reload new values for PLAY 2
 - name: "Refresh Inventory to pick up the new IP"
   hosts: localhost
   tasks:
@@ -22,7 +22,7 @@
 - name: "System prep and Hardening"
   ansible.builtin.import_playbook: 00-infra-bootstrap/system-prep.yml
 
-# reload new values for PLAY 4
+# reload new values for PLAY 3
 - name: "Refresh Inventory to pick up the new IP"
   hosts: localhost
   tasks:

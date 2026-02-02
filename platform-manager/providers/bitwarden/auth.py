@@ -17,7 +17,7 @@ def login_to_bitwarden():
                 "Enter your Bitwarden Email:",
                 validate=lambda text: True if "@" in text and "." in text else "Please enter a valid email"
             ).ask()
-            # bug fix that when you ctrl+c it shows an error while asking for email
+            # Prevent error when user cancels input (Ctrl+C)
             if email is None: return False
             child.sendline(email)
 
@@ -45,7 +45,9 @@ def login_to_bitwarden():
                 if otp_code is None: return False
                 child.sendline(otp_code)
                 child.expect("You are logged in!")
-            
+            elif next_step == 2:
+                # Direct login success without 2FA - proceed to key extraction
+                pass
             elif next_step == 3:
                 console.print("[red]✘ Invalid Master Password.[/red]")
                 if not questionary.confirm("Try again?").ask(): return False

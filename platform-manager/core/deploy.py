@@ -3,15 +3,15 @@ import json
 import tempfile
 import shlex
 import os
-import time
 import re
+import sys
 from rich.console import Console
 from providers.bitwarden.vault import get_secret
 
 console = Console()
 
 def deploy_template(template_name, session_key):
-    # ... (Keep your secret fetching logic) ...
+    # TODO: make it async, avoided it because of potential race condition caused by the auto validation from the get_secret function
     net_auth_key = get_secret("tailscale_auth_key", session_key)
     net_api_key = get_secret("tailscale_api_key", session_key)
     vps_api_key = get_secret("hostinger_token", session_key)
@@ -63,7 +63,7 @@ def deploy_template(template_name, session_key):
                 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
                 clean_line = ansi_escape.sub('', line).strip()
                 
-                if not clean_line: # Skip empty lines
+                if not clean_line:
                     continue
 
                 # 2. Filter out the vars_json leak
@@ -90,6 +90,9 @@ def deploy_template(template_name, session_key):
 
     except Exception as e:
         console.print(f"❌ [bold red]An error occurred:[/bold red] {e}")
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⚠ Force shutdown (Ctrl+C).[/yellow]")
+        sys.exit(1)
     finally:
         # 6. Cleanup the evidence
         if os.path.exists(fifo_path):
@@ -98,3 +101,4 @@ def deploy_template(template_name, session_key):
             os.rmdir(tmpdir)
         if child and child.isalive():
             child.close()
+        
