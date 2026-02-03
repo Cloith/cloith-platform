@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # Platform Manager: Backend Architecture
 
 ## The Challenge: Orchestrating Unreliable External States
@@ -34,3 +36,5 @@ Concurrency: Non-blocking I/O for socket polling (/var/run/tailscale/)
 | Defensive Execution: The pexpect loop catches "Soft Failures" (like expired keys) that standard scripts would miss. | Complexity Overhead: The codebase is larger and more complex than a simple Shell script. |
 | State Integrity: The Manager will not attempt to run Ansible playbooks unless the network state is verified as Connected. | Timing Sensitivity: The backend relies on polling loops and timeouts, which may need tuning for slower hardware. |
 | Error Interrogation & Translation: Instead of passing through raw, cryptic stderr from external binaries, the Manager parses process streams in real-time. It translates low-level failures (like socket timeouts or auth-key expirations) into actionable, high-fidelity feedback for the user via the Rich interface. | Dependency Heavy: The backend requires specific Python libraries and the Bitwarden CLI to be pre-installed in the container. |
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)

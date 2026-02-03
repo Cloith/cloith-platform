@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # Platform Manager: Frontend & UX Design
 ## The Challenge: Visualizing the "Invisible"
 Infrastructure orchestration is often a "black box." When running complex tasks like networking setups and secret fetching, a user can easily become frustrated if the terminal appears to "hang" or if error messages are too cryptic to understand.
@@ -40,3 +42,5 @@ UX Pattern: Guided Workflow (Linear step-by-step execution)
 | Lower Entry Barrier: New developers can use the tool immediately without reading a 50-page manual. | Non-Scriptable: Interactive prompts make it harder to run the manager in a fully "headless" CI/CD pipeline (like GitHub Actions) without modification. |
 | Error Prevention: Interactive menus prevent "typos" in command-line arguments. | Dependency Weight: Adding Rich and Questionary increases the container image size slightly. |
 | Professional Polish: A styled UI builds trust in the tool's reliability and the developer's attention to detail. | Terminal Compatibility: Requires a modern terminal that supports ANSI escape codes and colors. |
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
