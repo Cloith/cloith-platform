@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # Security Architecture & Secret Orchestration
 
 ## The Challenge: The "Leaky Disk" Problem
@@ -36,3 +38,6 @@ The Reason: Credentials eventually expire. Instead of a hard failure, the Manage
 | Zero-Disk Exposure: Secrets are never written to the SSD, neutralizing "Resting Data" attacks. | Session Dependency: If the Bitwarden session expires mid-run, the Manager loses its ability to fetch new secrets. |
 | Centralized Control: All infrastructure keys (Tailscale, SSH, API) are managed in one encrypted vault. | Complexity: Implementing FIFO pipes and pexpect loops is significantly harder than using simple .env files. |
 | Audit Ready: Using a CLI-based vault allows for logging who accessed what secret and when. | Manual Intervention: A human must still provide the initial "Master Key" to unlock the vault for the session. |
+
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)

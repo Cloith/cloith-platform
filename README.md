@@ -11,7 +11,7 @@ What started as learning simple logic has evolved into a passion for "Systems Th
 | Project | Status | Description |
 | :--- | :--- | :--- |
 | [**platform-manager**](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) | Python-based orchestrator for secure environment bootstrapping. |
-| [**infra-template**]() | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) | Reusable Ansible/Terraform blueprints for rapid deployment. |
+
 
 ### Software Engineering
 

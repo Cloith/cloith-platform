@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # 🌐 Internal Networking & Portability Logic
 
 ## The Challenge: Headless Container Isolation
@@ -39,3 +41,5 @@ The Reason: Decouples the network tunnel from the Python script’s lifecycle. T
 | **Zero-Install Portability:** No need to manually install Tailscale on your host machine. Just `docker build` and the network is ready. | **No `--ssh` Support:** Tailscale SSH requires binding to the OS kernel to intercept port 22, which is restricted within an unprivileged container. |
 | **Host Cleanliness:** Your host OS remains "clean"; all VPN routes, drivers, and configs are isolated and vanish when the container is destroyed. | **Restricted `--hostname`:** Because the container lacks kernel-level control over the network stack, Tailscale cannot override the system hostname. |
 | **Security & Permissions:** Operates without the `--privileged` flag or `NET_ADMIN` capabilities, maintaining a minimal security footprint. | **Proxy Dependency:** Local tools (Ansible/SSH) cannot see the network natively and must be configured to use the SOCKS5 proxy (port 1055). |
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)

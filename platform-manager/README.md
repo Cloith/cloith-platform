@@ -1,6 +1,9 @@
+#### [🏠 Home](../README.md) 
+---
 # Platform Manager
 
 The core orchestrator for Project Cloith. This tool handles secure environment bootstrapping, automated networking, and secret management.
+![Platform Manager Demo](../platform-manager/docs/screenshots/demo.gif)
 
 ## Quick Start
 [View the Step-by-Step Tutorial](../platform-manager/docs/TUTORIAL.md)
@@ -39,3 +42,6 @@ I have documented the specific engineering domains applied in this project. Clic
 | :--- |
 | Interactive Prompts (Questionary) |
 | Visual Status Feedback (Rich) |
+
+---
+#### [🏠 Home](../README.md) 

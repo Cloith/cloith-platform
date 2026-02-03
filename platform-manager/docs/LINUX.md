@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # Linux Systems Integration & Hardening
 
 ## The Challenge: Managing State in a Stateless Environment
@@ -34,3 +36,5 @@ Impact: This abstracts the underlying Python execution path, allowing the develo
 | Atomic Reliability: fcntl ensures that two deployment tasks never clash, protecting the infrastructure state. | Non-Networked Locks: flock only works locally; if the Manager were scaled to multiple nodes, a distributed lock (like Redis/Etcd) would be required. |
 | High Security: Dropping SYS_PTRACE and using FIFO pipes significantly reduces the attack surface for secret exfiltration. | Debugging Friction: Dropping SYS_PTRACE makes it harder to use standard debuggers (like GDB) on the manager inside the container. |
 | Zero-Cleanup Secrets: Named pipes exist in RAM; there is no risk of "forgetting" to delete a temporary secret file. | Blocking IO: FIFO pipes are blocking; if the receiver never opens the pipe, the Manager will hang until the connection is made. |
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)

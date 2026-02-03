@@ -1,3 +1,5 @@
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
+---
 # Tutorial: Secure Infrastructure Deployment
 
 This guide provides a step-by-step walkthrough for deploying automated infrastructure using the **Cloith-Platform Manager**. This project leverages **Dev Containers** for environment consistency and **Bitwarden** for zero-exposure secret management.
@@ -71,3 +73,5 @@ Execution: Sit back and wait for the Ansible Playbook to complete the configurat
 Zero-Exposure: Secrets are fetched directly from your Bitwarden vault and injected into the deployment process via RAM pipes.
 
 Ephemeral Networking: By using ephemeral Tailscale keys, your infrastructure remains hidden from the public internet and automatically de-registers upon teardown.
+---
+#### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)
