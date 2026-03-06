@@ -1,6 +1,6 @@
 from textual import on
 from textual.widgets import (
-    Static, TabbedContent, RadioButton,Input, Button
+    Static, RadioButton, Button
 )
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from textual.app import ComposeResult

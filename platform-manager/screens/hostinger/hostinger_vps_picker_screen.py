@@ -1,14 +1,14 @@
 from textual import work, on
 from textual.worker import Worker
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.containers import Vertical, Container
-from textual.widgets import Header, Static, OptionList, Button, Footer, LoadingIndicator
+from textual.widgets import Static, OptionList, Button, LoadingIndicator
 from providers.bitwarden.vault import get_item
 from core.exceptions import ItemNotFoundError, InvalidItemError
 from providers.hostinger.api import HostingerClient
 from screens.base_screen import AppScreen
 from screens.hostinger.setup_wizard_screen import SetupWizardScreen
+from services.vps_service import HostingerVPSService
 
 class HostingerVPSPickerScreen(AppScreen):
     
@@ -61,6 +61,8 @@ class HostingerVPSPickerScreen(AppScreen):
     def on_mount(self) -> None:
         self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
         if hasattr(self.app, "hostinger_token") and self.app.hostinger_token:
+            client = HostingerClient(self.app.hostinger_token)
+            self.vps_service = HostingerVPSService(client)
             self.remove_class("loading")
             self.fetch_vps_list() 
         else:
@@ -75,10 +77,10 @@ class HostingerVPSPickerScreen(AppScreen):
             return e
         
     @work(thread=True, name="vps_fetcher")
-    def fetch_vps_list(self):
+    async def fetch_vps_list(self):
         try:
-            client = HostingerClient(self.app.hostinger_token)
-            return client.get_vps_list()
+            vps_list = await self.vps_service.get_all_vps()
+            return vps_list
         except Exception as e:
             return e
     
@@ -109,32 +111,23 @@ class HostingerVPSPickerScreen(AppScreen):
         option_list.clear_options()
         
         for vps in vps_data:
-            hostname = vps.get("hostname", "Unknown")
-            status = vps.get("state", "unknown").upper()
+            hostname = vps.name
+            status = vps.status
             option_list.add_option(f"{hostname} [{status}]")
 
     @on(OptionList.OptionHighlighted)
     def update_description(self, event: OptionList.OptionHighlighted) -> None:
         vps = self.app.vps_inventory[event.option_index]
         
-        ram_gb = vps.get("memory", 0) / 1024
-        disk_gb = vps.get("disk", 0) / 1024
-        
-        ipv4_list = vps.get("ipv4") or []
-        ip_addr = ipv4_list[0].get("address") if ipv4_list else "N/A"
-        
         details = (
-            f"[bold cyan]Hostname:[/bold cyan] {vps.get('hostname')}\n"
-            f"[bold cyan]Status:[/bold cyan] {vps.get('state', 'unknown').upper()}\n"
-            f"[bold cyan]IP Address:[/bold cyan] {ip_addr}\n"
+            f"[bold cyan]Name:[/bold cyan] {vps.name}\n"
+            f"[bold cyan]Status:[/bold cyan] {vps.status}\n"
+            f"[bold cyan]IP Address:[/bold cyan] {vps.ip}\n"
             "-----------------------------------\n"
-            f"[bold]Plan:[/bold] {vps.get('plan')}\n"
-            f"[bold]OS:[/bold] {vps.get('template', {}).get('name')}\n"
-            f"[bold]CPU:[/bold] {vps.get('cpus')} Cores\n"
-            f"[bold]RAM:[/bold] {ram_gb:.0f} GB\n"
-            f"[bold]Disk:[/bold] {disk_gb:.0f} GB\n"
-            "-----------------------------------\n"
-            f"[italic white]{vps.get('template', {}).get('description', '')[:100]}...[/italic white]"
+            f"[bold]CPU:[/bold] {vps.cpu_cores} Cores\n"
+            f"[bold]RAM:[/bold] {vps.ram_gb:.0f} GB\n"
+            f"[bold]Disk:[/bold] {vps.disk_gb:.0f} GB\n"
+            f"[bold]Disk:[/bold] {vps.os_name} GB\n"
         )
         self.query_one("#description-container Static", Static).update(details)
 

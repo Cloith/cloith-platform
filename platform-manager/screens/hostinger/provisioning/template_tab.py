@@ -1,14 +1,12 @@
 from textual import on, work
 from textual.widgets import (
-    Static, TabbedContent, RadioButton, ContentSwitcher,
-    Input, Checkbox, TabPane, RadioSet, LoadingIndicator,
+    Static, RadioButton, Input, RadioSet
 )
 from textual.app import ComposeResult
 from providers.hostinger.api import HostingerClient
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
-from services.template_service import TemplateService
-from services.base_service import BaseVPSService
+from services.template_service import HostingerTemplateService
 
 class TemplateTab(Static):
  
@@ -20,17 +18,17 @@ class TemplateTab(Static):
     def on_mount(self) -> None:
         self.post_message(DescriptionUpdate("Select a template from the list to view its description"))
         self.new_buttons = []
+        client = HostingerClient(self.app.hostinger_token)
+        self.template_service = HostingerTemplateService(client)
         self.fetch_templates()
     
     @work(exclusive=True, name="template_fetcher")
     async def fetch_templates(self) -> None:
-        client = HostingerClient(self.app.hostinger_token)
-        service = BaseVPSService(client)
 
         try:
-            templates = await service.get_all_templates()
+            vps_list = await self.template_service.get_all_templates()
             
-            return templates
+            return vps_list
         except Exception as e:
             self.notify(f"Failed to fetch templates: {e}", severity="error")
 

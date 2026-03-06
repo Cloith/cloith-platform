@@ -5,7 +5,7 @@ from textual.widgets import (
 from textual.containers import Vertical, Horizontal, Container
 from textual.app import ComposeResult
 from services.password_service import PasswordService
-from services.password_policy import PasswordPolicy
+from models.password import PasswordPolicy
 from widgets.rich_spinner import LoadingSpinner
 
 
@@ -118,6 +118,3 @@ class PolicyPasswordTab(Static):
         # 5. Clean up the classes to show the message again
         self.password_container.remove_class("show-animation")
         self.password_container.add_class("check-for-leak")
-
-                
-     

@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from screens.hostinger.provisioning.template_tab import TemplateTab
 from screens.hostinger.provisioning.policy_password_tab import PolicyPasswordTab
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
-from services.password_policy import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
+from models.password import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
 
 
 class ProvisioningScreen(Static):

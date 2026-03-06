@@ -1,7 +1,7 @@
 import hashlib
 import httpx
 import string
-from services.password_policy import PasswordPolicy
+from models.password import PasswordPolicy
 
 class PasswordService:
     def __init__(self, policy: PasswordPolicy):
@@ -53,52 +53,5 @@ class PasswordService:
                 return any(h[0] == suffix for h in hashes)
             except Exception:
                 return False
-             
-
-    
-    # @on(Input.Changed, "#panel-password-input")
-    # async def validate_password(self, event: Input.Changed) -> None:
-    #     pw = event.value
-        
-    #     checks = {
-    #         "req-length": len(pw) >= 12,
-    #         "req-upper": any(c.isupper() for c in pw),
-    #         "req-lower": any(c.islower() for c in pw),
-    #         "req-number": any(c.isdigit() for c in pw),
-    #     }
-
-    #     for req_id, is_valid in checks.items():
-    #         widget = self.query_one(f"#{req_id}", Static)
-    #         label = self.REQS[req_id]
-    #         if is_valid:
-    #             widget.update(f"[b green]✔[/] {label}")
-    #             widget.add_class("req-valid")
-    #         else:
-    #             widget.update(f"[b red]✖[/] {label}")
-    #             widget.remove_class("req-valid")
-
-    #     leak_widget = self.query_one("#req-leak", Static)
-    #     leak_label = self.REQS["req-leak"]
-    #     if all(checks.values()):
-    #         leak_widget.update(Spinner("dots", text=f" {leak_label}"))
-    #         self.run_leak_check(pw)
-    #     else:
-    #         leak_widget.update(f"[b red]✖[/] {leak_label}")
-    #         leak_widget.set_class(False, "req-valid")
-
-    # @work(exclusive=True)
-    # async def run_leak_check(self, password: str) -> None:
-    #     """Background worker to check for leaks without freezing the UI."""
-    #     leak_widget = self.query_one("#req-leak", Static)
-        
-    #     # Perform the async API call
-    #     is_leaked = await self.is_password_leaked(password)
-        
-    #     # Update the UI based on the result
-    #     if is_leaked:
-    #         leak_widget.update(f"[red]✖[/] {self.REQS['req-leak']} (Leaked!)")
-    #         leak_widget.set_class(False, "req-valid")
-    #     else:
-    #         leak_widget.update(f"[green]✔[/] {self.REQS['req-leak']}")
-    #         leak_widget.set_class(True, "req-valid")
+            
     
