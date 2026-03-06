@@ -1,0 +1,153 @@
+LoginScreen {
+    align: center middle;
+}
+
+Input {
+    margin-bottom: 1;
+}
+
+Input.-invalid {
+    border: tall $error;
+    color: $error;
+}
+
+Input.-valid {
+    border: tall $success;
+}
+
+LoadingIndicator {
+    display: none;
+    height: 100%;
+}
+
+#login-container {
+    width: 50;
+    height: auto;
+    border: double $primary;
+    padding: 1 2;
+    background: $surface;
+}
+
+#login-title {
+    align: center middle;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 1;
+    text-style: bold;
+    color: $accent;
+}
+
+#otp {
+    display: none;
+}
+
+#error-message {
+    text-align: center;
+    margin-top: 1;
+    height: 1;
+}
+
+#button-container {
+    width: 100%;
+    height: 3;     
+    margin-top: 1;
+    align: center middle;
+}
+
+#login-btn {
+    display: block;    
+    width: 100%;
+}
+
+#otp-btn {
+    display: none;
+    width: 100%;
+}
+
+/* The Wrapper becomes the "fake" input box */
+#password-wrapper {
+    border: tall $accent;
+    background: $surface;
+    height: 3; 
+    width: 100%;
+    padding: 0 1;
+}
+
+/* Remove the default look of the actual input */
+#password-wrapper > Input {
+    border: none;
+    width: 1fr;
+    height: 1;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+}
+
+#password-wrapper > Input:focus {
+    border: none; /* Prevents the border appearing on focus */
+}
+
+/* Style the button to look like a small icon on the right */
+#toggle-pw-btn {
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    min-width: 4;
+    width: 4;
+    height: 1;
+    padding: 0;
+    margin: 0;
+}
+
+#toggle-pw-btn:hover {
+    color: $accent;
+    text-style: bold;
+}
+
+#status-message {
+    text-align: center;
+}
+
+.searching LoadingIndicator {
+    display: block;    
+}
+
+.searching #login-btn {
+    display: none;   
+}
+
+.otp #login-btn {
+    display: none;
+}
+
+.otp #password {
+    display: none;
+}
+
+.otp #email {
+    display: none;
+}
+
+.otp #otp-btn {
+    display: block;
+}
+
+.otp LoadingIndicator {
+    display: none;
+}
+
+.otp #otp {
+    display: block;
+}
+
+.otp #password-wrapper {
+    display: none;
+}
+
+.otp .searching #otp-btn {
+    display: none;
+}
+
+.otp .searching LoadingIndicator {
+    display: block;
+}

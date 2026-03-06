@@ -11,34 +11,24 @@ def validate_key(name, token):
     Validates the given key based on its type.
     """
     if name == "hostinger_token":
-        valid = validate_hostinger_token(token)
-        token = None
-        return valid
+        return validate_hostinger_token(token)
     elif name == "tailscale_api_key":
-        valid = validate_ts_api(token)
-        token = None
-        return valid
+        return validate_ts_api(token)
     elif name == "tailscale_auth_key":
-        valid = validate_ts_auth(token)
-        token = None
-        return valid
+        return validate_ts_auth(token)
     elif name == "username":
-        console.print(f"[green]✓ Username: [yellow]{token}[/yellow] fecthed from vault.[/green]")
-        return True  # No validation needed for username
+        return True 
     
 
 def validate_hostinger_token(token):
-    url = "https://developers.hostinger.com/api/billing/v1/subscriptions" # Example lightweight endpoint
+    url = "https://developers.hostinger.com/api/billing/v1/subscriptions" 
     headers = {"Authorization": f"Bearer {token}"} 
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code !=200:
-            return False
-        return True
-    except Exception:
-        console.print("[red]Error: Unable to reach Tailscale API for validation.[/red]")
-        sys.exit(1)
-    return False
+    
+    response = requests.get(url, headers=headers, timeout=5)
+    
+    if response.status_code !=200:
+        return False
+    return True
 
 
 def validate_ts_api(token):
@@ -46,7 +36,7 @@ def validate_ts_api(token):
     headers = {"Authorization": f"Bearer {token}"}
     try:
         response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code !=200:
+        if response.status_code !=200:  
             return False
         return True
     except Exception:

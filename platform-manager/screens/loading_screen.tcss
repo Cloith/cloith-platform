@@ -1,0 +1,20 @@
+LoadingScreen {
+    align: center middle;
+}
+LoadingIndicator {
+    height: 50%;
+    content-align: center middle;
+}
+
+#title {
+    text-align: center;
+    text-style: bold;
+    color: $accent;
+    margin-bottom: 1;
+}
+
+#sub-title {
+    text-align: center;
+    margin-bottom: 2;
+    height: 1;
+}

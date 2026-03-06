@@ -2,7 +2,7 @@
 ---
 # Platform Manager
 
-The core orchestrator for Project Cloith. This tool handles secure environment bootstrapping, automated networking, and secret management.
+This project is a secure infrastructure bootstrap and deployment manager designed for single-node VPS environments. It integrates external secret management (Bitwarden), automates OS hardening and containerized workload setup (Docker or k3s), configures ingress routing, and provides operational visibility through a Textual-based terminal UI. The tool emphasizes reproducibility, secure defaults, and reduced manual configuration for small-scale deployments.
 ![Platform Manager Demo](../platform-manager/docs/screenshots/demo.gif)
 
 ## Quick Start

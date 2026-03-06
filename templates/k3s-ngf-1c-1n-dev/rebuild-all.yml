@@ -33,3 +33,7 @@
 - name: "K3s Installation"
   ansible.builtin.import_playbook: 00-infra-bootstrap/k3s-install.yml
 
+# PLAY 4: NGF installation (Imported)
+- name: "NGF Installation"
+  ansible.builtin.import_playbook: 00-infra-bootstrap/ngf-install.yml
+

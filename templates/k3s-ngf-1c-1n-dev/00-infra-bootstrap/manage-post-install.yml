@@ -8,20 +8,21 @@
     # This is the actual bash script that will run on the VPS
     script_content: |
       #!/bin/bash
-      # Redirect all output to log for debugging
-      exec > /post_install.log 2>&1
-   
-      echo "Starting Bootstrap at $(date)"
-
-      # 2. Setup Tailscale
-      curl -fsSL https://tailscale.com/install.sh | sh
-      tailscale up --authkey={{ tailscale_auth_key }} --ssh --accept-dns=true
-
-      # 3. Firewall - Locked down but allowing Tailscale
+      #Firewall - Locked down but allowing Tailscale
       ufw default deny incoming
       ufw default allow outgoing
       ufw allow in on tailscale0
       ufw --force enable
+      
+      # Redirect all output to log for debugging
+      exec > /post_install.log 2>&1
+   
+      echo "Starting Bootstrap at $(date)"
+      
+
+      #Setup Tailscale
+      curl -fsSL https://tailscale.com/install.sh | sh
+      tailscale up --authkey={{ tailscale_auth_key }} --ssh --accept-dns=true
       
       echo "Bootstrap complete at $(date)"
 

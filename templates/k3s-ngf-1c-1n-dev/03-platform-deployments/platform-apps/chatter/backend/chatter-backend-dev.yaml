@@ -32,11 +32,11 @@ spec:
             - name: NODE_ENV
               value: "development"
             # Injecting all secrets at once
-            - name: MONGODB_URI
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secrets
-                  key: MONGODB_URI
+            # - name: MONGODB_URI
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: backend-secrets
+            #       key: MONGODB_URI
             # Add any other variables here following the same pattern
 ---
 apiVersion: v1

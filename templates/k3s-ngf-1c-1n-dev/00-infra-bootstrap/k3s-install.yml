@@ -39,32 +39,46 @@
         dest: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
         flat: yes
 
-    - name: "Update Server IP in local kubeconfig"
-      # This task runs on your MSI laptop, not the server!
+    - name: "Update Server IP to Tailscale IP in local config"
       delegate_to: localhost
       become: no
       ansible.builtin.replace:
         path: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
-        regexp: 'https://127.0.0.1:6443'
-        replace: "https://{{ ts_ip }}:6443"
+        regexp: '127.0.0.1'
+        replace: "{{ ts_ip }}"
 
-    - name: "Instructions for local access"
+    - name: "Ensure ~/.kube directory exists locally"
       delegate_to: localhost
-      debug:
-        msg: "To use your new cluster, run: export KUBECONFIG=~/.kube/config-hostinger && kubectl get nodes"
-
-    - name: "Add alias to local shell configuration"
+      become: no
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.kube"
+        state: directory
+        mode: '0700'
+    
+    - name: "Set KUBECONFIG Env Var in shell profile"
       delegate_to: localhost
       become: no
       ansible.builtin.lineinfile:
-        # This detects if you are using Bash or Zsh
         path: "{{ lookup('env', 'HOME') }}/{{ '.zshrc' if lookup('env', 'SHELL') is search('zsh') else '.bashrc' }}"
-        # The line to look for (to prevent duplicates)
-        regexp: '^alias k-hostinger='
-        # The line to add
-        line: 'alias k-hostinger="export KUBECONFIG=~/.kube/config-hostinger"'
+        regexp: '^export KUBECONFIG='
+        # This line includes both the default config and your new Hostinger config
+        line: 'export KUBECONFIG=$HOME/.kube/config:$HOME/.kube/config-hostinger'
         state: present
-        create: yes # Creates the file if it doesn't exist
+        create: yes
+        
+    - name: "Configure Cluster to use Tailscale Proxy"
+      delegate_to: localhost
+      become: no
+      # We use shell here because it's the easiest way to add a new key to the YAML
+      shell: |
+        kubectl config --kubeconfig={{ lookup('env', 'HOME') }}/.kube/config-hostinger \
+        set-cluster default --proxy-url=socks5://127.0.0.1:1055
+
+    - name: "Verify local access immediately"
+      delegate_to: localhost
+      shell: "KUBECONFIG={{ lookup('env', 'HOME') }}/.kube/config-hostinger kubectl get nodes"
+      register: kube_test
+      changed_when: false
 
     - name: "FINAL STEP: REFRESH YOUR TERMINAL"
       delegate_to: localhost
