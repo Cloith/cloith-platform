@@ -5,13 +5,16 @@ from textual.containers import Vertical, Container
 from textual.widgets import Static, OptionList, Button, LoadingIndicator
 from providers.bitwarden.vault import get_item
 from core.exceptions import ItemNotFoundError, InvalidItemError
-from providers.hostinger.api import HostingerClient
 from screens.base_screen import AppScreen
 from screens.hostinger.setup_wizard_screen import SetupWizardScreen
-from services.vps_service import HostingerVPSService
+from services.base_vps import BaseVPSService
 
-class HostingerVPSPickerScreen(AppScreen):
-    
+class VPSPickerScreen(AppScreen):
+
+    def __init__(self, service: BaseVPSService): 
+        super().__init__()
+        self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
+        self.vps_service = service
     
     CSS = """
     #loading-container {
@@ -59,10 +62,7 @@ class HostingerVPSPickerScreen(AppScreen):
                 yield Static("")
 
     def on_mount(self) -> None:
-        self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
         if hasattr(self.app, "hostinger_token") and self.app.hostinger_token:
-            client = HostingerClient(self.app.hostinger_token)
-            self.vps_service = HostingerVPSService(client)
             self.remove_class("loading")
             self.fetch_vps_list() 
         else:

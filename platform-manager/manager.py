@@ -8,14 +8,15 @@ from screens.loading_screen import LoadingScreen
 from screens.login_screen import LoginScreen
 from screens.dashborad_screen import DashboardScreen
 from screens.hostinger.setup_wizard_screen import SetupWizardScreen
-from screens.hostinger.hostinger_vps_picker_screen import HostingerVPSPickerScreen
+from screens.hostinger.vps_picker_screen import VPSPickerScreen
+from screens.manual_deployment_screen import ProviderSelectionScreen
 
 console = Console()
 
 class PlatformManager(App):
     
     def on_mount(self) -> None:
-        self.push_screen(HostingerVPSPickerScreen())
+        self.push_screen(ProviderSelectionScreen())
 
     @staticmethod
     def acquire_lock():

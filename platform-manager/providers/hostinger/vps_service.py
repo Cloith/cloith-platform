@@ -1,12 +1,13 @@
-from services.base_service import BaseVPSService
-from providers.hostinger.api import HostingerClient
+from services.base_vps import BaseVPSService
+from providers.hostinger.client import HostingerClient
 from models.vps import VPSData
 
 class HostingerVPSService(BaseVPSService):
-    def __init__(self, client: HostingerClient):
-        self.client = client
+    def __init__(self, token: str):
+        self.token = token
+        self.client = HostingerClient(token)
 
-    async def get_all_vps(self) -> list[dict]:
+    async def get_all_vps(self) -> list[VPSData]:
         raw_data = await self.client.request("GET", "/virtual-machines")
         
         vps_objects = []
@@ -25,3 +26,4 @@ class HostingerVPSService(BaseVPSService):
                 raw_data=v 
             ))
         return vps_objects
+    

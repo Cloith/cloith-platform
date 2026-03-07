@@ -2,7 +2,10 @@
 ---
 # Platform Manager
 
-This project is a secure infrastructure bootstrap and deployment manager designed for single-node VPS environments. It integrates external secret management (Bitwarden), automates OS hardening and containerized workload setup (Docker or k3s), configures ingress routing, and provides operational visibility through a Textual-based terminal UI. The tool emphasizes reproducibility, secure defaults, and reduced manual configuration for small-scale deployments.
+A secure infrastructure bootstrap and deployment manager for single-node VPS environments, designed around a stateless and ephemeral execution model. The tool acts as a portable gateway that orchestrates VPS provisioning, OS hardening, and containerized workload deployment (Docker or k3s) while dynamically fetching secrets from Bitwarden into volatile memory to ensure zero-persistence security.
+
+It automates secure server initialization, configures ingress routing, and provides operational visibility through a Textual-based terminal UI. The system emphasizes reproducibility, secure defaults, and minimal manual configuration, enabling streamlined and security-focused small-scale infrastructure deployments.
+
 ![Platform Manager Demo](../platform-manager/docs/screenshots/demo.gif)
 
 ## Quick Start

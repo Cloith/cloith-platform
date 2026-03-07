@@ -1,6 +1,7 @@
-from providers.hostinger.api import HostingerClient
+from providers.hostinger.client import HostingerClient
+from services.base_template import BaseTemplateService
 
-class HostingerTemplateService:
+class HostingerTemplateService(BaseTemplateService):
     def __init__(self, client: HostingerClient):
         self.client = client
 
