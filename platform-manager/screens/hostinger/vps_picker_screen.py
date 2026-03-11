@@ -3,7 +3,6 @@ from textual.worker import Worker
 from textual.app import ComposeResult
 from textual.containers import Vertical, Container
 from textual.widgets import Static, OptionList, Button, LoadingIndicator
-from providers.bitwarden.vault import get_item
 from core.exceptions import ItemNotFoundError, InvalidItemError
 from screens.base_screen import AppScreen
 from screens.hostinger.setup_wizard_screen import SetupWizardScreen
@@ -11,10 +10,10 @@ from services.base_vps import BaseVPSService
 
 class VPSPickerScreen(AppScreen):
 
-    def __init__(self, service: BaseVPSService): 
+    def __init__(self, vps_service: BaseVPSService): 
         super().__init__()
         self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
-        self.vps_service = service
+        self.vps_service = vps_service
     
     CSS = """
     #loading-container {
@@ -72,7 +71,8 @@ class VPSPickerScreen(AppScreen):
     @work(thread=True, name="token_fetcher")
     def fetch_hostinger_token(self):
         try:
-            return get_item("hostinger_token", self.app.bw_session)
+            # return get_item("hostinger_token", self.app.bw_session)
+            pass
         except Exception as e:
             return e
         

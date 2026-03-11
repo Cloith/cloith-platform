@@ -5,7 +5,6 @@ from textual.worker import Worker
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from core.exceptions import ItemNotFoundError, InvalidItemError
-from providers.bitwarden.vault import get_item
 from screens.secrets_screen import SecretsScreen
 from screens.deployment_screen import DeploymentScreen
 
@@ -29,7 +28,7 @@ class DashboardScreen(Screen):
             with Container(id="dashboard-grid"):
                 with Vertical(id="loading-container"):
                     yield LoadingIndicator()
-                    yield Static("Loading Metrics...", id="loading-text")
+                    # yield Static(f"{self.app.bw_session}", id="loading-text")
                 with Horizontal(id="metrics-row"):
                     with Vertical(classes="metric-card"):
                         yield Label("CPU USAGE")
@@ -53,7 +52,8 @@ class DashboardScreen(Screen):
     @work(thread=True, name="checker")
     def template_checker(self):
         try:
-            return get_item("TEMPLATE_DATA", self.app.bw_session)
+            # return get_item("TEMPLATE_DATA", self.app.bw_session)
+            pass
         except Exception as e:
             return e
 

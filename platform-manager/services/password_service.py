@@ -32,7 +32,6 @@ class PasswordService:
             allowed_chars = string.ascii_letters + string.digits
             if self.policy.allowed_symbols:
                 allowed_chars += "".join(self.policy.allowed_symbols)
-            
             checks["latin_only"] = all(c in allowed_chars for c in password)
 
         return checks

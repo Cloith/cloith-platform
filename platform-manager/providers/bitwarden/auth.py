@@ -6,7 +6,6 @@ console = Console()
 
 def login_to_bitwarden(email, password, otp_getter):
 
-    # Spawn inside the loop so each attempt is fresh
     child = pexpect.spawn("bw login", encoding='utf-8', timeout=20)
     
     try:

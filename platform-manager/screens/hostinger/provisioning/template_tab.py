@@ -6,7 +6,7 @@ from textual.app import ComposeResult
 from providers.hostinger.client import HostingerClient
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
-from providers.hostinger.template_service import HostingerTemplateService
+from providers.hostinger.hostinger_template_service import HostingerTemplateService
 
 class TemplateTab(Static):
  
