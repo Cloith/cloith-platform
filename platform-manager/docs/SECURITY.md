@@ -39,5 +39,13 @@ The Reason: Credentials eventually expire. Instead of a hard failure, the Manage
 | Centralized Control: All infrastructure keys (Tailscale, SSH, API) are managed in one encrypted vault. | Complexity: Implementing FIFO pipes and pexpect loops is significantly harder than using simple .env files. |
 | Audit Ready: Using a CLI-based vault allows for logging who accessed what secret and when. | Manual Intervention: A human must still provide the initial "Master Key" to unlock the vault for the session. |
 
+Security Design Goals
+
+This project explores approaches to minimizing secret exposure in internal developer tooling, particularly in scenarios involving remote access or untrusted execution environments.
+
+It aims to reduce the risk of credential leakage by avoiding persistent storage of secrets, limiting their lifetime in memory, and centralizing identity and revocation through a secret manager.
+
+This is not a formally audited or certified system, and its security properties have not been independently reviewed. The design reflects experimental, defense-in-depth principles rather than production guarantees.
+
 ---
 #### [🏠 Home](../../README.md) | [⬅️ Back](../README.md)

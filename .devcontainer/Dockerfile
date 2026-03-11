@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     netcat-openbsd \
     lsb-release \
+    jq \
     software-properties-common \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -23,8 +24,9 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/sh
     && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list \
     && apt-get update && apt-get install -y terraform
 
-# 2. Install Ansible (via Pip)
-RUN pip3 install --no-cache-dir ansible
+# 2. Install Ansible (via Pip) and Kubernetes Collection
+RUN pip3 install --no-cache-dir ansible \
+    && ansible-galaxy collection install kubernetes.core
 
 # 3. Install Kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
@@ -43,18 +45,34 @@ RUN curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o bw
     && chmod +x /usr/local/bin/bw \
     && rm bw.zip
 
-# 7. Use the Venv's Pip to install everything (Guarantees the CLI tools go here)
+# 6.1 Install Skaffold
+RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
+    && install skaffold /usr/local/bin/skaffold \
+    && rm skaffold
+
+# 7. Use the Venv's Pip to install everything
 RUN pip install --no-cache-dir \
+    watchdog \
     questionary \
     rich \
     pexpect \
-    requests 
+    requests \
+    httpx[http2] \
+    kubernetes \
+    textual \
+    textual-dev \
+    textual[syntax] \
+    pyyaml \
+    PySocks
 
 # Set the default shell to bash
 ENV SHELL=/bin/bash
 
-# type "manager" on the terminal as a shortcut for running the manager app
-RUN echo 'alias manager="/usr/bin/python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc
-
-
-
+# Configuration for Skaffold & Manager
+RUN echo 'alias manager="python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
+    && echo 'alias wmanager="watchmedo auto-restart --patterns=\"*.py;*.tcss\" --recursive -- python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
+    && echo 'alias webmanager="textual serve -c python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
+    && echo 'alias nuke-manager="pkill -9 -f manager.py; pkill -9 -f bw; rm -f /tmp/manager.lock"' >> /home/vscode/.bashrc
+ 
+# Ensure Skaffold uses the proxy for network checks
+ENV SKAFFOLD_UPDATE_CHECK=false

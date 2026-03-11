@@ -4,5 +4,5 @@ resources:
   - platform-core/mqtt/mosquitto-dev.yaml
   - platform-apps/chatter/backend/chatter-backend-dev.yaml
   - platform-apps/chatter/frontend/chatter-frontend-dev.yaml
-  - platform-auth/firebase/backend/firebase-backend-dev.yaml
-  - platform-services/resend/resend-dev.yaml
+  #- platform-auth/firebase/backend/firebase-backend-dev.yaml
+  #- platform-services/resend/resend-dev.yaml

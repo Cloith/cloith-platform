@@ -18,7 +18,7 @@ What started as learning simple logic has evolved into a passion for "Systems Th
 | Project | Status | Description |
 | :--- | :--- | :--- |
 | [**platform-manager**](./platform-manager/README.md) | ![Status](https://img.shields.io/badge/Status-Operational-blueviolet) | (Internal Tooling) Built with a focus on robust error handling and IPC. |
-| **Chat App** | ![Status](https://img.shields.io/badge/Status-Active%20Development-green) | Real-time communication service emphasizing scalability. |
+
 
 ### AI & Research
 

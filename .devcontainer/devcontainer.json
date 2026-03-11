@@ -7,12 +7,19 @@
     "runArgs": [
         "--cap-drop=SYS_PTRACE"
     ],
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:1": {
+            "version": "latest",
+            "moby": "true"
+        }
+    },
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-python.python",              
                 "ms-python.vscode-pylance",     
-                "redhat.vscode-yaml"            
+                "redhat.vscode-yaml",
+                "ms-azuretools.vscode-docker"
             ],
             "settings": {
                 "remote.portsAttributes": {
@@ -23,7 +30,8 @@
                         "label": "Tailscale SOCKS5",
                         "onAutoForward": "notify"
                     }
-                }
+                },
+                "editor.parameterHints.enabled": false
             }
         }
     }

@@ -58,7 +58,7 @@ If you don't have the auth token, you can get it here:
 ---
 Ensure the generated token has the Ephemeral option enabled to allow automatic cleanup of nodes.
 ![alt text](screenshots/ephemeral.png)
-Provide your Tailscale API Token.
+#### Provide your Tailscale API Token.
 ![alt text](screenshots/tailscale_auth.png)
 
 

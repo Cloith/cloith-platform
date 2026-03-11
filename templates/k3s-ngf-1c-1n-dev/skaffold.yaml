@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: cloith-platform
 build:
+  local:
+    useBuildkit: true
   artifacts:
     - image: docker.io/cloith/chatter-frontend
       context: ../../apps/chatter/frontend
@@ -18,34 +20,31 @@ build:
         manual:
           - src: '**/*.js'
             dest: .
-    - image: docker.io/cloith/resend
-      context: ../../shared-services/resend
-      sync:
-        manual:
-          - src: '**/*.js'
-            dest: .
-    - image: docker.io/cloith/firebase-backend
-      context: ../../auth-services/firebase/firebase-backend
-      sync:
-        manual:
-          # Sync all Go files in the root or subfolders
-          - src: '**/*.go'
-            dest: .
-          # Sync the Air config if you make changes to how it watches
-          - src: '.air.toml'
-            dest: .
+    # - image: docker.io/cloith/resend
+    #   context: ../../shared-services/resend
+    #   sync:
+    #     manual:
+    #       - src: '**/*.js'
+    #         dest: .
+    # - image: docker.io/cloith/firebase-backend
+    #   context: ../../auth-services/firebase/firebase-backend
+    #   sync:
+    #     manual:
+    #       # Sync all Go files in the root or subfolders
+    #       - src: '**/*.go'
+    #         dest: .
+    #       # Sync the Air config if you make changes to how it watches
+    #       - src: '.air.toml'
+    #         dest: .
 manifests:
   kustomize:
     paths:
-
-    # env injections
-    - 00-platform-env
 
     # 1. Setup everything first
     - 01-platform-setup
 
     # 2. Secrets
-    - 02-platform-secrets
+    #- 02-platform-secrets
 
     # 3. Applications
     - 03-platform-deployments

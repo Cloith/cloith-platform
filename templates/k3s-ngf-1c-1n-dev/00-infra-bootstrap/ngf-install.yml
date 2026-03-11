@@ -1,0 +1,30 @@
+---
+- name: "Install NGINX Gateway Fabric (NGF)"
+  hosts: localhost
+  connection: local
+  environment:
+    KUBECONFIG: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
+
+  tasks:
+    # We use 'shell' because 'kubectl' handles SOCKS5/Tailscale 
+    # natively, bypassing the Python urllib3 "SchemeUnknown" error.
+    - name: "Install Gateway API CRDs via kubectl shell"
+      shell: "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml"
+      register: crd_output
+      changed_when: "'created' in crd_output.stdout or 'configured' in crd_output.stdout"
+
+    - name: "Install/Upgrade NGF via OCI Chart"
+      kubernetes.core.helm:
+        name: ngf
+        chart_ref: "oci://ghcr.io/nginxinc/charts/nginx-gateway-fabric"
+        chart_version: "1.5.1"
+        release_namespace: nginx-gateway
+        create_namespace: yes
+        wait: yes
+        # Helm also handles the proxy correctly when told to use this config
+        kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config-hostinger"
+        values:
+          nginxGateway:
+            gwAPIControllerName: nginx.org/gateway-controller
+          service:
+            type: ClusterIP

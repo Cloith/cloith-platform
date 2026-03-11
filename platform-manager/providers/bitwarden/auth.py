@@ -1,77 +1,50 @@
 import pexpect
-import questionary
 import re
 from rich.console import Console
 
 console = Console()
 
-def login_to_bitwarden():
+def login_to_bitwarden(email, password, otp_getter):
 
-    while True:
-        # Spawn inside the loop so each attempt is fresh
-        child = pexpect.spawn("bw login", encoding='utf-8', timeout=30)
+    child = pexpect.spawn("bw login", encoding='utf-8', timeout=20)
+    
+    try:
+        child.expect("Email address:")
+        child.sendline(email)
+        child.expect("Master password:")
+        child.sendline(password)
+       
+        next_step = child.expect([
+            "You are logged in!",
+            "Enter OTP sent to login email:", 
+            "Two-step login code:",
+            "Invalid master password",
+            "The Email field is not a valid e-mail address.",
+            pexpect.EOF
+        ])
+        if next_step in [1, 2]:
+            otp_code = otp_getter()
+            child.sendline(otp_code)
+            sub_step = child.expect(["You are logged in!", "invalid new device otp", pexpect.TIMEOUT])
+            if sub_step == 1: return 5, None
+            if sub_step == 2: return 8, None
+        elif next_step == 3: return 3, None
+        elif next_step == 4: return 4, None
+        elif next_step == 5: return 8, None
+
+        # Step 3: Capture the Key
+        child.expect(pexpect.EOF)  
+ 
+        output = child.before 
+        match = re.search(r'BW_SESSION="([^"]+)"', output)
         
-        try:
-            # Step 1: Identity
-            email = questionary.text(
-                "Enter your Bitwarden Email:",
-                validate=lambda text: True if "@" in text and "." in text else "Please enter a valid email"
-            ).ask()
-            # Prevent error when user cancels input (Ctrl+C)
-            if email is None: return False
-            child.sendline(email)
+        if match:
+            session_key = match.group(1)
+            return 1, session_key 
+        else:
+            return 8, None
 
-            password = questionary.password(
-                "Enter your Master Password:",
-                validate=lambda text: True if text.strip() else "Must not be empty"
-            ).ask()
-            # bug fix that when you ctrl+c it shows an error while asking for password
-            if password is None: return False
-            child.sendline(password)
-
-            # Step 2: Check for 2FA or Direct Success
-            with console.status("[bold blue]Authenticating...[/bold blue]"):
-                next_step = child.expect([
-                    "Enter OTP sent to login email:", 
-                    "Two-step login code:",
-                    "You are logged in!",
-                    "Invalid master password",
-                    "The Email field is not a valid e-mail address.",
-                    pexpect.EOF
-                ])
-
-            if next_step in [0, 1]:
-                otp_code = questionary.text("Enter your 2FA/OTP code:").ask()
-                if otp_code is None: return False
-                child.sendline(otp_code)
-                child.expect("You are logged in!")
-            elif next_step == 2:
-                # Direct login success without 2FA - proceed to key extraction
-                pass
-            elif next_step == 3:
-                console.print("[red]✘ Invalid Master Password.[/red]")
-                if not questionary.confirm("Try again?").ask(): return False
-                continue
-            elif next_step == 4:
-                console.print("[red]✘ Invalid Email.[/red]")
-                if not questionary.confirm("Try again?").ask(): return False
-                continue
-
-            # Step 3: Capture the Key
-            child.expect(pexpect.EOF)     
-            output = child.before 
-            match = re.search(r'BW_SESSION="([^"]+)"', output)
-            
-            if match:
-                session_key = match.group(1)
-                console.print("[green]✔ Login Successful and Key Captured![/green]")
-                return session_key 
-            else:
-                console.print("[red]✘ Could not extract session key.[/red]")
-                return False
-
-        except (pexpect.TIMEOUT, pexpect.EOF):
-            console.print("[red]✘ Error: Bitwarden connection failed.[/red]")
-            return False
-        finally:
-            child.close()
+    except (pexpect.TIMEOUT, pexpect.EOF):
+        return 8, None
+    finally:
+        child.close()

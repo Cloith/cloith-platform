@@ -1,0 +1,125 @@
+LoadingIndicator {
+    display: block;
+}
+
+Label {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#dashborad-grid {
+    padding: 1 2;
+    layout: vertical;
+}
+
+#details-container {
+    display: block;
+}
+
+#menu-toggle {
+    padding: 0 1;
+    align: center middle;
+    text-align: center;
+    border: none;
+    background: $accent;
+    min-width: 0.1;
+    color: white;
+    margin: 1;
+}
+
+#loading-container {
+    height: 100%;
+    width: 100%;
+    align: center middle;
+    content-align: center middle;
+}
+
+#metrics-row {
+    height: 7;
+    margin-bottom: 1;
+    display: block;
+}
+
+#deploy-button {
+    display: none;
+    width: auto;
+}
+
+#sidebar {
+    width: 30;
+    height: 100%;
+    dock: left;
+    transition: width 300ms in_out_cubic;
+    background: $surface;
+}
+
+.metric-card {
+    width: 1fr;
+    height: 100%;
+    border: tall $primary;
+    background: $surface;
+    padding: 1 2;
+    margin: 0 1;
+}
+
+.section-title {
+    background: $accent;
+    color: $text;
+    text-align: center;
+    text-style: bold;
+    margin: 1 0;
+}
+
+.data-line {
+    padding-left: 1;
+}
+
+#loading-container LoadingIndicator {
+    width: 100%;
+    height: 4;            
+    margin-bottom: 1;    
+}
+
+#loading-container Static {
+    width: 100%;
+    text-align: center;
+    color: $accent;
+    text-style: bold;
+}
+
+.loading #loading-container {
+    display: block;
+}
+
+.no-secret #metrics-row {
+    display: none;
+}
+
+.no-secret #details-container {
+    display: none;
+}
+
+.no-secret #deploy-button {
+    display: block;
+    align: center middle;
+    content-align: center middle;
+}
+
+.no-secret LoadingIndicator {
+    display: none;
+}
+
+/* Sidebar collapsed state */
+#sidebar.collapsed {
+    width: 8;
+    /* If you want to hide text but keep icons, use a small width like 8 instead of 0 */
+}
+
+/* Hide content when collapsed to prevent overflow artifacts */
+#sidebar.collapsed > * {
+    display: none;
+}
+
+#sidebar.collapsed > #menu-toggle {
+    display: block;
+}
