@@ -10,6 +10,7 @@ from screens.dashborad_screen import DashboardScreen
 from screens.base_screen import AppScreen
 from services.base_vault import BaseVaultService, AuthStatus
 from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
+from custom_widgets.password_input import PasswordInput
 
 
 class LoginScreen(AppScreen):
@@ -32,16 +33,7 @@ class LoginScreen(AppScreen):
                         Function(lambda s: "@" in s and "." in s, "Invalid email format")
                     ]
                 )
-                with Horizontal(id="password-wrapper"):
-                    yield Input(
-                        placeholder="Master Password",
-                        password=True,
-                        id="password",
-                        validators=[
-                            Length(minimum=1) 
-                        ]
-                    )
-                    yield Button("○", variant="primary", id="toggle-pw-btn")
+                yield PasswordInput()
             with Container(id="otp-container"):
                 yield Input(
                     placeholder="Enter 2FA / OTP Code",
@@ -83,14 +75,6 @@ class LoginScreen(AppScreen):
         self.status_text.update("[bold yellow]Validating Credentials...[/bold yellow]")
 
         self.vault_service.run_login_thread(email, password, self.ask_otp, self.handle_login_result)
-
-    @on(Button.Pressed, "#toggle-pw-btn")
-    def toggle_password_visibility(self) -> None:
-        pw_input = self.query_one("#password", Input)
-        toggle_btn = self.query_one("#toggle-pw-btn", Button)     
-        pw_input.password = not pw_input.password
-        toggle_btn.label = "○" if pw_input.password else "●"
-        pw_input.focus()
 
     def ask_otp(self):
         """Safe UI transformation (called via call_from_thread)"""
