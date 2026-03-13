@@ -1,9 +1,9 @@
-Input.-invalid {
+#email.-invalid {
     border: tall $error;
     color: $error;
 }
 
-Input.-valid {
+#email.-valid {
     border: tall $success;
 }
 
@@ -26,10 +26,6 @@ LoadingIndicator {
 }
 
 #email {
-    margin: 0;
-}
-
-#password {
     margin: 0;
 }
 
@@ -64,47 +60,6 @@ LoadingIndicator {
 #login-btn {
     display: block;    
     width: 100%;
-}
-
-
-/* The Wrapper becomes the "fake" input box */
-#password-wrapper {
-    border: tall $accent;
-    background: $surface;
-    height: 3; 
-    width: 100%;
-    padding: 0 1;
-}
-
-/* Remove the default look of the actual input */
-#password-wrapper > Input {
-    border: none;
-    width: 1fr;
-    height: 1;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-}
-
-#password-wrapper > Input:focus {
-    border: none; /* Prevents the border appearing on focus */
-}
-
-/* Style the button to look like a small icon on the right */
-#toggle-pw-btn {
-    border: none;
-    background: transparent;
-    color: $text-muted;
-    min-width: 4;
-    width: 4;
-    height: 1;
-    padding: 0;
-    margin: 0;
-}
-
-#toggle-pw-btn:hover {
-    color: $accent;
-    text-style: bold;
 }
 
 #status-message {

@@ -10,6 +10,7 @@ from screens.dashborad_screen import DashboardScreen
 from screens.base_screen import AppScreen
 from services.base_vault import BaseVaultService, AuthStatus
 from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
+from custom_widgets.password_input import PasswordInput
 
 
 class LoginScreen(AppScreen):
@@ -32,16 +33,7 @@ class LoginScreen(AppScreen):
                         Function(lambda s: "@" in s and "." in s, "Invalid email format")
                     ]
                 )
-                with Horizontal(id="password-wrapper"):
-                    yield Input(
-                        placeholder="Master Password",
-                        password=True,
-                        id="password",
-                        validators=[
-                            Length(minimum=1) 
-                        ]
-                    )
-                    yield Button("○", variant="primary", id="toggle-pw-btn")
+                yield PasswordInput()
             with Container(id="otp-container"):
                 yield Input(
                     placeholder="Enter 2FA / OTP Code",

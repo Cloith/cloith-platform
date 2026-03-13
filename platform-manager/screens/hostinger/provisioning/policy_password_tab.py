@@ -6,7 +6,8 @@ from textual.containers import Vertical, Horizontal, Container
 from textual.app import ComposeResult
 from services.password_service import PasswordService
 from models.password import PasswordPolicy
-from widgets.rich_spinner import LoadingSpinner
+from custom_widgets.rich_spinner import LoadingSpinner
+from custom_widgets.password_input import PasswordInput
 
 
 class PolicyPasswordTab(Static):
@@ -19,9 +20,7 @@ class PolicyPasswordTab(Static):
         
     
     def compose(self)-> ComposeResult:
-        with Horizontal(id="password-wrapper"):
-            yield Input(placeholder="Enter Password", password=True, id="panel-password-input")
-            yield Button("○", variant="primary", id="toggle-pw-btn")
+        yield PasswordInput()
         with Vertical(id="password-requirements"):
             for req in self.policy.get_requirements_data():
                 yield Static(
