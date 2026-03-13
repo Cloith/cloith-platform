@@ -76,14 +76,6 @@ class LoginScreen(AppScreen):
 
         self.vault_service.run_login_thread(email, password, self.ask_otp, self.handle_login_result)
 
-    @on(Button.Pressed, "#toggle-pw-btn")
-    def toggle_password_visibility(self) -> None:
-        pw_input = self.query_one("#password", Input)
-        toggle_btn = self.query_one("#toggle-pw-btn", Button)     
-        pw_input.password = not pw_input.password
-        toggle_btn.label = "○" if pw_input.password else "●"
-        pw_input.focus()
-
     def ask_otp(self):
         """Safe UI transformation (called via call_from_thread)"""
         self.main_container.add_class("ask-otp")

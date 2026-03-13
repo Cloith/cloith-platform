@@ -42,14 +42,6 @@ class PolicyPasswordTab(Static):
         if self.policy.check_leak:
             self.query_one("#password-requirements").add_class("check-for-leak")
 
-    @on(Button.Pressed, "#toggle-pw-btn")
-    def toggle_password_visibility(self) -> None:
-        pw_input = self.query_one("#panel-password-input", Input)
-        toggle_btn = self.query_one("#toggle-pw-btn", Button)  
-        pw_input.password = not pw_input.password
-        toggle_btn.label = "○" if pw_input.password else "●"
-        pw_input.focus()
-
     @on(Input.Changed, "#panel-password-input")
     async def validate_password(self, event: Input.Changed) -> None:
         pw = event.value
@@ -97,23 +89,18 @@ class PolicyPasswordTab(Static):
         """Background worker to check for leaks without freezing the UI."""
         if password != self.current_password:
             return
-        # 1. Perform the API call
         is_leaked = await self.password_service.is_password_leaked(password)
 
-
-        # 3. Update the state and THE UI
         if is_leaked:
             self.leak_symbol = "[b red]✖[/]"
             self.leak_message = "This password was found in a data breach!"
-            self.leak_widget.set_class(False, "req-valid") # Ensure it looks red
+            self.leak_widget.set_class(False, "req-valid")
         else:
             self.leak_symbol = "[b green]✔[/]"
             self.leak_message = "This password is safe (not leaked)."
-            self.leak_widget.set_class(True, "req-valid") # Ensure it looks green
+            self.leak_widget.set_class(True, "req-valid")
 
-        # 4. CRITICAL: Push the update to the widget
         self.leak_widget.update(f"{self.leak_symbol} {self.leak_message}")
 
-        # 5. Clean up the classes to show the message again
         self.password_container.remove_class("show-animation")
         self.password_container.add_class("check-for-leak")

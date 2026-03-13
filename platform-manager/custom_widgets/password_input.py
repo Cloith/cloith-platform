@@ -1,7 +1,9 @@
+from textual import on
 from textual.containers import Horizontal
 from textual.widgets import Input, Button, Static
 from textual.validation import Length
 from textual.app import ComposeResult
+
 
 class PasswordInput(Static):
     DEFAULT_CSS = """
@@ -32,7 +34,7 @@ class PasswordInput(Static):
         background: transparent;
     }
 
-    #toggle-pw-btn {
+    #toggle-eye-btn {
         border: none;
         background: transparent;
         color: $text-muted;
@@ -43,7 +45,7 @@ class PasswordInput(Static):
         margin: 0;
     }
 
-    #toggle-pw-btn:hover {
+    #toggle-eye-btn:hover {
         color: $accent;
         text-style: bold;
     }
@@ -59,7 +61,7 @@ class PasswordInput(Static):
                     Length(minimum=1) 
                 ]
             )
-            yield Button("○", variant="primary", id="toggle-pw-btn")
+            yield Button("○", variant="primary", id="toggle-eye-btn")
     
     def on_input_changed(self, event: Input.Changed) -> None:
         """Called whenever the user types in the password field."""
@@ -70,4 +72,12 @@ class PasswordInput(Static):
             wrapper.remove_class("-valid") 
         else:
             wrapper.remove_class("-invalid")
-            wrapper.add_class("-valid") 
+            wrapper.add_class("-valid")
+    
+    @on(Button.Pressed, "#toggle-eye-btn")
+    def toggle_password_visibility(self) -> None:
+        pw_input = self.query_one("#password", Input)
+        toggle_btn = self.query_one("#toggle-eye-btn", Button)  
+        pw_input.password = not pw_input.password
+        toggle_btn.label = "○" if pw_input.password else "●"
+        pw_input.focus()
