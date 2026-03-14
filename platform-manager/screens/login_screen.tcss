@@ -1,3 +1,8 @@
+LoadingIndicator {
+    display: none;
+    height: 100%;
+}
+
 #email.-invalid {
     border: tall $error;
     color: $error;
@@ -5,15 +10,6 @@
 
 #email.-valid {
     border: tall $success;
-}
-
-LoadingIndicator {
-    display: none;
-    height: 100%;
-}
-
-#main-container {
-    height: 100;
 }
 
 #otp-container {
@@ -31,7 +27,7 @@ LoadingIndicator {
 
 #main-container {
     width: 50;
-    height: 18;
+    height: 17;
     border: round $primary;
     padding: 1 2;
     background: $surface;

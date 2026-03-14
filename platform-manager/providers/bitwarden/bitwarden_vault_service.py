@@ -3,11 +3,13 @@ import threading
 import re
 from services.base_vault import BaseVaultService
 from services.base_vault import AuthStatus
+from providers.bitwarden.bitwarden_client import BitwardenClient
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):
         self.app = app
         self._otp_event = threading.Event()
+        self.client = BitwardenClient(app)
         
 
     def run_login_thread(self, email, password, callback, result_callback):
@@ -25,9 +27,9 @@ class BitwardenVaultService(BaseVaultService):
         Returns a tuple: (status_code, session_key)
         """
 
-        child = pexpect.spawn(f"bw login {email}", encoding='utf-8', timeout=20)
-        
+        child= None
         try:
+            child = pexpect.spawn(f"bw login {email}", encoding='utf-8', timeout=20)
             child.expect("Master password:")
             child.sendline(password)
             
@@ -80,4 +82,10 @@ class BitwardenVaultService(BaseVaultService):
         finally:
             if child.isalive():
                 child.close()
+    
+    async def get_secrets(self, item_name: str) -> dict | str:
+        return await self.client.call("get", "item", item_name)
+    
+        
+        
     

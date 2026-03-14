@@ -9,7 +9,7 @@ from screens.hostinger.provisioning.provisioning_screen import ProvisioningScree
 from services.textual_message_bus import DescriptionUpdate
 
 
-class SetupWizardScreen(AppScreen):
+class ProvisioningManagerScreen(AppScreen):
     CSS_PATH = "setup_wizard_screen.tcss"
 
     def __init__(self, selected_vps: dict):

@@ -1,125 +1,79 @@
-LoadingIndicator {
-    display: block;
-}
-
-Label {
-    text-style: bold;
-    margin-bottom: 1;
-}
-
-#dashborad-grid {
-    padding: 1 2;
-    layout: vertical;
-}
-
-#details-container {
-    display: block;
-}
-
-#menu-toggle {
-    padding: 0 1;
-    align: center middle;
-    text-align: center;
-    border: none;
-    background: $accent;
-    min-width: 0.1;
-    color: white;
-    margin: 1;
-}
-
-#loading-container {
-    height: 100%;
+#main-container {
     width: 100%;
-    align: center middle;
-    content-align: center middle;
-}
-
-#metrics-row {
-    height: 7;
-    margin-bottom: 1;
-    display: block;
-}
-
-#deploy-button {
-    display: none;
-    width: auto;
+    height: 100%;
+    border: none;
 }
 
 #sidebar {
-    width: 30;
+    width: 5;
     height: 100%;
-    dock: left;
+    background: $boost;
     transition: width 300ms in_out_cubic;
-    background: $surface;
 }
 
-.metric-card {
+#menu-toggle  {
+    height: 1;
+    margin: 1;
+    border: none;
+    min-width: 0;
+    background: $accent;
+}
+
+#sidebar-buttons-container {
+    opacity: 0%;
+    visibility: hidden; 
+    transition: opacity 500ms in_out_cubic;
+    
+    align: center top;
+    width: 100%;
+}
+
+.expand #sidebar-buttons-container {
+    opacity: 100%;
+    visibility: visible;
+    transition: width 300ms in_out_cubic;
+}
+
+#sidebar.expand {
+    width: 30;
+    transition: width 300ms in_out_cubic;
+}
+
+#dashboard-info-container {
     width: 1fr;
     height: 100%;
-    border: tall $primary;
-    background: $surface;
-    padding: 1 2;
-    margin: 0 1;
 }
 
-.section-title {
-    background: $accent;
-    color: $text;
+#loading-container {
+    width: 100%;
+    height: 100%;
+}
+
+#loading-text {
     text-align: center;
-    text-style: bold;
+}
+
+LoadingIndicator {
+    height: 30%;
+    width: 100%;
+    margin-top: 6;
+}
+
+.highlight-flash {
+    background: $warning;     
+    color: $text;
+    text-style: bold italic;
+    border: tall $error;     
+}
+
+#deployment-manager-button {
+    text-opacity: 0%;
+    transition: text-opacity 800ms;
+    width: 90%;
     margin: 1 0;
 }
 
-.data-line {
-    padding-left: 1;
+.expand #deployment-manager-button {
+    text-opacity: 100%;
 }
 
-#loading-container LoadingIndicator {
-    width: 100%;
-    height: 4;            
-    margin-bottom: 1;    
-}
-
-#loading-container Static {
-    width: 100%;
-    text-align: center;
-    color: $accent;
-    text-style: bold;
-}
-
-.loading #loading-container {
-    display: block;
-}
-
-.no-secret #metrics-row {
-    display: none;
-}
-
-.no-secret #details-container {
-    display: none;
-}
-
-.no-secret #deploy-button {
-    display: block;
-    align: center middle;
-    content-align: center middle;
-}
-
-.no-secret LoadingIndicator {
-    display: none;
-}
-
-/* Sidebar collapsed state */
-#sidebar.collapsed {
-    width: 8;
-    /* If you want to hide text but keep icons, use a small width like 8 instead of 0 */
-}
-
-/* Hide content when collapsed to prevent overflow artifacts */
-#sidebar.collapsed > * {
-    display: none;
-}
-
-#sidebar.collapsed > #menu-toggle {
-    display: block;
-}

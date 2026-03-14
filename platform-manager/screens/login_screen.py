@@ -1,16 +1,13 @@
-import threading
-from textual import work, on
-from textual.worker import Worker
+from textual import on
 from textual.app import ComposeResult
-from textual.screen import Screen
-from textual.widgets import Header, Static, Input, Button, LoadingIndicator
-from textual.containers import Vertical, Horizontal, Container
-from textual.validation import Integer, Function, Length
-from screens.dashborad_screen import DashboardScreen
+from textual.widgets import Static, Input, Button, LoadingIndicator
+from textual.containers import Vertical, Container
+from textual.validation import Integer, Function
+from screens.dashboard_screen import DashboardScreen
 from screens.base_screen import AppScreen
 from services.base_vault import BaseVaultService, AuthStatus
-from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
 from custom_widgets.password_input import PasswordInput
+from services.service_factory import get_vault_service
 
 
 class LoginScreen(AppScreen):
@@ -21,8 +18,7 @@ class LoginScreen(AppScreen):
         super().__init__()
         self.vault_service = vault_service
     
-    def compose(self) -> ComposeResult:
-        yield Header()
+    def setup_content(self) -> ComposeResult:
         with Vertical(id="main-container"):
             yield Static("BITWARDEN LOGIN REQUIRED", id="login-title")
             with Vertical(id="login-container"):
@@ -46,13 +42,13 @@ class LoginScreen(AppScreen):
                 yield LoadingIndicator()
                 yield Button("Login", variant="primary", id="login-btn")
                 yield Button("Enter OTP", variant="primary", id="otp-btn")
-            yield Static("", id="status-message")
+            with Container(id="status-message-container"):
+                yield Static("", id="status-message")
 
     def on_mount(self) -> None:
         self.status_text = self.query_one("#status-message")
         self.main_container = self.query_one("#main-container", Vertical)
         
-    
     @on(Input.Submitted, "#email")
     @on(Input.Submitted, "#password")
     @on(Button.Pressed, "#login-btn")
@@ -109,14 +105,14 @@ class LoginScreen(AppScreen):
         if status_code == AuthStatus.SUCCESS:
             self.app.bw_session = session_key
             self.notify(f"{self.app.bw_session}")
-            self.app.push_screen(DashboardScreen())
+            vault_service = get_vault_service("bitwarden", self.app)
+            self.app.push_screen(DashboardScreen(vault_service))
         elif status_code == AuthStatus.WRONG_PASSWORD:
             self.status_text.update("[bold red]Incorrect Email or Password[/bold red]")
         elif status_code == AuthStatus.INVALID_OTP:
             self.reset_ui_to_login()
             self.query_one("#status-message").update("[bold red]Incorrect OTP[/bold red]")
         
-
     def reset_ui_to_login(self):
         """Restores the UI from OTP mode back to standard Login mode."""
         self.main_container.remove_class("ask-otp")

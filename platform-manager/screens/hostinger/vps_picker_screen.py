@@ -5,7 +5,7 @@ from textual.containers import Vertical, Container
 from textual.widgets import Static, OptionList, Button, LoadingIndicator
 from core.exceptions import ItemNotFoundError, InvalidItemError
 from screens.base_screen import AppScreen
-from screens.hostinger.setup_wizard_screen import SetupWizardScreen
+from screens.hostinger.provisioning_manager_screen import ProvisioningManagerScreen
 from services.base_vps import BaseVPSService
 
 class VPSPickerScreen(AppScreen):
