@@ -3,13 +3,13 @@ import threading
 import re
 from services.base_vault import BaseVaultService
 from services.base_vault import AuthStatus
-from providers.bitwarden.client import BitwardenClient
+from providers.bitwarden.bitwarden_client import BitwardenClient
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):
         self.app = app
         self._otp_event = threading.Event()
-        self.client = BitwardenClient()
+        self.client = BitwardenClient(app)
         
 
     def run_login_thread(self, email, password, callback, result_callback):
@@ -83,7 +83,9 @@ class BitwardenVaultService(BaseVaultService):
             if child.isalive():
                 child.close()
     
-    async def get_secrets(self, item: str) -> str:
-        item = await self.client.call()
-        pass
+    async def get_secrets(self, item_name: str) -> dict | str:
+        return await self.client.call("get", "item", item_name)
+    
+        
+        
     

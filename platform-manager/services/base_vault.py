@@ -34,6 +34,10 @@ class BaseVaultService(ABC):
         """
         pass
 
+    @abstractmethod
+    async def get_secrets(self, item_name: str) -> dict | str:
+        pass
+
     # @abstractmethod
     # async def unlock(self, key: str) -> bool:
     #     """Opens the vault using the provided secret/password."""

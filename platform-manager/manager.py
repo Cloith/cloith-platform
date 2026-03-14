@@ -16,10 +16,11 @@ from services.service_factory import get_vault_service
 console = Console()
 
 class PlatformManager(App):
-    
     def on_mount(self) -> None:
+        self.app.bw_session = "z+WsxkOk8i0OMTwPTaxj+TyW7V8KxZE8zVI0Xl9b5d2XhrNepDROUBGEfkeaVmWFkJfWf6KZC+9I2CQ9z231jg=="
         vault_service = get_vault_service("bitwarden", self.app)
         self.push_screen(DashboardScreen(vault_service))
+        # self.push_screen(LoginScreen(vault_service))
 
     @staticmethod
     def acquire_lock():

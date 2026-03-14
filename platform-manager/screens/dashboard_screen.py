@@ -1,4 +1,5 @@
-from textual import work, on
+import asyncio
+from textual import on
 from textual.widgets import Static, Header, Footer, ProgressBar, Label, LoadingIndicator, Button
 from textual.screen import Screen
 from textual.worker import Worker
@@ -8,11 +9,14 @@ from core.exceptions import ItemNotFoundError, InvalidItemError
 from screens.secrets_screen import SecretsScreen
 from screens.base_screen import AppScreen
 from screens.deployment_screen import DeploymentScreen
-
-key = "h9yEPV850PjtWDhS8Lnlhmn4UvbTysjY7Lsrn+5CQCC3FZNqN+f1W5T5rhDSIP2w4OQiPhEGhdAjt2rYIKqx3g=="
+from providers.bitwarden.bitwarden_vault_service import BaseVaultService
 
 class DashboardScreen(AppScreen):
     CSS_PATH = "dashboard_screen.tcss"
+
+    def __init__(self, vault_service: BaseVaultService):
+        super().__init__()
+        self.vault_service = vault_service 
 
     def setup_content(self) -> ComposeResult:
         with Horizontal(id="main-container"):
@@ -23,6 +27,7 @@ class DashboardScreen(AppScreen):
             with Container(id="dashboard-info-container"):
                 with Vertical(id="loading-container"):
                     yield LoadingIndicator()
+                    yield Static("Fetching Data, Please wait...", id="loading-text")
                 with Horizontal(id="metrics-row"):
                     with Vertical(classes="metric-card"):
                         yield Label("CPU USAGE")
@@ -36,40 +41,31 @@ class DashboardScreen(AppScreen):
                     yield Static("Location: Singapore", classes="data-line")
                     yield Static("Status: [green]RUNNING[/green]", classes="data-line")
 
-    # def on_mount(self) -> None:
-    #     self.app.bw_session = key
-    #     self.template_checker()
+    def on_mount(self) -> None:
+        self.run_worker(self.template_data_fetcher())
         
+    async def template_data_fetcher(self):
+        item = await self.vault_service.get_secrets("template_data")
 
-    # @work(thread=True, name="checker")
-    # def template_checker(self):
-    #     try:
-    #         # return get_item("TEMPLATE_DATA", self.app.bw_session)
-    #         pass
-    #     except Exception as e:
-    #         return e
+        if not item:
+            self.query_one("#loading-text").update(
+                "[orange]No active infrastructure detected[/].\n"
+                "Use the [yellow bold]Provisioning Manager[/] to get started."
+            )
 
-    # def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
-    #     """Handle the outcome of the template check on the Main Thread."""
-    #     if event.worker.name == "checker" and event.worker.is_finished:
-    #         result = event.worker.result
-
-    #         if isinstance(result, ItemNotFoundError):
-    #             self.query_one("#dashboard-grid").remove_class("loading")
-    #             self.query_one("#loading-text").update("Please deploy your template first")
-    #             self.notify("No active template found, Redirecting to Secret Manager...", severity="warning")
-    #             self.app.push_screen(DeploymentScreen())
-    #             pass
-                
-    #         elif isinstance(result, Exception):
-    #             self.notify("Vault data corrupted!", severity="error")
-    #             pass
-                    
-    #         else:
-    #             self.query_one("#dashboard-grid").remove_class("loading")
-    #             self.notify("Unexpected error", severity="error")
-    #             pass
+            sidebar = self.query_one("#sidebar")
+            if "expand" not in sidebar.classes:
+                sidebar.add_class("expand")
+                self.run_worker(self.flash_provisioning_button())
     
+    async def flash_provisioning_button(self):
+        button = self.query_one("#deployment-manager-button")
+        for _ in range(4): 
+            button.add_class("highlight-flash")
+            await asyncio.sleep(0.4)
+            button.remove_class("highlight-flash")
+            await asyncio.sleep(0.2)
+
     @on(Button.Pressed, "#menu-toggle")
     def menu_button(self) -> None:
         self.query_one("#sidebar").toggle_class("expand")

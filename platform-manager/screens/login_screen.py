@@ -1,12 +1,13 @@
 from textual import on
 from textual.app import ComposeResult
-from textual.widgets import Header, Static, Input, Button, LoadingIndicator
+from textual.widgets import Static, Input, Button, LoadingIndicator
 from textual.containers import Vertical, Container
 from textual.validation import Integer, Function
 from screens.dashboard_screen import DashboardScreen
 from screens.base_screen import AppScreen
 from services.base_vault import BaseVaultService, AuthStatus
 from custom_widgets.password_input import PasswordInput
+from services.service_factory import get_vault_service
 
 
 class LoginScreen(AppScreen):
@@ -103,7 +104,9 @@ class LoginScreen(AppScreen):
         
         if status_code == AuthStatus.SUCCESS:
             self.app.bw_session = session_key
-            self.app.push_screen(DashboardScreen())
+            self.notify(f"{self.app.bw_session}")
+            vault_service = get_vault_service("bitwarden", self.app)
+            self.app.push_screen(DashboardScreen(vault_service))
         elif status_code == AuthStatus.WRONG_PASSWORD:
             self.status_text.update("[bold red]Incorrect Email or Password[/bold red]")
         elif status_code == AuthStatus.INVALID_OTP:

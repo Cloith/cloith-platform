@@ -1,3 +1,9 @@
+#main-container {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 #sidebar {
     width: 5;
     height: 100%;
@@ -14,12 +20,17 @@
 }
 
 #sidebar-buttons-container {
-    display: none;
+    opacity: 0%;
+    visibility: hidden; 
+    transition: opacity 500ms in_out_cubic;
+    
     align: center top;
+    width: 100%;
 }
 
 .expand #sidebar-buttons-container {
-    display: block;
+    opacity: 100%;
+    visibility: visible;
     transition: width 300ms in_out_cubic;
 }
 
@@ -33,4 +44,36 @@
     height: 100%;
 }
 
+#loading-container {
+    width: 100%;
+    height: 100%;
+}
+
+#loading-text {
+    text-align: center;
+}
+
+LoadingIndicator {
+    height: 30%;
+    width: 100%;
+    margin-top: 6;
+}
+
+.highlight-flash {
+    background: $warning;     
+    color: $text;
+    text-style: bold italic;
+    border: tall $error;     
+}
+
+#deployment-manager-button {
+    text-opacity: 0%;
+    transition: text-opacity 800ms;
+    width: 90%;
+    margin: 1 0;
+}
+
+.expand #deployment-manager-button {
+    text-opacity: 100%;
+}
 
