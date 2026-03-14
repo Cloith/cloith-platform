@@ -6,8 +6,8 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Static
 from screens.loading_screen import LoadingScreen
 from screens.login_screen import LoginScreen
-from screens.dashborad_screen import DashboardScreen
-from screens.hostinger.setup_wizard_screen import SetupWizardScreen
+from screens.dashboard_screen import DashboardScreen
+from screens.hostinger.provisioning_manager_screen import ProvisioningManagerScreen
 from screens.hostinger.vps_picker_screen import VPSPickerScreen
 from screens.manual_deployment_screen import ProviderSelectionScreen
 from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
@@ -19,7 +19,7 @@ class PlatformManager(App):
     
     def on_mount(self) -> None:
         vault_service = get_vault_service("bitwarden", self.app)
-        self.push_screen(LoginScreen(vault_service))
+        self.push_screen(DashboardScreen(vault_service))
 
     @staticmethod
     def acquire_lock():

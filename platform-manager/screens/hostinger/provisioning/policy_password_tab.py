@@ -19,7 +19,7 @@ class PolicyPasswordTab(Static):
         self.leak_message = " Password must not be leaked publicly"
         
     
-    def compose(self)-> ComposeResult:
+    def setup_content(self)-> ComposeResult:
         yield PasswordInput()
         with Vertical(id="password-requirements"):
             for req in self.policy.get_requirements_data():

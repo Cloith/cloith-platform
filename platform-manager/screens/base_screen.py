@@ -17,6 +17,7 @@ class AppScreen(Screen):
         max-width: 134;
         max-height: 17;
         background: $boost;
+        align: center middle;
     }
     """
 
