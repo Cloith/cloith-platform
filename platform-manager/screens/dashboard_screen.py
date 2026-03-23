@@ -58,7 +58,6 @@ class DashboardScreen(AppScreen):
                 "[orange]No active infrastructure detected[/].\n"
                 "Use the [yellow bold]Provisioning Manager[/] to get started."
             )
-
             sidebar = self.query_one("#sidebar")
             if "expand" not in sidebar.classes:
                 sidebar.add_class("expand")

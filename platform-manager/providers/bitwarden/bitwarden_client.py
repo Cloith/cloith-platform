@@ -1,8 +1,6 @@
 import asyncio
 import json
-import os
 from services.base_vault import VaultStatus
-from screens.password_modal_screen import PasswordModal
 
 class BitwardenClient:
     def __init__(self, app):
@@ -16,8 +14,6 @@ class BitwardenClient:
         if hasattr(self.app, "bw_session") and self.app.bw_session:
             cmd.extend(["--session", self.app.bw_session])
         else:
-            # TODO: make a password prompt for unlocking the vault and getting the token
-            self.app.notify("no session token")
             return VaultStatus.MASTER_PASSWORD_PROMPT
         
         try:
@@ -28,17 +24,20 @@ class BitwardenClient:
                 stdin=asyncio.subprocess.PIPE
             )
             try:
-                line = await asyncio.wait_for(process.stderr.read(100), timeout=1.0)
-                if b"Master password" in line:
-                    process.kill() 
+                chunk = await asyncio.wait_for(process.stderr.read(1024), timeout=1.0)
+                if b"Master password" in chunk:
+                    process.kill()
                     return VaultStatus.MASTER_PASSWORD_PROMPT
+                
+                stored_stderr = chunk
             except asyncio.TimeoutError:
-                pass
+                stored_stderr = b""
 
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=5.0)
-
+            stdout, stderr_remaining = await asyncio.wait_for(process.communicate(), timeout=5.0)
+            full_stderr = stored_stderr + stderr_remaining
+            
             if process.returncode != 0:
-                error_msg = stderr.decode().strip()
+                error_msg = full_stderr.decode().strip()
                 if "vault is locked" in error_msg.lower():
                     raise PermissionError("Bitwarden vault is locked.")
                 elif "not found" in error_msg.lower():
@@ -50,6 +49,5 @@ class BitwardenClient:
                 
         except Exception as e:
             return VaultStatus.UNKNOWN_ERROR
-        # return VaultStatus.TIMEOUT
     
     
