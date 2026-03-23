@@ -16,7 +16,7 @@ console = Console()
 
 class PlatformManager(App):
     def on_mount(self) -> None:
-        self.app.bw_session = "e2riWMGIOkZEUBhN58fdxaqPvofKiBsR/wpxa37OpW5TqOcrMP7V3mm5Y/XFrX3JUxtfKmw21tZGJ6lHQmNbfg=="
+        self.app.bw_session = "2riWMGIOkZEUBhN58fdxaqPvofKiBsR/wpxa37OpW5TqOcrMP7V3mm5Y/XFrX3JUxtfKmw21tZGJ6lHQmNbfg=="
         vault_service = get_vault_service("bitwarden", self.app)
         self.push_screen(DashboardScreen(vault_service))
 

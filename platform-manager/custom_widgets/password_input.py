@@ -75,6 +75,9 @@ class PasswordInput(Static):
             with Container(id="status-message-container"):
                 yield Static("", id="status-message")
     
+    def on_mount(self) -> None:
+        self.status_text = self.query_one("#status-message")
+    
     def on_input_changed(self, event: Input.Changed) -> None:
         """Called whenever the user types in the password field."""
         wrapper = self.query_one("#password-wrapper")
@@ -100,5 +103,12 @@ class PasswordInput(Static):
         password = self.query_one("#password", Input).value
 
         if not password:
-            self.query_one("#status-message").update("[bold red]Password field must not be empty[/bold red]")
+            self.status_text.update("[bold red]Password field must not be empty[/bold red]")
             return
+    
+    def trigger_submit(self):
+        """Logic to run when a parent button is pressed."""
+        password = self.query_one(Input).value
+        if not password:
+            self.status_text.update("[bold red]Password field must not be empty[/bold red]")
+        return password
