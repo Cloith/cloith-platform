@@ -2,8 +2,7 @@ import fcntl
 import os
 import sys
 from rich.console import Console
-from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Static
+from textual.app import App
 from screens.loading_screen import LoadingScreen
 from screens.login_screen import LoginScreen
 from screens.dashboard_screen import DashboardScreen
@@ -17,10 +16,9 @@ console = Console()
 
 class PlatformManager(App):
     def on_mount(self) -> None:
-        self.app.bw_session = "z+WsxkOk8i0OMTwPTaxj+TyW7V8KxZE8zVI0Xl9b5d2XhrNepDROUBGEfkeaVmWFkJfWf6KZC+9I2CQ9z231jg=="
+        self.app.bw_session = "3KZgZs0+AmklzSfGwBriCFF/Iuhii+hilSfoybyQk5cH6cEf+j+Ocpdef0N0UfFeebqCxkpK7QGEaU62/2ZgUQ=="
         vault_service = get_vault_service("bitwarden", self.app)
-        self.push_screen(DashboardScreen(vault_service))
-        # self.push_screen(LoginScreen(vault_service))
+        self.push_screen(LoginScreen(vault_service))
 
     @staticmethod
     def acquire_lock():

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import IntEnum
 
-class AuthStatus(IntEnum):
+class VaultStatus(IntEnum):
     SUCCESS = 1
     NEED_2FA = 2
     WRONG_PASSWORD = 3
@@ -11,6 +11,9 @@ class AuthStatus(IntEnum):
     TIMEOUT = 7
     UNKNOWN_ERROR = 8
     ALREADY_LOGGED_IN = 9
+    MASTER_PASSWORD_PROMPT = 10
+    ITEM_MISSING = 11
+    
 
 class BaseVaultService(ABC):
     # @property

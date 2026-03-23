@@ -2,7 +2,7 @@ import pexpect
 import threading
 import re
 from services.base_vault import BaseVaultService
-from services.base_vault import AuthStatus
+from services.base_vault import VaultStatus
 from providers.bitwarden.bitwarden_client import BitwardenClient
 
 class BitwardenVaultService(BaseVaultService):
@@ -51,33 +51,33 @@ class BitwardenVaultService(BaseVaultService):
                 sub_step = child.expect([pexpect.EOF, "invalid new device otp", pexpect.TIMEOUT])
                 
                 if sub_step == 1: 
-                    self.app.call_from_thread(result_callback, (AuthStatus.INVALID_OTP, None))
+                    self.app.call_from_thread(result_callback, (VaultStatus.INVALID_OTP, None))
                     return
                 if sub_step == 2:
-                    self.app.call_from_thread(result_callback, (AuthStatus.TIMEOUT, None))
+                    self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
                     return
 
             elif next_step == 2:
-                self.app.call_from_thread(result_callback, (AuthStatus.WRONG_PASSWORD, None))
+                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_PASSWORD, None))
                 return
             elif next_step == 3:
-                self.app.call_from_thread(result_callback, (AuthStatus.WRONG_EMAIL, None))
+                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_EMAIL, None))
                 return
             elif next_step == 4:
-                self.app.call_from_thread(result_callback, (AuthStatus.TIMEOUT, None))
+                self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
                 return
             
             output = child.before
             match = re.search(r'BW_SESSION="([^"]+)"', output)
             if match:
                 session_key = match.group(1)
-                self.app.call_from_thread(result_callback, (AuthStatus.SUCCESS, session_key))
+                self.app.call_from_thread(result_callback, (VaultStatus.SUCCESS, session_key))
                 return
             else:
-                self.app.call_from_thread(result_callback, (AuthStatus.UNKNOWN_ERROR, None))
+                self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
                 return
         except pexpect.exceptions.ExceptionPexpect as e:
-            self.app.call_from_thread(result_callback, (AuthStatus.UNKNOWN_ERROR, None))
+            self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
             return
         finally:
             if child.isalive():

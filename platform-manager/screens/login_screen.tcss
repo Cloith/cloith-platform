@@ -18,7 +18,7 @@ LoadingIndicator {
 }
 
 #login-container {
-    height: 6;
+    height: auto;
 }
 
 #email {
@@ -29,17 +29,18 @@ LoadingIndicator {
     width: 50;
     height: 17;
     border: round $primary;
-    padding: 1 2;
+    padding: 0 2;
     background: $surface;
 }
 
 #login-title {
-    align: center middle;
+    align: center top;
     text-align: center;
     width: 100%;
     margin-bottom: 1;
     text-style: bold;
     color: $accent;
+    margin-top: 0;
 }
 
 #button-container {
@@ -47,6 +48,8 @@ LoadingIndicator {
     height: 3;     
     margin-top: 1;
     align: center middle;
+    dock: bottom;
+    margin-bottom: 1;
 }
 
 #otp-btn {
