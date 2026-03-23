@@ -63,7 +63,7 @@ class LoginScreen(AppScreen):
             self.status_text.update("[bold red]Please enter a valid email.[/bold red]")
             return
         
-        password = self.password_input.value
+        password = self.query_one("PasswordInput").trigger_submit()
         if not password:
             return
         

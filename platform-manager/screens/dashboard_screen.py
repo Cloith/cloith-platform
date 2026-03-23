@@ -102,6 +102,8 @@ class DashboardScreen(AppScreen):
             self.main_container.add_class("loading-state")
             self.loading_text.update("Refreshing token, please wait...")
             self.main_container.remove_class("password-prompt")
+        elif not password:
+            return
 
     # @on(Button.Pressed, "#deployment-manager-button")
     # def deploy_button(self) -> None:

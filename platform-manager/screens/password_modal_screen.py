@@ -41,15 +41,23 @@ class PasswordModal(ModalScreen[str]):
             yield Label(self.message)
             yield PasswordInput()
             with Horizontal(id="button-container"):
-                yield Button("Cancel", variant="error", id="cancel")
-                yield Button("Unlock", variant="success", id="unlock")
+                yield Button("Cancel", variant="error", id="cancel-btn")
+                yield Button("Unlock", variant="success", id="unlock-btn")
+    
+    def on_mount(self) -> None:
+        self.password_input = self.query_one("#password", Input)
                 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "unlock":
-            password = self.query_one("#password", Input).value
+        if event.button.id == "unlock-btn":
+            password = self.query_one("PasswordInput").trigger_submit()
+            if not password:
+                return
             self.dismiss(password)
         else:
             self.dismiss(None)
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        self.dismiss(event.value)
+        if not self.password_input.value:
+            return
+        else:
+            self.dismiss(event.value)
