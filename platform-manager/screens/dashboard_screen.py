@@ -52,6 +52,8 @@ class DashboardScreen(AppScreen):
         result = await self.vault_service.get_secrets("template_data")
         self.main_container.remove_class("loading-state")
 
+        self.app.notify(f"{result}")
+
         if result == VaultStatus.ITEM_MISSING:
             self.main_container.add_class("item-not-found")
             self.loading_text.update( 
