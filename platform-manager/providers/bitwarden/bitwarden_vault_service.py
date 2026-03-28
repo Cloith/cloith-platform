@@ -86,6 +86,15 @@ class BitwardenVaultService(BaseVaultService):
     async def get_secrets(self, item_name: str) -> dict | str:
         return await self.client.call("get", "item", item_name)
     
+    async def unlock(self, password: str) -> bool:
+        """Unlocks the vault and updates the global session token."""
+        result = await self.client.call("unlock", password, "--raw")
+        
+        if isinstance(result, str) and len(result) > 10:  # Simple check for a token
+            self.app.bw_session = result.strip()
+            return VaultStatus.SUCCESS
+        return result
+    
         
         
     

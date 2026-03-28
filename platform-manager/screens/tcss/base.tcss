@@ -1,0 +1,19 @@
+/* Create a global skeleton */
+AppScreen {
+    align: center middle;
+    background: $background;
+}
+
+#app-canvas {
+    max-width: 134;
+    max-height: 17;
+    background: $boost;
+}
+
+Header {
+    dock: top;
+}
+
+Footer {
+    dock: bottom;
+}

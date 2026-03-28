@@ -73,6 +73,7 @@ LoadingIndicator {
     display: none;   
 }
 
+.ask-otp PasswordInput #password-wrapper,
 .ask-otp #login-container, 
 .ask-otp #login-btn {
     display: none;

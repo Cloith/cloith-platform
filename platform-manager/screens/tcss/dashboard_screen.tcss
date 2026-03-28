@@ -65,14 +65,14 @@
     text-align: center;
 }
 
-LoadingIndicator {
+DashboardScreen #loading-animation {
     height: 30%;
     width: 100%;
     display: none;
 }
 
-.loading-state LoadingIndicator {
-    display: block;    
+#main-container.loading-state #loading-animation {
+    display: block;
 }
 
 .highlight-flash {

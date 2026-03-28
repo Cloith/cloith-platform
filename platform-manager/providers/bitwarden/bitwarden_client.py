@@ -9,6 +9,7 @@ class BitwardenClient:
 
     async def call(self, *args: str) -> dict | str | VaultStatus | None:
         """Centralized CLI handler similar to Hostinger 'request' method."""
+        
         cmd = [self.base_command] + list(args)
 
         if hasattr(self.app, "bw_session") and self.app.bw_session:
@@ -28,6 +29,8 @@ class BitwardenClient:
                 if b"Master password" in chunk:
                     process.kill()
                     return VaultStatus.MASTER_PASSWORD_PROMPT
+                elif b"You are not logged in." in chunk:
+                    return VaultStatus.UNKNOWN_ERROR
                 
                 stored_stderr = chunk
             except asyncio.TimeoutError:
@@ -38,8 +41,10 @@ class BitwardenClient:
             
             if process.returncode != 0:
                 error_msg = full_stderr.decode().strip()
-                if "vault is locked" in error_msg.lower():
-                    raise PermissionError("Bitwarden vault is locked.")
+                if "decryption operation failed" in error_msg or "provided key is not the expected type" in error_msg:
+                    return VaultStatus.WRONG_PASSWORD
+                elif "vault is locked" in error_msg.lower():
+                    raise VaultStatus.MASTER_PASSWORD_PROMPT
                 elif "not found" in error_msg.lower():
                     return VaultStatus.ITEM_MISSING
             try:

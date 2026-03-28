@@ -29,7 +29,6 @@ class LoginScreen(AppScreen):
                         Function(lambda s: "@" in s and "." in s, "Invalid email format")
                     ]
                 )
-                yield PasswordInput()
             with Container(id="otp-container"):
                 yield Input(
                     placeholder="Enter 2FA / OTP Code",
@@ -38,6 +37,7 @@ class LoginScreen(AppScreen):
                         Integer()  
                     ]
                 )
+            yield PasswordInput()
             with Container(id="button-container"):
                 yield LoadingIndicator()
                 yield Button("Login", variant="primary", id="login-btn")
