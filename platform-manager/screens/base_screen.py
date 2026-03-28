@@ -7,19 +7,7 @@ class AppScreen(Screen):
     """The base screen for the entire app. Sets global layout constraints."""
     
     # We define the CSS for the base class here
-    DEFAULT_CSS = """
-    AppScreen {
-        align: center middle;
-        background: $background;
-    }
-
-    #app-canvas {
-        max-width: 134;
-        max-height: 17;
-        background: $boost;
-        align: center middle;
-    }
-    """
+    CSS_PATH = "tcss/base.tcss"
 
     def compose(self) -> ComposeResult:
         yield Header()

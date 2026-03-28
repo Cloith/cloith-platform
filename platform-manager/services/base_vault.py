@@ -13,6 +13,7 @@ class VaultStatus(IntEnum):
     ALREADY_LOGGED_IN = 9
     MASTER_PASSWORD_PROMPT = 10
     ITEM_MISSING = 11
+    CANCELLED = 12 
     
 
 class BaseVaultService(ABC):

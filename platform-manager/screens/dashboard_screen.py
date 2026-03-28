@@ -9,7 +9,7 @@ from services.base_vault import VaultStatus
 from screens.password_modal_screen import PasswordModal
 
 class DashboardScreen(AppScreen):
-    CSS_PATH = "dashboard_screen.tcss"
+    CSS_PATH = ["tcss/base.tcss", "tcss/dashboard_screen.tcss"]
 
     def __init__(self, vault_service: BaseVaultService):
         super().__init__()
@@ -24,7 +24,7 @@ class DashboardScreen(AppScreen):
             with Container(id="dashboard-info-container"):
                 with Vertical(id="loading-container"):
                     yield LoadingIndicator(id="loading-animation")
-                    yield Static("Fetching Data, Please wait...", id="loading-text")
+                    yield Static("", id="loading-text")
                     with Container(id="button-container"):
                         yield Button("Try Again", variant="primary", id="try-again-button")
                         yield Button("Authorize", variant="primary", id="authorize-button")
@@ -48,11 +48,10 @@ class DashboardScreen(AppScreen):
         
     async def template_data_fetcher(self):
         self.main_container.add_class("loading-state")
+        self.loading_text.update("Fetching Data, Please wait...")
         self.main_container.remove_class("item-not-found", "unknown-error", "password-prompt")
         result = await self.vault_service.get_secrets("template_data")
         self.main_container.remove_class("loading-state")
-
-        self.app.notify(f"{result}")
 
         if result == VaultStatus.ITEM_MISSING:
             self.main_container.add_class("item-not-found")
@@ -95,22 +94,15 @@ class DashboardScreen(AppScreen):
         self.loading_text.update("Retrying connection...")
         await asyncio.sleep(0.5)
         self.run_worker(self.template_data_fetcher())
-    
-    @on(Button.Pressed, "#authorize-button")
+
     @work
+    @on(Button.Pressed, "#authorize-button")
     async def password_modal(self) -> None:
-        password = await self.app.push_screen_wait(PasswordModal())
-        if password:
-            self.main_container.add_class("loading-state")
-            self.loading_text.update("Refreshing token, please wait...")
-            self.main_container.remove_class("password-prompt")
-        elif not password:
-            return
+        result = await self.app.push_screen_wait(PasswordModal(self.vault_service))
+
+        if result == VaultStatus.SUCCESS:
+            self.run_worker(self.template_data_fetcher())
 
     # @on(Button.Pressed, "#deployment-manager-button")
     # def deploy_button(self) -> None:
     #     self.app.push_screen(DeploymentScreen())
-
-
-        
-

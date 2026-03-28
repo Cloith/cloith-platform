@@ -6,7 +6,7 @@ from textual.containers import Vertical, Horizontal
 from screens.template_deployment_screen import TemplateDeploymentScreen
 from screens.manual_deployment_screen import ProviderSelectionScreen
 
-CSS_PATH = "deployment_screen.tcss"
+CSS_PATH = "tcss/deployment_screen.tcss"
 
 class DeploymentScreen(Screen):
     def compose(self) -> ComposeResult:

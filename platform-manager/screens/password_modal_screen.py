@@ -1,63 +1,62 @@
+from textual import on, work
 from textual.app import ComposeResult
-from textual.screen import ModalScreen
-from textual.widgets import Input, Label, Button, Static
-from textual.containers import Container, Horizontal
+from textual.screen import ModalScreen, Screen
+from textual.widgets import Input, Label, Button, LoadingIndicator, Static
+from textual.containers import Container, Horizontal, Vertical
+from screens.base_screen import AppScreen
 from custom_widgets.password_input import PasswordInput
+from services.base_vault import VaultStatus
+
 
 class PasswordModal(ModalScreen[str]):
     """A pop-up modal to capture the Master Password."""
     
-    DEFAULT_CSS = """
-    PasswordModal {
-        align: center middle;
-    }
+    CSS_PATH = "tcss/password_modal_screen.tcss"
 
-    #modal-container {
-        width: 50;
-        height: auto;
-        border: round $accent;
-        background: $surface;
-        padding: 1 2;
-        align: center middle;
-    }
-
-    #button-container {
-        align: center middle;
-    }
-
-    Label {
-        width: 100%;
-        content-align: center middle;
-        margin-bottom: 1;
-    }
-    """
-
-    def __init__(self, message: str = "Input Master Password to Continue"):
+    def __init__(self, vault_service):
         super().__init__()
-        self.message = message
+        self.vault_service = vault_service
 
     def compose(self) -> ComposeResult:
         with Container(id="modal-container"):
-            yield Label(self.message)
+            yield Label("Input Master Password to Continue", id="modal-text")
             yield PasswordInput()
             with Horizontal(id="button-container"):
                 yield Button("Cancel", variant="error", id="cancel-btn")
                 yield Button("Unlock", variant="success", id="unlock-btn")
-    
-    def on_mount(self) -> None:
-        self.password_input = self.query_one("#password", Input)
-                
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "unlock-btn":
-            password = self.query_one("PasswordInput").trigger_submit()
-            if not password:
-                return
-            self.dismiss(password)
-        else:
-            self.dismiss(None)
+            with Container(id="loading-container"):
+                yield LoadingIndicator(id="loading-animation")
 
-    def on_input_submitted(self, event: Input.Submitted) -> None:
-        if not self.password_input.value:
+    def on_mount(self) -> None:
+        self.container = self.query_one("#modal-container")
+
+    @on(Input.Submitted, "PasswordInput #password")
+    @on(Button.Pressed, "#unlock-btn")
+    def unlock_button(self) -> None:
+        password = self.query_one("PasswordInput").trigger_submit()
+
+        if not password:
             return
-        else:
-            self.dismiss(event.value)
+        self.query_one("#modal-container").add_class("loading")
+        self.call_service(password)
+    
+    @on(Button.Pressed, "#cancel-btn")
+    def cancel_button(self) -> None:
+        self.dismiss(None)
+
+    @work
+    async def call_service(self, password) -> None:
+        result = await self.vault_service.unlock(password)
+
+        if result == VaultStatus.SUCCESS:
+            self.dismiss(VaultStatus.SUCCESS)
+        elif result == VaultStatus.WRONG_PASSWORD:
+            self.query_one("#modal-container").remove_class("loading")
+            
+            msg = "Incorrect Password" if result == VaultStatus.WRONG_PASSWORD else "Vault Error"
+            self.query_one("PasswordInput #status-message").update(f"[red]{msg}[/]")
+
+        
+        
+
+   

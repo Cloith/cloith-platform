@@ -3,7 +3,7 @@ from textual.widgets import Static
 
 class LoadingSpinner(Static):
     """displays a cool clock animation"""
-    def __init__(self, style: str = "dots", text: str = ""):
+    def __init__(self, style: str = "clock", text: str = ""):
         super().__init__("")
         self.spinner = Spinner(style, text=text)
 

@@ -55,6 +55,10 @@ class PasswordInput(Static):
         height: auto;
     }
 
+    #status-message {
+        text-align: center
+    }
+
     #input-container {
         height: auto;
     }
