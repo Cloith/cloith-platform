@@ -12,7 +12,7 @@ from services.service_factory import get_vault_service
 
 class LoginScreen(AppScreen):
     """A secure login screen for the Platform Manager."""
-    CSS_PATH = "login_screen.tcss"
+    CSS_PATH = ["tcss/base.tcss", "tcss/login_screen.tcss"]
     
     def __init__(self, vault_service: BaseVaultService):
         super().__init__()

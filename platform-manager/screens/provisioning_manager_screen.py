@@ -1,16 +1,14 @@
 from textual import on
-from textual.widgets import (
-    Static, RadioButton, Button
-)
+from textual.widgets import Static, RadioButton, Button
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from textual.app import ComposeResult
 from screens.base_screen import AppScreen
-from screens.hostinger.provisioning.provisioning_screen import ProvisioningScreen
+from screens.provisioning_screen import ProvisioningScreen
 from services.textual_message_bus import DescriptionUpdate
 
 
 class ProvisioningManagerScreen(AppScreen):
-    CSS_PATH = "setup_wizard_screen.tcss"
+    CSS_PATH = "tcss/setup_wizard_screen.tcss"
 
     def __init__(self, selected_vps: dict):
         super().__init__()

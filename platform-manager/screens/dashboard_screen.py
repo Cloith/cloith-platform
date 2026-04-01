@@ -1,33 +1,25 @@
 import asyncio
-from textual import on, work
-from textual.widgets import Static, ProgressBar, Label, LoadingIndicator, Button
+from textual import on
+from textual.widgets import Static, ProgressBar, Label, Button
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens.base_screen import AppScreen
-from providers.bitwarden.bitwarden_vault_service import BaseVaultService
 from services.base_vault import VaultStatus
-from screens.password_modal_screen import PasswordModal
+from screens.deployment_screen import DeploymentScreen
+from custom_widgets.state_overlay import StateOverlay
 
 class DashboardScreen(AppScreen):
-    CSS_PATH = ["tcss/base.tcss", "tcss/dashboard_screen.tcss"]
-
-    def __init__(self, vault_service: BaseVaultService):
-        super().__init__()
-        self.vault_service = vault_service 
+    CSS_PATH = "tcss/dashboard_screen.tcss"
 
     def setup_content(self) -> ComposeResult:
         with Horizontal(id="main-container"):
             with Container(id="sidebar"):
                 yield Button("[bold]¤[/bold]", variant="primary", id="menu-toggle")
                 with Container(id="sidebar-buttons-container"):
-                    yield Button("Provisioning Manager", variant="primary", id="deployment-manager-button")
+                    yield Button("Provisioning Manager", variant="primary", id="provisioning-manager-button")
             with Container(id="dashboard-info-container"):
-                with Vertical(id="loading-container"):
-                    yield LoadingIndicator(id="loading-animation")
-                    yield Static("", id="loading-text")
-                    with Container(id="button-container"):
-                        yield Button("Try Again", variant="primary", id="try-again-button")
-                        yield Button("Authorize", variant="primary", id="authorize-button")
+                with Vertical(id="overlay-container"):
+                    yield StateOverlay(id="status-overlay")
                 with Horizontal(id="metrics-row"):
                     with Vertical(classes="metric-card"):
                         yield Label("CPU USAGE")
@@ -42,42 +34,34 @@ class DashboardScreen(AppScreen):
                     yield Static("Status: [green]RUNNING[/green]", classes="data-line")
 
     def on_mount(self) -> None:
+        self.overlay = self.query_one("#status-overlay")
         self.main_container = self.query_one("#main-container")
-        self.loading_text = self.query_one("#loading-text")
+        self.sidebar = self.query_one("#sidebar")
         self.run_worker(self.template_data_fetcher())
         
     async def template_data_fetcher(self):
-        self.main_container.add_class("loading-state")
-        self.loading_text.update("Fetching Data, Please wait...")
-        self.main_container.remove_class("item-not-found", "unknown-error", "password-prompt")
-        result = await self.vault_service.get_secrets("template_data")
-        self.main_container.remove_class("loading-state")
+        self.overlay.enter_loading("Fetching Data, Please wait...")
+        result = await self.app.vault_service.get_item("template_data")
 
         if result == VaultStatus.ITEM_MISSING:
-            self.main_container.add_class("item-not-found")
-            self.loading_text.update( 
-                "[orange]No active infrastructure detected[/].\n"
-                "Use the [yellow bold]Provisioning Manager[/] to get started."
-            )
-            sidebar = self.query_one("#sidebar")
-            if "expand" not in sidebar.classes:
-                sidebar.add_class("expand")
+
+            message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
+            self.overlay.enter_error(message, show_retry = False, show_auth = False)
+            
+            if "expand" not in self.sidebar.classes:
+                self.sidebar.add_class("expand")
                 self.run_worker(self.flash_provisioning_button())
+
         elif result == VaultStatus.UNKNOWN_ERROR:
-            self.main_container.add_class("unknown-error")
-            self.loading_text.update(
-                "[red]Unkown Error[/].\n"
-                "Something went wrong. Please check your connection and [blue]try again.[/]"
-            )
+            message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]"""
+            self.overlay.enter_error(message, show_retry = True, show_auth = False)
+            
         elif result == VaultStatus.MASTER_PASSWORD_PROMPT:
-            self.main_container.add_class("password-prompt")
-            self.loading_text.update(
-                "[red]Authentication Required[/].\n"
-                "Something went wrong while accessing your vault. Please [blue]authorize[/] to continue."
-            )
+            message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
+            self.overlay.enter_error(message, show_retry = False, show_auth = True)
     
     async def flash_provisioning_button(self):
-        button = self.query_one("#deployment-manager-button")
+        button = self.query_one("#provisioning-manager-button")
         for _ in range(4): 
             button.add_class("highlight-flash")
             await asyncio.sleep(0.4)
@@ -88,21 +72,11 @@ class DashboardScreen(AppScreen):
     def menu_button(self) -> None:
         self.query_one("#sidebar").toggle_class("expand")
 
-    @on(Button.Pressed, "#try-again-button")
-    async def try_again(self) -> None:
-        self.main_container.add_class("loading-state")
-        self.loading_text.update("Retrying connection...")
-        await asyncio.sleep(0.5)
+    @on(Button.Pressed, "#provisioning-manager-button")
+    def deploy_button(self) -> None:
+        self.app.push_screen(DeploymentScreen())
+
+    @on(StateOverlay.RetryRequested)
+    def restart_request(self):
         self.run_worker(self.template_data_fetcher())
-
-    @work
-    @on(Button.Pressed, "#authorize-button")
-    async def password_modal(self) -> None:
-        result = await self.app.push_screen_wait(PasswordModal(self.vault_service))
-
-        if result == VaultStatus.SUCCESS:
-            self.run_worker(self.template_data_fetcher())
-
-    # @on(Button.Pressed, "#deployment-manager-button")
-    # def deploy_button(self) -> None:
-    #     self.app.push_screen(DeploymentScreen())
+        

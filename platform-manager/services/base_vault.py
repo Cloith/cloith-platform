@@ -17,11 +17,11 @@ class VaultStatus(IntEnum):
     
 
 class BaseVaultService(ABC):
-    # @property
-    # @abstractmethod
-    # def provider_name(self) -> str:
-    #     """Returns the name of the provider for UI labels."""
-    #     pass
+    @property
+    @abstractmethod
+    def provider_name(self) -> str:
+        """Returns the name of the provider for UI labels."""
+        pass
 
     @abstractmethod
     def run_login_thread(self, email: str, password: str, otp_callback: callable, result_callback: callable) -> None:
@@ -39,7 +39,7 @@ class BaseVaultService(ABC):
         pass
 
     @abstractmethod
-    async def get_secrets(self, item_name: str) -> dict | str:
+    async def get_item(self, item_name: str) -> dict | str:
         pass
 
     # @abstractmethod

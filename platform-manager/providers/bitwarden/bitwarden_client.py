@@ -6,17 +6,21 @@ class BitwardenClient:
     def __init__(self, app):
         self.app = app
         self.base_command = "bw"
+        self.session_exempt_commands = ["unlock", "login"]
 
     async def call(self, *args: str) -> dict | str | VaultStatus | None:
         """Centralized CLI handler similar to Hostinger 'request' method."""
-        
+
         cmd = [self.base_command] + list(args)
 
-        if hasattr(self.app, "bw_session") and self.app.bw_session:
-            cmd.extend(["--session", self.app.bw_session])
-        else:
-            return VaultStatus.MASTER_PASSWORD_PROMPT
-        
+        is_exempt = any(cmd_type in args for cmd_type in self.session_exempt_commands)
+
+        if not is_exempt:
+            if not self.app.vault_session or self.app.vault_session == "":
+                return VaultStatus.MASTER_PASSWORD_PROMPT
+            else:
+                cmd.extend(["--session", self.app.vault_session])
+
         try:
             process = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -48,7 +52,8 @@ class BitwardenClient:
                 elif "not found" in error_msg.lower():
                     return VaultStatus.ITEM_MISSING
             try:
-                return json.loads(stdout.decode())
+                result = json.loads(stdout.decode())
+                return result
             except json.JSONDecodeError:
                 return stdout.decode().strip()
                 

@@ -1,4 +1,4 @@
-from providers.hostinger.client import HostingerClient
+from providers.hostinger.hostinger_client import HostingerClient
 from services.base_template import BaseTemplateService
 
 class HostingerTemplateService(BaseTemplateService):

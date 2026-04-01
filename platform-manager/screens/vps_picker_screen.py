@@ -4,17 +4,12 @@ from textual.app import ComposeResult
 from textual.containers import Vertical, Container
 from textual.widgets import Static, OptionList, Button, LoadingIndicator
 from core.exceptions import ItemNotFoundError, InvalidItemError
+from services.base_vps import VPSStatus
+from services.base_vault import VaultStatus
 from screens.base_screen import AppScreen
-from screens.hostinger.provisioning_manager_screen import ProvisioningManagerScreen
-from services.base_vps import BaseVPSService
+from screens.modal_screen import PasswordModal
 
 class VPSPickerScreen(AppScreen):
-
-    def __init__(self, vps_service: BaseVPSService): 
-        super().__init__()
-        self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
-        self.vps_service = vps_service
-    
     CSS = """
     #loading-container {
         display: none;
@@ -34,6 +29,10 @@ class VPSPickerScreen(AppScreen):
         grid-columns: 1fr 1fr; /* Equal width, or 1fr 2fr if you want more description space */
     }
 
+    #main-content {
+        align: center middle;
+    }
+
     #description-container {
         height: 1fr;           /* Take up remaining vertical space */
         overflow-y: auto;    /* Force a scrollbar or use 'auto' */
@@ -45,6 +44,10 @@ class VPSPickerScreen(AppScreen):
     #description-container > Static {
         width: 100%;
         height: auto;          /* Allow the static text to be as tall as the text itself */
+    }
+
+    #vps-list {
+        height: 1fr;
     }
     """
 
@@ -61,29 +64,26 @@ class VPSPickerScreen(AppScreen):
                 yield Static("")
 
     def on_mount(self) -> None:
-        if hasattr(self.app, "hostinger_token") and self.app.hostinger_token:
-            self.remove_class("loading")
-            self.fetch_vps_list() 
-        else:
-            self.add_class("loading")
-            self.fetch_hostinger_token()
-
-    @work(thread=True, name="token_fetcher")
-    def fetch_hostinger_token(self):
-        try:
-            # return get_item("hostinger_token", self.app.bw_session)
-            pass
-        except Exception as e:
-            return e
+        self.run_worker(self.fetch_vps_list())
         
-    @work(thread=True, name="vps_fetcher")
     async def fetch_vps_list(self):
-        try:
-            vps_list = await self.vps_service.get_all_vps()
-            return vps_list
-        except Exception as e:
-            return e
-    
+        result = await self.app.vps_service.get_all_vps()
+
+        if result == VPSStatus.TOKEN_MISSING:
+            token_name = f"{self.app.vps_service.provider_name}_token"
+            auth_result = await self.app.vault_service.get_item(token_name)
+            
+            if auth_result == VPSStatus.SUCCESS:
+                return await self.fetch_vps_list()
+            elif auth_result == VPSStatus.TOKEN_MISSING:
+                self.app.notify("still missing")
+            elif auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
+                result = await self.app.push_screen_wait(PasswordModal())
+            
+        elif result == VPSStatus.TOKEN_INVALID:
+            self.app.notify("token invalid")
+        
+        
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         if event.worker.is_finished:
             result = event.worker.result
@@ -98,13 +98,6 @@ class VPSPickerScreen(AppScreen):
                     self.app.hostinger_token = result
                     self.fetch_vps_list() 
 
-            elif event.worker.name == "vps_fetcher":
-                self.remove_class("loading") 
-                if isinstance(result, list):
-                    self.app.vps_inventory = result 
-                    self.populate_list(result) 
-                else:
-                    self.notify(f"VPS Fetch Failed: {result}", severity="error")
 
     def populate_list(self, vps_data: list) -> None:
         option_list = self.query_one("#vps-list", OptionList)

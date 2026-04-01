@@ -3,7 +3,7 @@ from textual.widgets import (
     Static, RadioButton, Input, RadioSet
 )
 from textual.app import ComposeResult
-from providers.hostinger.client import HostingerClient
+from providers.hostinger.hostinger_client import HostingerClient
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 from providers.hostinger.hostinger_template_service import HostingerTemplateService
