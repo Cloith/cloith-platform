@@ -6,8 +6,8 @@ from textual.app import App
 from screens.loading_screen import LoadingScreen
 from screens.login_screen import LoginScreen
 from screens.dashboard_screen import DashboardScreen
-from screens.hostinger.provisioning_manager_screen import ProvisioningManagerScreen
-from screens.hostinger.vps_picker_screen import VPSPickerScreen
+from screens.provisioning_manager_screen import ProvisioningManagerScreen
+from screens.vps_picker_screen import VPSPickerScreen
 from screens.manual_deployment_screen import ProviderSelectionScreen
 from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
 from services.service_factory import get_vault_service
@@ -15,10 +15,18 @@ from services.service_factory import get_vault_service
 console = Console()
 
 class PlatformManager(App):
+    def __init__(self) -> None:
+        super().__init__()
+        self.app.provider_token = None
+        self.app.vault_session = None
+        self.app.vault_service = None
+        self.app.vps_service = None
+
     def on_mount(self) -> None:
-        self.app.bw_session = "Buo1sW+99om4fmRNdm9VeGrq8HVe7wn6/2YMwTJ4mLkRWNJlFMklOmPHokheU66mJqxWZkNZMxweV/7TZySzg=="
+        
         vault_service = get_vault_service("bitwarden", self.app)
-        self.push_screen(DashboardScreen(vault_service))
+        self.app.vault_service = vault_service
+        self.push_screen(DashboardScreen())
 
     @staticmethod
     def acquire_lock():

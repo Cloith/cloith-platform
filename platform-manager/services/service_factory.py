@@ -5,7 +5,7 @@ from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
 
 def get_vps_service(provider_name: str, app) -> BaseVPSService:
     if provider_name == "hostinger":
-        return HostingerVPSService(app.hostinger_token)
+        return HostingerVPSService(app)
     elif provider_name == "aws":
         raise NotImplementedError("AWS coming soon!")
     else:

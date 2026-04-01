@@ -13,9 +13,8 @@ class PasswordModal(ModalScreen[str]):
     
     CSS_PATH = "tcss/password_modal_screen.tcss"
 
-    def __init__(self, vault_service):
+    def __init__(self):
         super().__init__()
-        self.vault_service = vault_service
 
     def compose(self) -> ComposeResult:
         with Container(id="modal-container"):
@@ -46,7 +45,7 @@ class PasswordModal(ModalScreen[str]):
 
     @work
     async def call_service(self, password) -> None:
-        result = await self.vault_service.unlock(password)
+        result = await self.app.vault_service.unlock(password)
 
         if result == VaultStatus.SUCCESS:
             self.dismiss(VaultStatus.SUCCESS)

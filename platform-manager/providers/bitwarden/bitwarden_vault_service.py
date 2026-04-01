@@ -10,7 +10,10 @@ class BitwardenVaultService(BaseVaultService):
         self.app = app
         self._otp_event = threading.Event()
         self.client = BitwardenClient(app)
-        
+    
+    @property
+    def provider_name(self) -> str:
+        return "bitwarden"
 
     def run_login_thread(self, email, password, callback, result_callback):
         """Spawns the worker thread manually."""
@@ -83,15 +86,15 @@ class BitwardenVaultService(BaseVaultService):
             if child.isalive():
                 child.close()
     
-    async def get_secrets(self, item_name: str) -> dict | str:
+    async def get_item(self, item_name: str) -> dict | str:
         return await self.client.call("get", "item", item_name)
     
     async def unlock(self, password: str) -> bool:
         """Unlocks the vault and updates the global session token."""
         result = await self.client.call("unlock", password, "--raw")
         
-        if isinstance(result, str) and len(result) > 10:  # Simple check for a token
-            self.app.bw_session = result.strip()
+        if isinstance(result, str) and len(result) > 10: 
+            self.app.vault_session = result.strip()
             return VaultStatus.SUCCESS
         return result
     

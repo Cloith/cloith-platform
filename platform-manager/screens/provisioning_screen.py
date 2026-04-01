@@ -4,8 +4,8 @@ from textual.widgets import (
 )
 from textual.containers import Container, Vertical
 from textual.app import ComposeResult
-from screens.hostinger.provisioning.template_tab import TemplateTab
-from screens.hostinger.provisioning.policy_password_tab import PolicyPasswordTab
+from screens.template_tab import TemplateTab
+from screens.policy_password_tab import PolicyPasswordTab
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 from models.password import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
 

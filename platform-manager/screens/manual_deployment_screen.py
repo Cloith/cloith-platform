@@ -3,13 +3,12 @@ from textual.screen import Screen
 from textual.app import ComposeResult
 from textual.widgets import Button, Header, Static, Footer
 from textual.containers import Container
-from screens.hostinger.vps_picker_screen import VPSPickerScreen
+from screens.vps_picker_screen import VPSPickerScreen
 from services.service_factory import get_vps_service
 
 class ProviderSelectionScreen(Screen):
     def __init__(self): 
         super().__init__()
-        self.app.hostinger_token = "sMHeus9AiOMhlsFgPkxeoSVBMlVqArF39sroGMBe36b79ebe"
     
     def compose(self) -> ComposeResult:
         yield Header()
@@ -21,7 +20,6 @@ class ProviderSelectionScreen(Screen):
             yield Button("AWS (Coming Soon)", variant="default", id="provider-aws", disabled=True)
             yield Button("GCP (Coming Soon)", variant="default", id="provider-gcp", disabled=True)
             yield Button("DigitalOcean (Coming Soon)", variant="default", id="provider-do", disabled=True)
-            
         yield Footer()
 
     @on(Button.Pressed, "#bck-btn")
@@ -31,5 +29,6 @@ class ProviderSelectionScreen(Screen):
     @on(Button.Pressed, "#hostinger-button")
     def hostinger_button(self) -> None:
         service = get_vps_service("hostinger", self.app)
-        self.app.push_screen(VPSPickerScreen(service))
+        self.app.vps_service = service
+        self.app.push_screen(VPSPickerScreen())
         
