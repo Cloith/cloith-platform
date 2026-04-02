@@ -1,9 +1,9 @@
 import pexpect
 import threading
 import re
-from services.base_vault import BaseVaultService
-from services.base_vault import VaultStatus
-from providers.bitwarden.bitwarden_client import BitwardenClient
+from services import BaseVaultService
+from services import VaultStatus
+from services.providers.bitwarden import BitwardenClient
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):

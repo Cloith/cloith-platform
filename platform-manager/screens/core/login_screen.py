@@ -3,14 +3,14 @@ from textual.app import ComposeResult
 from textual.widgets import Static, Input, Button, LoadingIndicator
 from textual.containers import Vertical, Container
 from textual.validation import Integer, Function
-from screens.dashboard_screen import DashboardScreen
-from screens.base_screen import AppScreen
+from screens.core import DashboardScreen
+from screens import BaseScreen
 from services.base_vault import BaseVaultService, VaultStatus
 from custom_widgets.password_input import PasswordInput
 from services.service_factory import get_vault_service
 
 
-class LoginScreen(AppScreen):
+class LoginScreen(BaseScreen):
     """A secure login screen for the Platform Manager."""
     CSS_PATH = ["tcss/base.tcss", "tcss/login_screen.tcss"]
     

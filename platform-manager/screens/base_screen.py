@@ -3,11 +3,30 @@ from textual.widgets import Static, Header, Footer
 from textual.screen import Screen
 from textual.containers import Container
 
-class AppScreen(Screen):
+class BaseScreen(Screen):
     """The base screen for the entire app. Sets global layout constraints."""
     
     # We define the CSS for the base class here
-    CSS_PATH = "tcss/base.tcss"
+    CSS = """
+    AppScreen {
+        align: center middle;
+        background: $background;
+    }
+
+    #app-canvas {
+        max-width: 134;
+        max-height: 17;
+        background: $boost;
+    }
+
+    Header {
+        dock: top;
+    }
+
+    Footer {
+        dock: bottom;
+    }
+    """
 
     def compose(self) -> ComposeResult:
         yield Header()

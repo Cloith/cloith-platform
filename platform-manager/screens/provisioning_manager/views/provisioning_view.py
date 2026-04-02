@@ -4,22 +4,22 @@ from textual.widgets import (
 )
 from textual.containers import Container, Vertical
 from textual.app import ComposeResult
-from screens.template_tab import TemplateTab
-from screens.policy_password_tab import PolicyPasswordTab
+from screens.provisioning_manager.components import TemplateTab
+from screens.provisioning_manager.components import PolicyPasswordForm
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 from models.password import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
 
 
-class ProvisioningScreen(Static):
+class ProvisioningView(Static):
     def compose(self) -> ComposeResult:
         with Vertical(id="provisioning-form"):
             with TabbedContent():
                 with TabPane("OS TEMPLATE(REQUIRED)", id="template-tab"):
                     yield Container(TemplateTab(), id="template-container")                                   
                 with TabPane("PANEL PASSWORD", id="panel-password-tab"):
-                    yield Container(PolicyPasswordTab(policy=PANEL_PASSWORD_POLICY), id="panel-password-container")
+                    yield Container(PolicyPasswordForm(policy=PANEL_PASSWORD_POLICY), id="panel-password-container")
                 with TabPane("VPS PASSWORD", id="vps-password-tab"):
-                    yield Container(PolicyPasswordTab(policy=VPS_PASSWORD_POLICY), id="vps-password-container")
+                    yield Container(PolicyPasswordForm(policy=VPS_PASSWORD_POLICY), id="vps-password-container")
                 with TabPane("POST INSTALL SCRIPT", id="script-tab"):
                     yield Static("post install script")
 

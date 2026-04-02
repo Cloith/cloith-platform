@@ -7,7 +7,7 @@ from textual.screen import Screen
 from textual.reactive import reactive
 from textual.widgets import Header, Static, LoadingIndicator
 from textual.containers import Vertical
-from screens.login_screen import LoginScreen
+from screens.core.login_screen import LoginScreen
 
 class LoadingScreen(Screen):
     CSS_PATH = "loading_screen.tcss"

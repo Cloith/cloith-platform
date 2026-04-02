@@ -3,7 +3,7 @@ from textual.widgets import Static, LoadingIndicator, Button
 from textual.containers import Vertical, Container
 from textual.app import ComposeResult
 from textual.message import Message
-from screens.modal_screen import PasswordModal
+from screens.common import PasswordModal
 from services.base_vault import VaultStatus
 
 class StateOverlay(Vertical):

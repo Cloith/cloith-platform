@@ -3,12 +3,12 @@ from textual import on
 from textual.widgets import Static, ProgressBar, Label, Button
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
-from screens.base_screen import AppScreen
+from screens import BaseScreen
 from services.base_vault import VaultStatus
-from screens.deployment_screen import DeploymentScreen
+from screens.provisioning_manager import ProvisioningManagerScreen
 from custom_widgets.state_overlay import StateOverlay
 
-class DashboardScreen(AppScreen):
+class DashboardScreen(BaseScreen):
     CSS_PATH = "tcss/dashboard_screen.tcss"
 
     def setup_content(self) -> ComposeResult:
@@ -60,7 +60,7 @@ class DashboardScreen(AppScreen):
             message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
             self.overlay.enter_error(message, show_retry = False, show_auth = True)
     
-    async def flash_provisioning_button(self):
+    async def flash_provisioning_button(self) -> None:
         button = self.query_one("#provisioning-manager-button")
         for _ in range(4): 
             button.add_class("highlight-flash")
@@ -74,9 +74,8 @@ class DashboardScreen(AppScreen):
 
     @on(Button.Pressed, "#provisioning-manager-button")
     def deploy_button(self) -> None:
-        self.app.push_screen(DeploymentScreen())
+        self.app.push_screen(ProvisioningManagerScreen())
 
     @on(StateOverlay.RetryRequested)
-    def restart_request(self):
+    def restart_request(self) -> None:
         self.run_worker(self.template_data_fetcher())
-        

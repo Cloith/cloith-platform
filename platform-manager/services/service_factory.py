@@ -1,7 +1,9 @@
 from services.base_vps import BaseVPSService
 from services.base_vault import BaseVaultService
-from providers.hostinger.hostinger_vps_service import HostingerVPSService
-from providers.bitwarden.bitwarden_vault_service import BitwardenVaultService
+from services.base_template import BaseTemplateService
+from services.providers.hostinger import HostingerVPSService
+from services.providers.hostinger import HostingerTemplateService
+from services.providers.bitwarden import BitwardenVaultService
 
 def get_vps_service(provider_name: str, app) -> BaseVPSService:
     if provider_name == "hostinger":
@@ -14,3 +16,7 @@ def get_vps_service(provider_name: str, app) -> BaseVPSService:
 def get_vault_service(provider_name: str, app) -> BaseVaultService:
     if provider_name == "bitwarden":
         return BitwardenVaultService(app)
+    
+def get_template_service(provider_name: str, app) -> BaseTemplateService:
+    if provider_name == "hostinger":
+        return HostingerTemplateService(app)

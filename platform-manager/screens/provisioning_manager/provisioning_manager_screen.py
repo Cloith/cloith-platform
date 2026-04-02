@@ -2,23 +2,21 @@ from textual import on
 from textual.widgets import Static, RadioButton, Button
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from textual.app import ComposeResult
-from screens.base_screen import AppScreen
-from screens.provisioning_screen import ProvisioningScreen
+from screens import BaseScreen
+from .views import ProvisioningView
 from services.textual_message_bus import DescriptionUpdate
 
 
-class ProvisioningManagerScreen(AppScreen):
-    CSS_PATH = "tcss/setup_wizard_screen.tcss"
-
-    def __init__(self, selected_vps: dict):
-        super().__init__()
+class ProvisioningManagerScreen(BaseScreen):
+    CSS_PATH = "tcss/provisioning_manager_screen.tcss"
 
     def setup_content(self) -> ComposeResult:
         with Horizontal(id="main-container"):
             with Vertical(id="selection-panel"):
-                yield Static("[b]Setup Wizard[/b]", id="title")
+                yield Static("[b]Provisioning Manager[/b]", id="title")
                 with Container(id="panels"):
                     yield VerticalScroll(
+                        Button("Select Provider", id="provider-button", classes="selection-buttons"),
                         Button("Provisioning(required)", id="provisioning-button", classes="selection-buttons"),
                         Button("Networking", id="networking-button", classes="selection-buttons"),
                         Button("Hardening", id="hardening-button", classes="selection-buttons"),
@@ -30,7 +28,7 @@ class ProvisioningManagerScreen(AppScreen):
                 with VerticalScroll(id="description-panel"):
                     yield Static("", id="description-text")
             with Container(id="forms-panel"):
-                yield Container(ProvisioningScreen())
+                # yield Container(ProvisioningView())
                 with Container(id="description-button-container"):
                     yield RadioButton("Details", id="description-button")
                     
