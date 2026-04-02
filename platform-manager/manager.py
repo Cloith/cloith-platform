@@ -23,7 +23,7 @@ class PlatformManager(App):
 
     def on_mount(self) -> None:
         
-        # self.app.token = "7Hp02NqIISzgLEzLEDzI1xXQ9Rl6KVQ5WSWRYFKj7d4a4b11"
+       
         vault_service = get_vault_service("bitwarden", self.app)
         self.app.vault_service = vault_service
         self.push_screen(ProvisioningManagerScreen())
