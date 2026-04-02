@@ -13,7 +13,6 @@
 #selection-panel {
     content-align: center middle;
     align: center middle;
-    border: none;
 }
 
 #description-panel {
@@ -22,8 +21,9 @@
 }
 
 #panels {
-    margin: 1;
+    margin: 0;
     background: $boost;
+    border: thick;
 }
 
 #progress-bar {

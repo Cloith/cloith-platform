@@ -3,10 +3,8 @@ from textual.widgets import (
     Static, RadioButton, Input, RadioSet
 )
 from textual.app import ComposeResult
-from providers.hostinger.hostinger_client import HostingerClient
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
-from providers.hostinger.hostinger_template_service import HostingerTemplateService
 
 class TemplateTab(Static):
  
@@ -18,14 +16,12 @@ class TemplateTab(Static):
     def on_mount(self) -> None:
         self.post_message(DescriptionUpdate("Select a template from the list to view its description"))
         self.new_buttons = []
-        client = HostingerClient(self.app.hostinger_token)
-        self.template_service = HostingerTemplateService(client)
         self.fetch_templates()
     
     @work(exclusive=True, name="template_fetcher")
     async def fetch_templates(self) -> None:
         try:
-            vps_list = await self.template_service.get_all_templates()
+            vps_list = await self.app.template_service.get_all_templates()
             
             return vps_list
         except Exception as e:

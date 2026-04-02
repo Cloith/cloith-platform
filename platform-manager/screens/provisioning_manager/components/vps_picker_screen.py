@@ -1,4 +1,4 @@
-from textual import work, on
+from textual import on
 from textual.worker import Worker
 from textual.app import ComposeResult
 from textual.containers import Vertical, Container
@@ -6,10 +6,10 @@ from textual.widgets import Static, OptionList, Button, LoadingIndicator
 from core.exceptions import ItemNotFoundError, InvalidItemError
 from services.base_vps import VPSStatus
 from services.base_vault import VaultStatus
-from screens.base_screen import AppScreen
-from screens.modal_screen import PasswordModal
+from screens import BaseScreen
+from screens.common import PasswordModal
 
-class VPSPickerScreen(AppScreen):
+class VPSPickerScreen(BaseScreen):
     CSS = """
     #loading-container {
         display: none;

@@ -1,5 +1,5 @@
 from services.base_vps import BaseVPSService
-from providers.hostinger.hostinger_client import HostingerClient
+from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
 from services.base_vps import VPSStatus
 from services.base_vault import VaultStatus

@@ -8,9 +8,10 @@ from services.password_service import PasswordService
 from models.password import PasswordPolicy
 from custom_widgets.rich_spinner import LoadingSpinner
 from custom_widgets.password_input import PasswordInput
+from screens import BaseScreen
 
 
-class PolicyPasswordTab(Static):
+class PolicyPasswordForm(BaseScreen):
     def __init__(self, policy: PasswordPolicy):
         super().__init__()
         self.policy = policy

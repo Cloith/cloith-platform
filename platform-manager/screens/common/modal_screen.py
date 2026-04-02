@@ -1,9 +1,8 @@
 from textual import on, work
 from textual.app import ComposeResult
-from textual.screen import ModalScreen, Screen
-from textual.widgets import Input, Label, Button, LoadingIndicator, Static
-from textual.containers import Container, Horizontal, Vertical
-from screens.base_screen import AppScreen
+from textual.screen import ModalScreen
+from textual.widgets import Input, Label, Button, LoadingIndicator
+from textual.containers import Container, Horizontal
 from custom_widgets.password_input import PasswordInput
 from services.base_vault import VaultStatus
 
@@ -11,7 +10,7 @@ from services.base_vault import VaultStatus
 class PasswordModal(ModalScreen[str]):
     """A pop-up modal to capture the Master Password."""
     
-    CSS_PATH = "tcss/password_modal_screen.tcss"
+    CSS_PATH = "tcss/modal_screen.tcss"
 
     def __init__(self):
         super().__init__()
