@@ -87,6 +87,7 @@ class BitwardenVaultService(BaseVaultService):
                 child.close()
     
     async def get_item(self, item_name: str) -> dict | str:
+        """Checks inside the vault and retrieve the inputted item"""
         return await self.client.call("get", "item", item_name)
     
     async def unlock(self, password: str) -> bool:

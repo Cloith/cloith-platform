@@ -6,7 +6,7 @@ from textual.app import ComposeResult
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 
-class TemplateTab(Static):
+class TemplateForm(Static):
  
     def compose(self) -> ComposeResult:
         yield Input(placeholder="Search bar", id="search-bar")

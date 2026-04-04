@@ -1,13 +1,15 @@
-#main-container {
-    padding: 0;
-    margin: 0;
-}
-
+/*-------------------provisioning_manager---------------------*/
 #title {
     background: $foreground;
     text-style: bold;
     content-align: center middle;
-    padding: 0;
+    color: $background;
+}
+
+#view-title {
+    background: $secondary;
+    text-style: bold;
+    content-align: center middle;
 }
 
 #selection-panel {
@@ -17,80 +19,40 @@
 
 #description-panel {
     align: center middle;
-    border: round $secondary;
+    border: ascii $accent;
 }
 
 #panels {
     margin: 0;
     background: $boost;
-    border: thick;
-}
-
-#progress-bar {
-    align: center middle;
-    height: 1;
-}
-
-#progress-bar-container {
-    padding: 0;
-    margin: 0;
-    align: center middle;
-    content-align: center middle;
-    height: 3;
-    width: 1fr;
+    border: heavy $accent;
+    height: 1fr;
 }
 
 #provisioning-button {
     color: $warning;
 }
 
-#template-container {
-    width: 1fr;
-    height: 1fr;
-    align: center middle;
-    border: none;
-}
-
-#description {
-    width: 100%;
-    text-align: center;
-    margin: 1;
-}
-
 #description-button-container {
     align: center bottom;
-    height: 2;
-    border: round;
-    width: 10;
-}
-
-#os-list {
+    height: 1;
+    width: 13;
     border: none;
-    height: 1fr;
-    scrollbar-gutter: auto;
-}
-
-#os-list:focus-within {
-    border: none; 
+    dock: bottom;
 }
 
 #description-button {
-    width: 20;
+    width: auto;
+    border: none;
 }
 
-RadioButton {
+#forms-panel {
+    align: center middle;
     border: none;
     margin: 0;
     padding: 0;
-    min-width: 80;
-    width: auto;
 }
-
-RadioButton:focus {
-    background: $accent 20%;
-    border: none;
-}
-
+/*-------------------provisioning_manager---------------------*/
 RadioSet {
     height: 1fr;
     overflow-y: auto;
@@ -103,63 +65,6 @@ RadioSet {
 
 .selection-buttons {
     width: 1fr;
-}
-
-.description-active {
-    display: none;
-}
-
-#description-button-container {
-    height: 1;
-    width: 16;
-    background: $surface;
-    border: none;
-}
-
-#description-text {
-    text-align: center;
-    overflow-y: auto;
-    overflow-x: auto;
-}
-
-/* The Wrapper becomes the "fake" input box */
-#password-wrapper {
-    border: tall $primary;
-    background: $surface;
-    height: 3; 
-    width: 100%;
-    padding: 0 1;
-}
-
-/* Remove the default look of the actual input */
-#password-wrapper > Input {
-    border: none;
-    width: 1fr;
-    height: 1;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-}
-
-#password-wrapper > Input:focus {
-    border: none; /* Prevents the border appearing on focus */
-}
-
-/* Style the button to look like a small icon on the right */
-#toggle-pw-btn {
-    border: none;
-    background: transparent;
-    color: $text-muted;
-    min-width: 4;
-    width: 4;
-    height: 1;
-    padding: 0;
-    margin: 0;
-}
-
-#toggle-pw-btn:hover {
-    color: $accent;
-    text-style: bold;
 }
 
 #enter-button-container {
@@ -191,3 +96,24 @@ TabbedContent {
 .show-animation #leak-animation-container {
     display: block;
 }
+
+#forms-panel {
+    width: 1fr;
+    height: 1fr;
+}
+
+#active-form-container {
+    width: 100%;
+    height: 1fr;
+    align: center middle;
+}
+
+/*-------------------provisioning_view---------------------*/
+#template-container {
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    border: none;
+}
+/*-------------------provisioning_view---------------------*/
+

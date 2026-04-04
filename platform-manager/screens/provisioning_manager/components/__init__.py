@@ -1,4 +1,4 @@
 from .policy_password_form import PolicyPasswordForm
 from .template_deployment_screen import TemplateDeploymentScreen
-from . template_tab import TemplateTab
+from . template_form import TemplateForm
 from .vps_picker_screen import VPSPickerScreen

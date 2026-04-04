@@ -4,18 +4,17 @@ from textual.widgets import (
 )
 from textual.containers import Container, Vertical
 from textual.app import ComposeResult
-from screens.provisioning_manager.components import TemplateTab
+from screens.provisioning_manager.components import TemplateForm
 from screens.provisioning_manager.components import PolicyPasswordForm
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 from models.password import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
-
 
 class ProvisioningView(Static):
     def compose(self) -> ComposeResult:
         with Vertical(id="provisioning-form"):
             with TabbedContent():
                 with TabPane("OS TEMPLATE(REQUIRED)", id="template-tab"):
-                    yield Container(TemplateTab(), id="template-container")                                   
+                    yield Container(TemplateForm(), id="template-container")                                   
                 with TabPane("PANEL PASSWORD", id="panel-password-tab"):
                     yield Container(PolicyPasswordForm(policy=PANEL_PASSWORD_POLICY), id="panel-password-container")
                 with TabPane("VPS PASSWORD", id="vps-password-tab"):
