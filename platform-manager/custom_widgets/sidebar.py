@@ -1,0 +1,85 @@
+import asyncio
+from textual import on
+from textual.reactive import reactive
+from textual.widgets import Static, Button
+from textual.containers import VerticalScroll, Container
+from textual.app import ComposeResult
+from screens.provisioning_manager import ProvisioningManagerScreen
+
+class NavigationSidebar(Static):
+    DEFAULT_CSS = """
+    NavigationSidebar {
+        width: 5;
+        height: 100%;
+        background: $boost;
+        transition: width 300ms in_out_cubic;
+    }
+
+    NavigationSidebar.expand {
+        width: 30;
+    }
+
+    #menu-toggle  {
+        height: 1;
+        margin: 1;
+        border: none;
+        min-width: 0;
+        background: $accent;
+    }
+
+    #nav-container {
+        opacity: 0%;
+        visibility: hidden; 
+        transition: opacity 500ms in_out_cubic;
+        width: 100%;
+    }
+
+    NavigationSidebar.expand #nav-container {
+        opacity: 100%;
+        visibility: visible;
+        transition: width 300ms in_out_cubic;
+    }
+
+    #sidebar-header {
+        content-align: center middle;
+        margin-bottom: 1;
+    }
+
+    .nav-btn {
+        width: 100%;
+        align: center middle;
+    }
+
+    #nav-dashboard {
+        display: block;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+            yield Button("[bold]¤[/bold]", variant="primary", id="menu-toggle")
+            with VerticalScroll(id="nav-container"):
+                yield Static("[b]NAVIGATION[/b]", id="sidebar-header")
+                yield Button("Dashboard", id="nav-dashboard", classes="nav-btn")
+                yield Button("Provisioning Manager", id="nav-provisioning", classes="nav-btn")
+                yield Button("Infrastructure", id="nav-infra", classes="nav-btn")
+                yield Button("Settings", id="nav-settings", classes="nav-btn")
+
+    @on(Button.Pressed)
+    def handle_navigation(self, event: Button.Pressed) -> None:
+        """Centralized routing for the whole app."""
+        nav_id = event.button.id
+        
+        if nav_id == "menu-toggle":
+            self.toggle_class("expand")
+        elif nav_id == "nav-dashboard":
+            self.app.switch_screen("dashboard")
+        elif nav_id == "nav-provisioning":
+            self.app.switch_screen("provisioning_manager")
+
+    async def flash_provisioning_button(self) -> None:
+        button = self.query_one("#provisioning-manager-button")
+        for _ in range(4): 
+            button.add_class("highlight-flash")
+            await asyncio.sleep(0.4)
+            button.remove_class("highlight-flash")
+            await asyncio.sleep(0.2)
