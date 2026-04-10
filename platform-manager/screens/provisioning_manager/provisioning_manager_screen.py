@@ -5,6 +5,7 @@ from textual.app import ComposeResult
 from screens import BaseScreen
 from .views import ProviderView, ProvisioningView
 from services.textual_message_bus import DescriptionUpdate
+from custom_widgets.sidebar import NavigationSidebar
 
 class ProvisioningManagerScreen(BaseScreen):
     CSS_PATH = [
@@ -14,6 +15,7 @@ class ProvisioningManagerScreen(BaseScreen):
 
     def setup_content(self) -> ComposeResult:
         with Horizontal(id="main-container"):
+            yield NavigationSidebar()
             with Vertical(id="selection-panel"):
                 yield Static("[b]Provisioning Manager[/b]", id="title")
                 with Container(id="panels"):

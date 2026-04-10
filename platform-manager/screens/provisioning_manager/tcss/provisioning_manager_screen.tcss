@@ -1,4 +1,8 @@
 /*-------------------provisioning_manager---------------------*/
+ProvisioningManagerScreen {
+    width: 100%;
+}
+
 #title {
     background: $foreground;
     text-style: bold;

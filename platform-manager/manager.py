@@ -24,7 +24,7 @@ class PlatformManager(App):
     def on_mount(self) -> None:
         vault_service = get_vault_service("bitwarden", self.app)
         self.app.vault_service = vault_service
-        self.push_screen(DashboardScreen())
+        self.push_screen(ProvisioningManagerScreen())
 
     @staticmethod
     def acquire_lock():

@@ -14,3 +14,7 @@ class ProviderView(Static):
             yield Button("AWS", id="aws-button")
             yield Button("GCP", id="gcp-button")
             yield Button("Azure", id="azure-button")
+
+    def on_button_pressed(self, event: Button.Pressed):
+        if event.button.id == "hostinger-button":
+            self.app.notify("hostinger")

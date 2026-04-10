@@ -1,5 +1,5 @@
 from textual import on
-from textual.widgets import Static, ProgressBar, Label, Button
+from textual.widgets import Static, ProgressBar, Label
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
@@ -8,7 +8,25 @@ from custom_widgets.state_overlay import StateOverlay
 from custom_widgets.sidebar import NavigationSidebar
 
 class DashboardScreen(BaseScreen):
-    CSS_PATH = ["tcss/dashboard_screen.tcss"]
+    CSS = """
+    #main-container {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    #dashboard-info-container {
+        width: 1fr;
+        height: 100%;
+    }
+
+    #overlay-container {
+        width: 100%;
+        height: 100%;
+        align: center middle;
+        content-align: center middle;
+    }
+    """
 
     def setup_content(self) -> ComposeResult:
         with Horizontal(id="main-container"):
@@ -31,6 +49,7 @@ class DashboardScreen(BaseScreen):
 
     def on_mount(self) -> None:
         self.overlay = self.query_one("#status-overlay")
+        self.sidebar = self.query_one(NavigationSidebar)
         self.main_container = self.query_one("#main-container")
         self.run_worker(self.template_data_fetcher())
         
@@ -43,9 +62,7 @@ class DashboardScreen(BaseScreen):
             message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
             self.overlay.enter_error(message, show_retry = False, show_auth = False)
             
-            if "expand" not in self.sidebar.classes:
-                self.sidebar.add_class("expand")
-                self.run_worker(self.flash_provisioning_button())
+            self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
 
         elif result == VaultStatus.UNKNOWN_ERROR:
             message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]"""
