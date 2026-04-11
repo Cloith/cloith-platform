@@ -1,18 +1,1 @@
-ProviderView {
-    align: center middle;
-    width: 100%;
-    height: 1fr;
-}
 
-#button-stack {
-    width: 1fr;           
-    height: 15;
-    background: $boost;
-    align: center middle;
-    border: hkey $success;
-}
-
-#button-stack Button {
-    width: 100%; 
-    height: 3;       
-}

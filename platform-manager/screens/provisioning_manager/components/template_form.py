@@ -20,12 +20,9 @@ class TemplateForm(Static):
     
     @work(exclusive=True, name="template_fetcher")
     async def fetch_templates(self) -> None:
-        try:
-            vps_list = await self.app.template_service.get_all_templates()
-            
-            return vps_list
-        except Exception as e:
-            self.notify(f"Failed to fetch templates: {e}", severity="error")
+        vps_list = await self.app.template_service.get_all_templates()
+        return vps_list
+        
 
     @on(Worker.StateChanged)
     def handle_template_result(self, event: Worker.StateChanged) -> None:
@@ -75,10 +72,3 @@ class TemplateForm(Static):
         if selected_button:
             self.new_desc = self.template_descriptions.get(selected_button.id, "No description found.")
             self.post_message(ButtonDescriptionUpdate(self.new_desc))
-
-
-        
-
-
-           
-   

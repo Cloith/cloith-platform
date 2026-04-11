@@ -1,6 +1,11 @@
 /*-------------------provisioning_manager---------------------*/
 ProvisioningManagerScreen {
     width: 100%;
+    height: 100%;
+}
+
+#main-container {
+    height: 1fr;
 }
 
 #title {
@@ -8,6 +13,20 @@ ProvisioningManagerScreen {
     text-style: bold;
     content-align: center middle;
     color: $background;
+}
+
+#initial-options {
+    height: 1;
+    border: none;
+    background: $accent;
+}
+
+.initial-btn {
+    width: 1fr;
+    height: 1;
+    border: none;
+    margin: 0 1;
+    padding: 0;
 }
 
 #view-title {
@@ -28,9 +47,9 @@ ProvisioningManagerScreen {
 
 #panels {
     margin: 0;
-    background: $boost;
-    border: heavy $accent;
+    background: $background;
     height: 1fr;
+    border: hkey $accent;
 }
 
 #provisioning-button {

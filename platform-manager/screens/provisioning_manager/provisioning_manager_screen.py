@@ -1,9 +1,9 @@
 from textual import on
-from textual.widgets import Static, RadioButton, Button
+from textual.widgets import Static, RadioButton, Button, Markdown
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from textual.app import ComposeResult
 from screens import BaseScreen
-from .views import ProviderView, ProvisioningView
+from .views import ProviderView, ProvisioningView, ImportView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
 
@@ -18,20 +18,18 @@ class ProvisioningManagerScreen(BaseScreen):
             yield NavigationSidebar()
             with Vertical(id="selection-panel"):
                 yield Static("[b]Provisioning Manager[/b]", id="title")
+                with Horizontal(id="initial-options"):
+                    yield Button("Select Provider", id = "provider-btn", classes = "initial-btn")
+                    yield Button("Import Template", classes = "initial-btn")
                 with Container(id="panels"):
                     yield VerticalScroll(
-                        Button("Select Provider", id="provider-button", classes="selection-buttons"),
                         Button("VPS Selection", id="vps-button", classes="selection-buttons"),
                         Button("Provisioning(required)", id="provisioning-button", classes="selection-buttons"),
-                        Button("Networking", id="networking-button", classes="selection-buttons"),
-                        Button("Hardening", id="hardening-button", classes="selection-buttons"),
-                        Button("Custom Playbooks", id="custom-button", classes="selection-buttons"),
                         Button("Requirements", id="requirements-button", classes="selection-buttons"),
-                        Button("Review", id="review-button", classes="selection-buttons"),
-                        Button("Deploy", id="deploy-button", classes="selection-buttons"),
+                        Button("Deploy", id="deploy-button", classes="selection-buttons")
                     )
                 with VerticalScroll(id="description-panel"):
-                    yield Static("", id="description-text")
+                    yield Markdown("", id="description-text")
             with Vertical(id="forms-panel"):
                 yield Static("SELECT YOUR PROVIDER", id="view-title")
                 with Container(id="active-form-container"): 
@@ -59,16 +57,19 @@ class ProvisioningManagerScreen(BaseScreen):
 
     def on_description_update(self, message: DescriptionUpdate) -> None:
         """This handler catches the message from the deep child."""
-        self.query_one("#description-text", Static).update(message.text)
+        self.query_one("#description-text").update(message.text)
 
     @on(Button.Pressed)
     def handle_menu_navigation(self, event: Button.Pressed) -> None:
         """Main router for the sidebar buttons."""
         button_id = event.button.id
 
-        if button_id == "provider-button":
+        if button_id == "provider-btn":
             self.switch_view(ProviderView())
             self.view_title.update("SELECT YOUR PROVIDER")
+
+        elif button_id == "import-button":
+            self.switch_view(ImportView())   
             
         elif button_id == "provisioning-button":
             self.switch_view(ProvisioningView()) 
