@@ -14,10 +14,11 @@ class BaseScreen(Screen):
     }
 
     #app-canvas {
-        max-width: 134;
-        max-height: 17;
+        max-width: 100%;
+        max-height: 100%;
         background: $boost;
-        align: center middle;
+        content-align: center middle;
+        
     }
 
     Header {
@@ -30,10 +31,10 @@ class BaseScreen(Screen):
     """
 
     def compose(self) -> ComposeResult:
-        yield Header()
         with Container(id="app-canvas"):
+            yield Header()
             yield from self.setup_content()
-        yield Footer()
+            yield Footer()
   
 
     def setup_content(self) -> ComposeResult:

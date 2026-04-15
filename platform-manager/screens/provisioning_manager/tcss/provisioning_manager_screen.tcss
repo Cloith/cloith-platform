@@ -5,7 +5,8 @@ ProvisioningManagerScreen {
 }
 
 #main-container {
-    height: 1fr;
+    height: 100%;
+    width: 100%;
 }
 
 #title {
@@ -13,6 +14,7 @@ ProvisioningManagerScreen {
     text-style: bold;
     content-align: center middle;
     color: $background;
+    height: 1;
 }
 
 #initial-options {
@@ -40,6 +42,14 @@ ProvisioningManagerScreen {
     align: center middle;
 }
 
+#panel-scroll {
+    align: center middle;
+}
+
+.selection-buttons {
+    padding: 1;
+}
+
 #description-panel {
     align: center middle;
     border: ascii $accent;
@@ -50,6 +60,7 @@ ProvisioningManagerScreen {
     background: $background;
     height: 1fr;
     border: hkey $accent;
+    align: center middle;
 }
 
 #provisioning-button {

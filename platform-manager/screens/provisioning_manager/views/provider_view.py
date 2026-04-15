@@ -4,6 +4,7 @@ from textual.widgets import (
 from textual.containers import VerticalScroll
 from textual.app import ComposeResult
 
+
 class ProviderView(Static):
     DEFAULT_CSS = """
     ProviderView {
@@ -14,15 +15,15 @@ class ProviderView(Static):
 
     #button-stack {
         width: 1fr;           
-        height: 15;
+        height: 1fr;
         background: $boost;
         align: center middle;
         border: hkey $success;
     }
 
     #button-stack Button {
-        width: 100%; 
-        height: 3;       
+        width: 100%;   
+        padding: 1;     
     }
     """
 
@@ -34,7 +35,10 @@ class ProviderView(Static):
             yield Button("Azure", id="azure-btn")
 
     def on_button_pressed(self, event: Button.Pressed):
+        from screens.provisioning_manager import ProvisioningManagerScreen
+
         if event.button.id == "hostinger-btn":
-            self.app.notify("hostinger")
+            self.screen.recipe.provider = "Hostinger"
+            self.screen.mutate_reactive(ProvisioningManagerScreen.recipe)
         else:
             self.app.notify("Coming Soon!")

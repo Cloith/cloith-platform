@@ -5,14 +5,24 @@ from pathlib import Path
 
 class ImportView(Static):
     DEFAULT_CSS = """
+    ImportView {
+        height: 100%;
+    }
+
     #action-bar {
         height: 3;
         position: relative;
         align: center middle;
+        padding-top: 1;
     }
 
     #template-options {
-        height: 10;
+        height: 1fr;
+    }
+
+    #template-list {
+        height: 90%;
+        padding: 1;
     }
 
     #start-deploy {
@@ -32,7 +42,7 @@ class ImportView(Static):
                 yield OptionList(id="template-options")
 
         with Horizontal(id="action-bar"):
-            yield Button("Deploy", variant="success", id="start-deploy")
+            yield Button("Import", variant="success", id="import-btn")
 
     def on_mount(self) -> None:
         self.scan_templates()

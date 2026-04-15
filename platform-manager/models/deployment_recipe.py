@@ -9,3 +9,8 @@ class DeploymentRecipe:
     panel_password: str = ""
     scripts: list = field(default_factory=list)
     is_ready: bool = False
+
+    @property
+    def has_provider(self) -> bool:
+        """Returns True if a provider and VPS are selected."""
+        return bool(self.provider)
