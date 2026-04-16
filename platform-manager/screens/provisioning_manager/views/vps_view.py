@@ -8,98 +8,79 @@ from services.base_vps import VPSStatus
 from services.base_vault import VaultStatus
 from screens import BaseScreen
 from screens.common import PasswordModal
+from custom_widgets.state_overlay import StateOverlay
 
-class VPSPickerScreen(BaseScreen):
-    CSS = """
-    #loading-container {
-        display: none;
-    }
-
-    .loading #loading-container {
-        display: block;
-    }
-
-    .loading #main-content {
-        display: none;
+class VPSView(Static):
+    DEFAULT_CSS = """
+    VPSView {
+        height: 100%;
+        width: 100%;
     }
 
     #main-container {
-        layout: grid;
-        grid-size: 2; /* Two columns */
-        grid-columns: 1fr 1fr; /* Equal width, or 1fr 2fr if you want more description space */
+        height: 100%;
+        align: center middle;
+        display: block;
     }
 
     #main-content {
         align: center middle;
     }
 
-    #description-container {
-        height: 1fr;           /* Take up remaining vertical space */
-        overflow-y: auto;    /* Force a scrollbar or use 'auto' */
-        padding: 1;
-        border: vkey $accent;
-        background: $surface;
-    }
-
-    #description-container > Static {
-        width: 100%;
-        height: auto;          /* Allow the static text to be as tall as the text itself */
+    #list-container {
+        height: 90%;
     }
 
     #vps-list {
         height: 1fr;
     }
+
+    #button-container {
+        align: center middle;
+    }
     """
 
-    def setup_content(self) -> ComposeResult:
-        with Vertical(id="loading-container"):
-                yield LoadingIndicator()
-                yield Static("Fetching Hostinger API key...", id="loading-text")
+    def compose(self) -> ComposeResult:
         with Container(id="main-container"):
-            with Vertical(id="main-content"):
-                yield Static("Fetching your Hostinger VPS list...", id="status")
+            yield StateOverlay(id="overlay")
+            with Container(id = "list-container"):
                 yield OptionList(id="vps-list")
-                yield Button("Confirm Selection", variant="success", id="confirm-vps")
-            with Vertical(id="description-container"):
-                yield Static("")
+            with Container(id="button-container"): 
+                yield Button("Confirm VPS", variant="success", id="confirm-vps")
 
     def on_mount(self) -> None:
         self.run_worker(self.fetch_vps_list())
+        self.overlay = self.query_one("#overlay")
         
+    
+    @on(StateOverlay.RetryRequested)
+    def restart_request(self) -> None:
+        self.run_worker(self.fetch_vps_list())
+
     async def fetch_vps_list(self):
+        self.overlay.enter_loading("fetching vps list, pleas wait...")
         result = await self.app.vps_service.get_all_vps()
 
         if result == VPSStatus.TOKEN_MISSING:
             token_name = f"{self.app.vps_service.provider_name}_token"
             auth_result = await self.app.vault_service.get_item(token_name)
             
-            if auth_result == VPSStatus.SUCCESS:
-                return await self.fetch_vps_list()
-            elif auth_result == VPSStatus.TOKEN_MISSING:
-                self.app.notify("still missing")
-            elif auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
-                result = await self.app.push_screen_wait(PasswordModal())
+            if auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
+                message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
+                self.overlay.enter_error(message, show_retry = False, show_auth = True)
+
+            elif isinstance(auth_result, dict):
+                token = auth_result.get("login", {}).get("password")
+                self.app.provider_token = token
+                self.run_worker(self.fetch_vps_list())
             
         elif result == VPSStatus.TOKEN_INVALID:
             self.app.notify("token invalid")
-        
-        
-    def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
-        if event.worker.is_finished:
-            result = event.worker.result
-            
-            if event.worker.name == "token_fetcher":
-                if isinstance(result, (InvalidItemError, ItemNotFoundError)):
-                    self.notify(str(result), severity="error")
-                    self.remove_class("loading")
-                elif isinstance(result, Exception):
-                    self.notify("An unexpected error occurred", severity="error")
-                else:
-                    self.app.hostinger_token = result
-                    self.fetch_vps_list() 
-
+        else:
+            self.populate_list(result)
 
     def populate_list(self, vps_data: list) -> None:
+        self.overlay.display = False
         option_list = self.query_one("#vps-list", OptionList)
         option_list.clear_options()
         
@@ -131,7 +112,6 @@ class VPSPickerScreen(BaseScreen):
         if option_list.highlighted is not None:
             selected_vps = self.app.vps_inventory[option_list.highlighted]
             
-            self.app.push_screen(SetupWizardScreen(selected_vps))
         else:
             self.notify("Please select a VPS from the list first.", severity="warning")
             

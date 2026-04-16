@@ -4,7 +4,7 @@ from textual.reactive import reactive
 from textual.widgets import Static, RadioButton, Button, Markdown
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from screens import BaseScreen
-from .views import ProviderView, ProvisioningView, ImportView
+from .views import ProviderView, ProvisioningView, ImportView, VPSView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
 from models.deployment_recipe import DeploymentRecipe
@@ -25,12 +25,12 @@ class ProvisioningManagerScreen(BaseScreen):
                     yield Button("Select Provider", id = "provider-btn", classes = "initial-btn")
                     yield Button("Import Template", id = "import-btn", classes = "initial-btn")
                 with Container(id="panels"):
-                    yield StateOverlay(id="status-overlay")
+                    yield StateOverlay(id="overlay")
                     yield VerticalScroll(
-                        Button("VPS Selection", id="vps-button", classes="selection-buttons"),
-                        Button("Provisioning(required)", id="provisioning-button", classes="selection-buttons"),
-                        Button("Requirements", id="requirements-button", classes="selection-buttons"),
-                        Button("Deploy", id="deploy-button", classes="selection-buttons"),
+                        Button("VPS Selection", id="vps-btn", classes="selection-buttons"),
+                        Button("Provisioning(required)", id="provisioning-btn", classes="selection-buttons"),
+                        Button("Requirements", id="requirements-btn", classes="selection-buttons"),
+                        Button("Deploy", id="deploy-btn", classes="selection-buttons"),
                         id = "panel-scroll"
                     )
                 with VerticalScroll(id="description-panel"):
@@ -46,8 +46,8 @@ class ProvisioningManagerScreen(BaseScreen):
     def on_mount(self) -> None:
         self.query_one("#description-panel").display=False
         self.view_title = self.query_one("#view-title")
-        self.overlay = self.query_one("#status-overlay")
-        message = """[orange]No Provider detected[/] \n\n Choose a [yellow bold]Provider or Import[/] first to get started"""
+        self.overlay = self.query_one("#overlay")
+        message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
         self.overlay.enter_error(message, show_retry = False, show_auth = False)
 
     @on(RadioButton.Changed, "#description-button")
@@ -83,7 +83,11 @@ class ProvisioningManagerScreen(BaseScreen):
             
         elif button_id == "provisioning-button":
             self.switch_view(ProvisioningView())
-            self.view_title.update("COMPLETE THE FORMS")   
+            self.view_title.update("COMPLETE THE FORMS")
+
+        elif button_id == "vps-btn":
+            self.switch_view(VPSView())
+            self.view_title.update("SELECT YOUR VPS")    
             
     def switch_view(self, new_view: Static) -> None:
         """Removes the current form and mounts a new one."""

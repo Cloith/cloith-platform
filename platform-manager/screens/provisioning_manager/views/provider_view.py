@@ -3,6 +3,7 @@ from textual.widgets import (
 )
 from textual.containers import VerticalScroll
 from textual.app import ComposeResult
+from services.providers.hostinger import HostingerVPSService
 
 
 class ProviderView(Static):
@@ -18,7 +19,6 @@ class ProviderView(Static):
         height: 1fr;
         background: $boost;
         align: center middle;
-        border: hkey $success;
     }
 
     #button-stack Button {
@@ -40,5 +40,7 @@ class ProviderView(Static):
         if event.button.id == "hostinger-btn":
             self.screen.recipe.provider = "Hostinger"
             self.screen.mutate_reactive(ProvisioningManagerScreen.recipe)
+            
+            self.app.vps_service = HostingerVPSService(self.app)
         else:
             self.app.notify("Coming Soon!")

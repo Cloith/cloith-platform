@@ -7,7 +7,6 @@ from screens.core import LoadingScreen
 from screens.core import LoginScreen
 from screens.core import DashboardScreen
 from screens.provisioning_manager import ProvisioningManagerScreen
-from screens.provisioning_manager.components import VPSPickerScreen
 from services.service_factory import get_vault_service
 from services.providers.hostinger import HostingerTemplateService
 
