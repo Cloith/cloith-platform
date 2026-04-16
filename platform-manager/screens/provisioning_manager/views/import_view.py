@@ -1,5 +1,5 @@
 from textual.widgets import OptionList, Markdown, Label, Button, Static
-from textual.containers import Horizontal, VerticalScroll, Vertical
+from textual.containers import Horizontal, VerticalScroll, Vertical, Container
 from textual.app import ComposeResult
 from pathlib import Path
 
@@ -9,11 +9,10 @@ class ImportView(Static):
         height: 100%;
     }
 
-    #action-bar {
-        height: 3;
+    #btn-container {
+        height: 5;
         position: relative;
-        align: center middle;
-        padding-top: 1;
+        align: center bottom;
     }
 
     #template-options {
@@ -21,28 +20,17 @@ class ImportView(Static):
     }
 
     #template-list {
-        height: 90%;
+        height: 100%;
         padding: 1;
-    }
-
-    #start-deploy {
-        height: 3;
-        width: auto;
-    }
-
-    #main-container {
-        height: 1fr;
     }
     """
 
     def compose(self) -> ComposeResult:
-        with Horizontal(id="main-container"):
-            with Vertical(id="template-list"):
-                yield Label("Available Templates:")
-                yield OptionList(id="template-options")
-
-        with Horizontal(id="action-bar"):
-            yield Button("Import", variant="success", id="import-btn")
+        with Vertical(id="template-list"):
+            yield Label("Available Templates:")
+            yield OptionList(id="template-options")
+            with Container(id="btn-container"):
+                yield Button("Import", variant="success", id="import-btn")
 
     def on_mount(self) -> None:
         self.scan_templates()

@@ -10,10 +10,43 @@ from services.base_vault import VaultStatus
 class PasswordModal(ModalScreen[str]):
     """A pop-up modal to capture the Master Password."""
     
-    CSS_PATH = "tcss/modal_screen.tcss"
+    DEFAULT_CSS = """
+    PasswordModal {
+        align: center middle;
+    }
 
-    def __init__(self):
-        super().__init__()
+    #modal-container {
+        height: 13;
+        width: 50;
+        border: round $accent;
+        align: center middle;
+    }
+
+    PasswordModal #loading-animation {
+        height: 3;
+        width: 16;
+        color: $accent;
+        display: none;
+        margin-bottom: 8;
+    }
+
+    PasswordModal #button-container {
+        height: 5;
+        align: center middle;
+    }
+
+    PasswordModal #loading-container {
+        align: center middle;
+    }
+
+    #modal-container.loading #loading-animation {
+        display: block;
+    }
+
+    #modal-container.loading #button-container {
+        display: none;
+    }
+    """
 
     def compose(self) -> ComposeResult:
         with Container(id="modal-container"):
