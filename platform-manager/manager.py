@@ -3,6 +3,7 @@ import os
 import sys
 from rich.console import Console
 from textual.app import App
+from textual.events import Resize
 from screens.core import LoadingScreen
 from screens.core import LoginScreen
 from screens.core import DashboardScreen
@@ -25,6 +26,9 @@ class PlatformManager(App):
         vault_service = get_vault_service("bitwarden", self)
         self.vault_service = vault_service
         self.push_screen(ProvisioningManagerScreen())
+
+    def on_resize(self, event: Resize) -> None:
+        self.refresh()
 
     @staticmethod
     def acquire_lock():

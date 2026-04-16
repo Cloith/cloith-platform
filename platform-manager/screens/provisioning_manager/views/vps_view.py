@@ -37,20 +37,28 @@ class VPSView(Static):
 
     #button-container {
         align: center middle;
+        height: 5;
+    }
+
+    #overlay {
+        height: 1fr;
     }
     """
 
     def compose(self) -> ComposeResult:
         with Container(id="main-container"):
             yield StateOverlay(id="overlay")
-            with Container(id = "list-container"):
-                yield OptionList(id="vps-list")
             with Container(id="button-container"): 
-                yield Button("Confirm VPS", variant="success", id="confirm-vps")
+                yield Button("Buy VPS", variant="success", id="buy-btn")
+        with Container(id = "list-container"):
+            yield OptionList(id="vps-list")
+        with Container(id="button-container"): 
+            yield Button("Confirm VPS", variant="success", id="confirm-vps")
 
     def on_mount(self) -> None:
         self.run_worker(self.fetch_vps_list())
         self.overlay = self.query_one("#overlay")
+        self.query_one("#buy-btn").display = False
         
     
     @on(StateOverlay.RetryRequested)
@@ -68,6 +76,7 @@ class VPSView(Static):
             if auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
                 message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
                 self.overlay.enter_error(message, show_retry = False, show_auth = True)
+                
 
             elif isinstance(auth_result, dict):
                 token = auth_result.get("login", {}).get("password")
@@ -80,14 +89,24 @@ class VPSView(Static):
             self.populate_list(result)
 
     def populate_list(self, vps_data: list) -> None:
-        self.overlay.display = False
         option_list = self.query_one("#vps-list", OptionList)
         option_list.clear_options()
-        
-        for vps in vps_data:
-            hostname = vps.name
-            status = vps.status
-            option_list.add_option(f"{hostname} [{status}]")
+
+        if not vps_data:
+            message = (
+                "[bold ornage]No Active Instances Found[/]\n\n"
+                "We couldn't find any VPS linked to your account. Please check if:\n"
+                " • Your subscription has [yellow]expired[/]\n"
+                " • You need to [blue]Buy[/] a new  VPS instance"
+            )
+            self.overlay.enter_error(message, show_retry=True, show_auth=False)
+            self.query_one("#buy-btn").display = True
+        else:
+            self.overlay.display = False
+            for vps in vps_data:
+                hostname = vps.name
+                status = vps.status
+                option_list.add_option(f"{hostname} [{status}]")
 
     @on(OptionList.OptionHighlighted)
     def update_description(self, event: OptionList.OptionHighlighted) -> None:
@@ -114,6 +133,10 @@ class VPSView(Static):
             
         else:
             self.notify("Please select a VPS from the list first.", severity="warning")
+
+    @on(Button.Pressed, "#buy-btn")
+    def confirm_button(self) -> None:
+        self.app.notify("Coming Soon!")
             
            
 
