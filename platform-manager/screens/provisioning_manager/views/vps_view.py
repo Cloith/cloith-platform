@@ -8,7 +8,7 @@ from services.base_vps import VPSStatus
 from services.base_vault import VaultStatus
 from screens import BaseScreen
 from screens.common import PasswordModal
-from custom_widgets.state_overlay import StateOverlay
+from custom_widgets.state_overlay import StateOverlay, OverlayConfig
 
 class VPSView(Static):
     DEFAULT_CSS = """
@@ -74,8 +74,11 @@ class VPSView(Static):
             auth_result = await self.app.vault_service.get_item(token_name)
             
             if auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
-                message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
-                self.overlay.enter_error(message, show_retry = False, show_auth = True)
+                config = OverlayConfig(
+                    message="""[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
+                    show_auth=  True
+                    )
+                self.overlay.enter_error(config)
                 
 
             elif isinstance(auth_result, dict):
@@ -93,13 +96,15 @@ class VPSView(Static):
         option_list.clear_options()
 
         if not vps_data:
-            message = (
+            config = OverlayConfig(
+                message = (
                 "[bold ornage]No Active Instances Found[/]\n\n"
                 "We couldn't find any VPS linked to your account. Please check if:\n"
                 " • Your subscription has [yellow]expired[/]\n"
                 " • You need to [blue]Buy[/] a new  VPS instance"
+                )
             )
-            self.overlay.enter_error(message, show_retry=True, show_auth=False)
+            self.overlay.enter_error(config)
             self.query_one("#buy-btn").display = True
         else:
             self.overlay.display = False

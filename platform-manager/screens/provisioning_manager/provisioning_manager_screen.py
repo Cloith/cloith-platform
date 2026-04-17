@@ -8,7 +8,7 @@ from .views import ProviderView, ProvisioningView, ImportView, VPSView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
 from models.deployment_recipe import DeploymentRecipe
-from custom_widgets.state_overlay import StateOverlay
+from custom_widgets.state_overlay import StateOverlay, OverlayConfig
 
 class ProvisioningManagerScreen(BaseScreen):
     CSS_PATH = [
@@ -47,8 +47,10 @@ class ProvisioningManagerScreen(BaseScreen):
         self.query_one("#description-panel").display=False
         self.view_title = self.query_one("#view-title")
         self.overlay = self.query_one("#overlay")
-        message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
-        self.overlay.enter_error(message, show_retry = False, show_auth = False)
+        config = OverlayConfig(
+            message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
+        )
+        self.overlay.enter_error(config)
 
     @on(RadioButton.Changed, "#description-button")
     def description_button(self) -> None:

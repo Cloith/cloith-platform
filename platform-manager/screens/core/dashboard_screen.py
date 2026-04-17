@@ -4,7 +4,7 @@ from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
 from services.base_vault import VaultStatus
-from custom_widgets.state_overlay import StateOverlay
+from custom_widgets.state_overlay import StateOverlay, OverlayConfig
 from custom_widgets.sidebar import NavigationSidebar
 
 class DashboardScreen(BaseScreen):
@@ -59,18 +59,26 @@ class DashboardScreen(BaseScreen):
 
         if result == VaultStatus.ITEM_MISSING:
 
-            message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
-            self.overlay.enter_error(message, show_retry = False, show_auth = False)
+            config = OverlayConfig(
+                message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
+            )
+            self.overlay.enter_error(config)
             
             self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
 
         elif result == VaultStatus.UNKNOWN_ERROR:
-            message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]"""
-            self.overlay.enter_error(message, show_retry = True, show_auth = False)
+            config = OverlayConfig(
+                message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
+                show_retry = True
+            )
+            self.overlay.enter_error(config)
             
         elif result == VaultStatus.MASTER_PASSWORD_PROMPT:
-            message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue."""
-            self.overlay.enter_error(message, show_retry = False, show_auth = True)
+            config = OverlayConfig(
+                message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
+                show_auth = True
+            )
+            self.overlay.enter_error(config)
 
     @on(StateOverlay.RetryRequested)
     def restart_request(self) -> None:

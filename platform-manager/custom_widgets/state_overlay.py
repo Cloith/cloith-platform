@@ -5,6 +5,15 @@ from textual.app import ComposeResult
 from textual.message import Message
 from screens.common import PasswordModal
 from services.base_vault import VaultStatus
+from dataclasses import dataclass
+
+@dataclass
+class OverlayConfig:
+    message: str
+    mode: str = "vault"
+    show_retry: bool = False
+    show_auth: bool = False
+    button_label: str = "Authorize"
 
 class StateOverlay(Vertical):
     """A reusable overlay for Loading, Error, and Auth states."""
@@ -40,12 +49,13 @@ class StateOverlay(Vertical):
         self.query_one("#overlay-indicator").display = True
         self.query_one("#overlay-text").update(message)
 
-    def enter_error(self, message: str, show_retry: bool, show_auth: bool):
+    def enter_error(self, config: OverlayConfig):
+        self.mode = config.mode
         self.add_class("-visible", "-show-buttons")
         self.query_one("#overlay-indicator").display = False
-        self.query_one("#overlay-text").update(message)
-        self.query_one("#retry-btn").display = show_retry
-        self.query_one("#auth-btn").display = show_auth
+        self.query_one("#overlay-text").update(config.message)
+        self.query_one("#retry-btn").display = config.show_retry
+        self.query_one("#auth-btn").display = config.show_auth
 
     def clear(self):
         self.remove_class("-visible")
@@ -58,7 +68,7 @@ class StateOverlay(Vertical):
     
     @work
     async def handle_authorization(self):
-        result = await self.app.push_screen_wait(PasswordModal())
+        result = await self.app.push_screen_wait(PasswordModal(self.mode))
 
         if result == VaultStatus.SUCCESS:
             self.post_message(self.RetryRequested())
