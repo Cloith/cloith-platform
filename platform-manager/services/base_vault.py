@@ -1,19 +1,19 @@
 from abc import ABC, abstractmethod
-from enum import IntEnum
+from enum import Enum
 
-class VaultStatus(IntEnum):
-    SUCCESS = 1
-    NEED_2FA = 2
-    WRONG_PASSWORD = 3
-    WRONG_EMAIL = 4
-    INVALID_OTP = 5
-    LOCKED = 6
-    TIMEOUT = 7
-    UNKNOWN_ERROR = 8
-    ALREADY_LOGGED_IN = 9
-    MASTER_PASSWORD_PROMPT = 10
-    ITEM_MISSING = 11
-    CANCELLED = 12 
+class VaultStatus(str, Enum):
+    SUCCESS = "success"
+    NEED_2FA = "need_2fa"
+    WRONG_PASSWORD = "wrong_password"
+    WRONG_EMAIL = "wrong_email"
+    INVALID_OTP = "invalid_otp"
+    LOCKED = "locked"
+    TIMEOUT = "timeout"
+    UNKNOWN_ERROR = "unknown_error"
+    ALREADY_LOGGED_IN = "already_logged_in"
+    MASTER_PASSWORD_PROMPT = "master_password_prompt"
+    ITEM_MISSING = "item_missing"
+    CANCELLED = "cancelled"
     
 
 class BaseVaultService(ABC):

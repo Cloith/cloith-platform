@@ -1,20 +1,20 @@
 from abc import ABC, abstractmethod
 from models.vps import VPSData
-from enum import IntEnum
+from enum import Enum
 
-class VPSStatus(IntEnum):
-    SUCCESS = 1
-    TOKEN_MISSING = 2
-    TOKEN_INVALID= 3
-    TOKEN_MODAL_PROMPT = 4
-    INVALID_OTP = 5
-    LOCKED = 6
-    TIMEOUT = 7
-    UNKNOWN_ERROR = 8
-    ALREADY_LOGGED_IN = 9
-    MASTER_PASSWORD_PROMPT = 10
-    ITEM_MISSING = 11
-    CANCELLED = 12 
+class VPSStatus(str, Enum):
+    SUCCESS = "success"
+    TOKEN_MISSING = "token_missing"
+    TOKEN_INVALID = "token_invalid"
+    TOKEN_MODAL_PROMPT = "token_modal_prompt"
+    INVALID_OTP = "invalid_otp"
+    LOCKED = "locked"
+    TIMEOUT = "timeout"
+    UNKNOWN_ERROR = "unknown_error"
+    ALREADY_LOGGED_IN = "already_logged_in"
+    MASTER_PASSWORD_PROMPT = "master_password_prompt"
+    ITEM_MISSING = "item_missing"
+    CANCELLED = "cancelled"
 
 class BaseVPSService(ABC):
     @property

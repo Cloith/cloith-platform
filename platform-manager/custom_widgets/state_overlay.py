@@ -1,6 +1,6 @@
 from textual import work
 from textual.widgets import Static, LoadingIndicator, Button
-from textual.containers import Vertical, Container
+from textual.containers import Vertical, Container, Horizontal
 from textual.app import ComposeResult
 from textual.message import Message
 from screens.common import PasswordModal
@@ -13,6 +13,7 @@ class OverlayConfig:
     mode: str = "vault"
     show_retry: bool = False
     show_auth: bool = False
+    show_buy: bool = False
     button_label: str = "Authorize"
 
 class StateOverlay(Vertical):
@@ -27,9 +28,12 @@ class StateOverlay(Vertical):
     }
     StateOverlay.-visible { display: block; }
     #overlay-text { text-align: center; margin-bottom: 1; }
-    #overlay-buttons { align: center middle; height: 3; display: none; }
+    #overlay-buttons { align: center middle; height: 5; display: none; }
     #overlay-indicator { height: 6; }
     StateOverlay.-show-buttons #overlay-buttons { display: block; }
+    .buttons {
+        margin: 1;
+    }
     """
 
     class RetryRequested(Message):
@@ -39,9 +43,11 @@ class StateOverlay(Vertical):
     def compose(self) -> ComposeResult:
         yield LoadingIndicator(id="overlay-indicator")
         yield Static("", id="overlay-text")
-        with Container(id="overlay-buttons"):
-            yield Button("Try Again", variant="primary", id="retry-btn")
-            yield Button("Authorize", variant="primary", id="auth-btn")
+        with Horizontal(id="overlay-buttons"):
+            yield Button("Try Again", variant="primary", id="retry-btn", classes="buttons")
+            yield Button("Authorize", variant="primary", id="auth-btn", classes="buttons")
+            yield Button("Buy VPS", variant="success", id="buy-btn", classes="buttons")
+
 
     def enter_loading(self, message: str = "Fetching Data..."):
         self.add_class("-visible")
@@ -56,6 +62,7 @@ class StateOverlay(Vertical):
         self.query_one("#overlay-text").update(config.message)
         self.query_one("#retry-btn").display = config.show_retry
         self.query_one("#auth-btn").display = config.show_auth
+        self.query_one("#buy-btn").display = config.show_buy
 
     def clear(self):
         self.remove_class("-visible")
@@ -65,6 +72,8 @@ class StateOverlay(Vertical):
             self.post_message(self.RetryRequested())
         elif event.button.id == "auth-btn":
             self.handle_authorization()
+        elif event.button.id == "buy-btn":
+            self.app.notify("Coming Soon!")
     
     @work
     async def handle_authorization(self):

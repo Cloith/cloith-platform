@@ -36,4 +36,21 @@ class HostingerVPSService(BaseVPSService):
             ))
         return vps_objects
     
+    async def check_token(self, token: str) -> VPSStatus:
+        """Validates the token and updates the app state if successful."""
+
+        original_token = self.app.provider_token
+        self.app.provider_token = token
+        
+
+        result = await self.client.request("GET", "/virtual-machines")
+
+        if isinstance(result, list):
+            return VPSStatus.SUCCESS 
+        
+        self.app.provider_token = original_token
+        return VPSStatus.TOKEN_INVALID
+            
+
+    
         

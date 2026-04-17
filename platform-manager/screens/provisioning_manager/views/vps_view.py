@@ -48,8 +48,6 @@ class VPSView(Static):
     def compose(self) -> ComposeResult:
         with Container(id="main-container"):
             yield StateOverlay(id="overlay")
-            with Container(id="button-container"): 
-                yield Button("Buy VPS", variant="success", id="buy-btn")
         with Container(id = "list-container"):
             yield OptionList(id="vps-list")
         with Container(id="button-container"): 
@@ -58,8 +56,6 @@ class VPSView(Static):
     def on_mount(self) -> None:
         self.run_worker(self.fetch_vps_list())
         self.overlay = self.query_one("#overlay")
-        self.query_one("#buy-btn").display = False
-        
     
     @on(StateOverlay.RetryRequested)
     def restart_request(self) -> None:
@@ -87,7 +83,12 @@ class VPSView(Static):
                 self.run_worker(self.fetch_vps_list())
             
         elif result == VPSStatus.TOKEN_INVALID:
-            self.app.notify("token invalid")
+            config = OverlayConfig(
+                message=f"""Your [green]{self.app.vps_service.provider_name} token[/] is [red]incorrect[/]\n\n\n Please [blue]authorize[/] to continue.""",
+                mode="provider",
+                show_auth=True
+            )
+            self.overlay.enter_error(config)
         else:
             self.populate_list(result)
 
@@ -98,14 +99,15 @@ class VPSView(Static):
         if not vps_data:
             config = OverlayConfig(
                 message = (
-                "[bold ornage]No Active Instances Found[/]\n\n"
-                "We couldn't find any VPS linked to your account. Please check if:\n"
+                "[bold orange]No Active Instances Found[/]\n\n\n"
+                "We couldn't find any VPS linked to your account. Please check if:\n\n"
                 " • Your subscription has [yellow]expired[/]\n"
-                " • You need to [blue]Buy[/] a new  VPS instance"
-                )
+                " • You need to [green]Buy[/] a new VPS instance"
+                ),
+                show_retry=True,
+                show_buy=True
             )
             self.overlay.enter_error(config)
-            self.query_one("#buy-btn").display = True
         else:
             self.overlay.display = False
             for vps in vps_data:
@@ -139,9 +141,6 @@ class VPSView(Static):
         else:
             self.notify("Please select a VPS from the list first.", severity="warning")
 
-    @on(Button.Pressed, "#buy-btn")
-    def confirm_button(self) -> None:
-        self.app.notify("Coming Soon!")
             
            
 

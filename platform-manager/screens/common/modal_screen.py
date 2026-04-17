@@ -59,9 +59,9 @@ class PasswordModal(ModalScreen[str]):
         """Calculates config values dynamically when accessed."""
         if self.mode == "provider":
             return {
-                "title": f'Enter New "{self.app.vps_service.provider_name.title()}" API Token',
+                "title": f'Enter New {self.app.vps_service.provider_name.title()} API Token',
                 "button": "Update Token",
-                "service": self.app.check_token 
+                "service": self.app.vps_service.check_token
             }
         # Default/Vault mode
         return {
@@ -92,6 +92,7 @@ class PasswordModal(ModalScreen[str]):
         if not password:
             return
         self.query_one("#modal-container").add_class("loading")
+
         self.call_service(password)
     
     @on(Button.Pressed, "#cancel-btn")
@@ -100,21 +101,20 @@ class PasswordModal(ModalScreen[str]):
 
     @work
     async def call_service(self, value: str) -> None:
-        if self.mode == "vault":
-            service_func = self.current_config["service"]
-            result = await service_func(value)
+        service_func = self.current_config["service"]
+        result = await service_func(value)
+        error_msg=""
 
-            if result in (VaultStatus.SUCCESS, VPSStatus.SUCCESS):
-                self.dismiss(result)
-            elif result == VaultStatus.WRONG_PASSWORD:
-                self.query_one("#modal-container").remove_class("loading")
-                
-                if result == VaultStatus.WRONG_PASSWORD:
-                    error_msg = "[red]Incorrect Master Password[/]"
-                elif result == VPSStatus.TOKEN_INVALID:
-                    error_msg = "[red]Invalid Provider Token[/]"
-                
-                self.query_one("PasswordInput #status-message").update(error_msg)
+        if result in (VaultStatus.SUCCESS, VPSStatus.SUCCESS):
+            self.dismiss(result)
+        elif result == VaultStatus.WRONG_PASSWORD:
+            self.query_one("#modal-container").remove_class("loading")
+            error_msg = "[red]Incorrect Master Password[/]"
+        elif result == VPSStatus.TOKEN_INVALID:
+            self.query_one("#modal-container").remove_class("loading")
+            error_msg = f"[red]Invalid provider Token[/]"
+            
+        self.query_one("PasswordInput #status-message").update(error_msg)
 
         
         
