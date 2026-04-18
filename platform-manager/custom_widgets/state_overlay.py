@@ -1,10 +1,10 @@
 from textual import work
 from textual.widgets import Static, LoadingIndicator, Button
-from textual.containers import Vertical, Container, Horizontal
+from textual.containers import Vertical, Horizontal
 from textual.app import ComposeResult
 from textual.message import Message
 from screens.common import PasswordModal
-from services.base_vault import VaultStatus
+from models.status import ResponseStatus
 from dataclasses import dataclass
 
 @dataclass
@@ -79,5 +79,5 @@ class StateOverlay(Vertical):
     async def handle_authorization(self):
         result = await self.app.push_screen_wait(PasswordModal(self.mode))
 
-        if result == VaultStatus.SUCCESS:
+        if result == ResponseStatus.SUCCESS:
             self.post_message(self.RetryRequested())

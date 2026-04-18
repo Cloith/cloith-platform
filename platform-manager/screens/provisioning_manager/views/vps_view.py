@@ -1,13 +1,8 @@
 from textual import on
-from textual.worker import Worker
 from textual.app import ComposeResult
-from textual.containers import Vertical, Container
-from textual.widgets import Static, OptionList, Button, LoadingIndicator
-from core.exceptions import ItemNotFoundError, InvalidItemError
-from services.base_vps import VPSStatus
-from services.base_vault import VaultStatus
-from screens import BaseScreen
-from screens.common import PasswordModal
+from textual.containers import  Container
+from textual.widgets import Static, OptionList, Button
+from models.status import ResponseStatus
 from custom_widgets.state_overlay import StateOverlay, OverlayConfig
 
 class VPSView(Static):
@@ -65,32 +60,10 @@ class VPSView(Static):
         self.overlay.enter_loading("fetching vps list, pleas wait...")
         result = await self.app.vps_service.get_all_vps()
 
-        if result == VPSStatus.TOKEN_MISSING:
-            token_name = f"{self.app.vps_service.provider_name}_token"
-            auth_result = await self.app.vault_service.get_item(token_name)
-            
-            if auth_result == VaultStatus.MASTER_PASSWORD_PROMPT:
-                config = OverlayConfig(
-                    message="""[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
-                    show_auth=  True
-                    )
-                self.overlay.enter_error(config)
-                
-
-            elif isinstance(auth_result, dict):
-                token = auth_result.get("login", {}).get("password")
-                self.app.provider_token = token
-                self.run_worker(self.fetch_vps_list())
-            
-        elif result == VPSStatus.TOKEN_INVALID:
-            config = OverlayConfig(
-                message=f"""Your [green]{self.app.vps_service.provider_name} token[/] is [red]incorrect[/]\n\n\n Please [blue]authorize[/] to continue.""",
-                mode="provider",
-                show_auth=True
-            )
-            self.overlay.enter_error(config)
+        if isinstance(result, OverlayConfig):
+            self.overlay.enter_error(result)
         else:
-            self.populate_list(result)
+            self.populate_list(result)          
 
     def populate_list(self, vps_data: list) -> None:
         option_list = self.query_one("#vps-list", OptionList)

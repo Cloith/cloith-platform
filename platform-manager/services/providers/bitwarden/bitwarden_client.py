@@ -1,6 +1,7 @@
 import asyncio
 import json
-from services.base_vault import VaultStatus
+from models.status import ResponseStatus
+from core.handlers import ClientRequestHandler
 
 class BitwardenClient:
     def __init__(self, app):
@@ -8,7 +9,7 @@ class BitwardenClient:
         self.base_command = "bw"
         self.session_exempt_commands = ["unlock", "login"]
 
-    async def call(self, *args: str) -> dict | str | VaultStatus | None:
+    async def call(self, *args: str) -> dict | str | ResponseStatus | None:
         """Centralized CLI handler similar to Hostinger 'request' method."""
 
         cmd = [self.base_command] + list(args)
@@ -17,7 +18,7 @@ class BitwardenClient:
 
         if not is_exempt:
             if not self.app.vault_session or self.app.vault_session == "":
-                return VaultStatus.MASTER_PASSWORD_PROMPT
+                return ResponseStatus.MASTER_PASSWORD_PROMPT
             else:
                 cmd.extend(["--session", self.app.vault_session])
 
@@ -32,9 +33,9 @@ class BitwardenClient:
                 chunk = await asyncio.wait_for(process.stderr.read(1024), timeout=1.0)
                 if b"Master password" in chunk:
                     process.kill()
-                    return VaultStatus.MASTER_PASSWORD_PROMPT
+                    return ResponseStatus.MASTER_PASSWORD_PROMPT
                 elif b"You are not logged in." in chunk:
-                    return VaultStatus.UNKNOWN_ERROR
+                    return ResponseStatus.UNKNOWN_ERROR
                 
                 stored_stderr = chunk
             except asyncio.TimeoutError:
@@ -45,12 +46,16 @@ class BitwardenClient:
             
             if process.returncode != 0:
                 error_msg = full_stderr.decode().strip()
+                response = ResponseStatus.UNKNOWN_ERROR # Default
+
                 if "decryption operation failed" in error_msg or "provided key is not the expected type" in error_msg:
-                    return VaultStatus.WRONG_PASSWORD
+                    response = ResponseStatus.WRONG_PASSWORD
                 elif "vault is locked" in error_msg.lower():
-                    raise VaultStatus.MASTER_PASSWORD_PROMPT
+                    response = ResponseStatus.MASTER_PASSWORD_PROMPT
                 elif "not found" in error_msg.lower():
-                    return VaultStatus.ITEM_MISSING
+                    response = ResponseStatus.TOKEN_MISSING
+                
+                return ClientRequestHandler.get_config(self, response=response)
             try:
                 result = json.loads(stdout.decode())
                 return result
@@ -58,6 +63,5 @@ class BitwardenClient:
                 return stdout.decode().strip()
                 
         except Exception as e:
-            return VaultStatus.UNKNOWN_ERROR
-    
+            ClientRequestHandler.get_config(self, response=ResponseStatus.UNKNOWN_ERROR)
     

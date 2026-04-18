@@ -5,7 +5,7 @@ from textual.containers import Vertical, Container
 from textual.validation import Integer, Function
 from screens.core import DashboardScreen
 from screens import BaseScreen
-from services.base_vault import VaultStatus
+from models.status import ResponseStatus
 from custom_widgets.password_input import PasswordInput
 from services.service_factory import get_vault_service
 
@@ -97,13 +97,13 @@ class LoginScreen(BaseScreen):
         status_code, session_key = result
         self.button_container.remove_class("searching")
         
-        if status_code == VaultStatus.SUCCESS:
+        if status_code == ResponseStatus.SUCCESS:
             self.app.bw_session = session_key
             vault_service = get_vault_service("bitwarden", self.app)
             self.app.push_screen(DashboardScreen(vault_service))
-        elif status_code == VaultStatus.WRONG_PASSWORD:
+        elif status_code == ResponseStatus.WRONG_PASSWORD:
             self.status_text.update("[bold red]Incorrect Email or Password[/bold red]")
-        elif status_code == VaultStatus.INVALID_OTP:
+        elif status_code == ResponseStatus.INVALID_OTP:
             self.reset_ui_to_login()
             self.status_text.update("[bold red]Incorrect OTP[/bold red]")
         

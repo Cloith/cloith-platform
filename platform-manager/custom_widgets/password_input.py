@@ -4,7 +4,6 @@ from textual.widgets import Input, Button, Static
 from textual.validation import Length
 from textual.app import ComposeResult
 
-
 class PasswordInput(Static):
     DEFAULT_CSS = """
     #password-wrapper {
@@ -64,11 +63,15 @@ class PasswordInput(Static):
     }
     """
 
+    def __init__(self, placeholder):
+        super().__init__()
+        self.placeholder = placeholder
+
     def compose(self) -> ComposeResult:
         with Container(id="input-container"):
             with Horizontal(id="password-wrapper"):
                 yield Input(
-                    placeholder="Master Password",
+                    placeholder=f"{self.placeholder}",
                     password=True,
                     id="password",
                     validators=[

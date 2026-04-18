@@ -3,7 +3,7 @@ from textual.widgets import Static, ProgressBar, Label
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
-from services.base_vault import VaultStatus
+from models.status import ResponseStatus
 from custom_widgets.state_overlay import StateOverlay, OverlayConfig
 from custom_widgets.sidebar import NavigationSidebar
 
@@ -57,7 +57,7 @@ class DashboardScreen(BaseScreen):
         self.overlay.enter_loading("Fetching Data, Please wait...")
         result = await self.app.vault_service.get_item("template_data")
 
-        if result == VaultStatus.ITEM_MISSING:
+        if result == ResponseStatus.ITEM_MISSING:
 
             config = OverlayConfig(
                 message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
@@ -66,14 +66,14 @@ class DashboardScreen(BaseScreen):
             
             self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
 
-        elif result == VaultStatus.UNKNOWN_ERROR:
+        elif result == ResponseStatus.UNKNOWN_ERROR:
             config = OverlayConfig(
                 message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
                 show_retry = True
             )
             self.overlay.enter_error(config)
             
-        elif result == VaultStatus.MASTER_PASSWORD_PROMPT:
+        elif result == ResponseStatus.MASTER_PASSWORD_PROMPT:
             config = OverlayConfig(
                 message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
                 show_auth = True

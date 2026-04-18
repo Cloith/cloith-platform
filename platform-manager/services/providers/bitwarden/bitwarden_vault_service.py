@@ -1,9 +1,11 @@
 import pexpect
+import json
 import threading
 import re
+from models.status import ResponseStatus
 from services import BaseVaultService
-from services import VaultStatus
 from services.providers.bitwarden import BitwardenClient
+from custom_widgets.state_overlay import OverlayConfig
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):
@@ -54,53 +56,77 @@ class BitwardenVaultService(BaseVaultService):
                 sub_step = child.expect([pexpect.EOF, "invalid new device otp", pexpect.TIMEOUT])
                 
                 if sub_step == 1: 
-                    self.app.call_from_thread(result_callback, (VaultStatus.INVALID_OTP, None))
+                    self.app.call_from_thread(result_callback, (ResponseStatus.INVALID_OTP, None))
                     return
                 if sub_step == 2:
-                    self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
+                    self.app.call_from_thread(result_callback, (ResponseStatus.TIMEOUT, None))
                     return
 
             elif next_step == 2:
-                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_PASSWORD, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_PASSWORD, None))
                 return
             elif next_step == 3:
-                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_EMAIL, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_EMAIL, None))
                 return
             elif next_step == 4:
-                self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.TIMEOUT, None))
                 return
             
             output = child.before
             match = re.search(r'BW_SESSION="([^"]+)"', output)
             if match:
                 session_key = match.group(1)
-                self.app.call_from_thread(result_callback, (VaultStatus.SUCCESS, session_key))
+                self.app.call_from_thread(result_callback, (ResponseStatus.SUCCESS, session_key))
                 return
             else:
-                self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.UNKNOWN_ERROR, None))
                 return
         except pexpect.exceptions.ExceptionPexpect as e:
-            self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
+            self.app.call_from_thread(result_callback, (ResponseStatus.UNKNOWN_ERROR, None))
             return
         finally:
             if child.isalive():
                 child.close()
     
-    async def get_item(self, item_name: str) -> dict | str:
+    async def get_item(self, item_name: str) -> dict | ResponseStatus:
         """Checks inside the vault and retrieve the inputted item"""
         return await self.client.call("get", "item", item_name)
+    
+    async def get_token(self, token_name: str) -> dict | ResponseStatus:
+        """Seacrh and fetches inputted token"""
+        result = await self.get_item(token_name)
 
-
+        if result == ResponseStatus.ITEM_MISSING:
+            return ResponseStatus.TOKEN_MISSING
+        else:
+            return result
+    
     
     async def unlock(self, password: str) -> bool:
         """Unlocks the vault and updates the global session token."""
         result = await self.client.call("unlock", password, "--raw")
+
+        if result == ResponseStatus.WRONG_PASSWORD:
+            return result
         
         if isinstance(result, str) and len(result) > 10: 
             self.app.vault_session = result.strip()
-            return VaultStatus.SUCCESS
+            return ResponseStatus.SUCCESS
         return result
     
+    async def update_provider_token(self, token_name: str, token_value: str) -> ResponseStatus:
+        """Explicitly updates the password field of a provider token item."""
+        item_json = await self.get_item(token_name)
         
+        if not isinstance(item_json, dict):
+            return item_json
+
+        item_json["login"]["password"] = token_value
+
+        encoded_item = json.dumps(item_json)
+        result = await self.client.call("edit", "item", item_json["id"], input_data=encoded_item)
         
-    
+        if result is not OverlayConfig:
+            await self.client.call("sync")
+            return ResponseStatus.SUCCESS
+        return result
