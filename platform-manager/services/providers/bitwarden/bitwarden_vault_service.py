@@ -5,7 +5,7 @@ import re
 from models.status import ResponseStatus
 from services import BaseVaultService
 from services.providers.bitwarden import BitwardenClient
-from custom_widgets.state_overlay import OverlayConfig
+from custom_widgets import OverlayConfig
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):

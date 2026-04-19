@@ -1,10 +1,11 @@
 from textual import on, work
 from textual.app import ComposeResult
 from textual.screen import ModalScreen
-from textual.widgets import Input, Label, Button
-from textual.containers import Container
-from custom_widgets import PasswordInput, StateOverlay
+from textual.widgets import Input, Label, Button, LoadingIndicator
+from textual.containers import Container, Horizontal
+from custom_widgets import PasswordInput
 from models.status import ResponseStatus
+from custom_widgets import Over
 
 
 
@@ -77,13 +78,11 @@ class PasswordModal(ModalScreen[str]):
         with Container(id="modal-container"):
             yield Label(config["title"], id="modal-text")
             yield PasswordInput(placeholder = config["placeholder"])
-        with Container():
-            yield StateOverlay()
-            # with Horizontal(id="button-container"):
-            #     yield Button("Cancel", variant="error", id="cancel-btn")
-            #     yield Button("Unlock", variant="success", id="unlock-btn")
-            # with Container(id="loading-container"):
-            #     yield LoadingIndicator(id="loading-animation")
+            with Horizontal(id="button-container"):
+                yield Button("Cancel", variant="error", id="cancel-btn")
+                yield Button("Unlock", variant="success", id="unlock-btn")
+            with Container(id="loading-container"):
+                yield LoadingIndicator(id="loading-animation")
 
     def on_mount(self) -> None:
         self.container = self.query_one("#modal-container")
@@ -123,6 +122,8 @@ class PasswordModal(ModalScreen[str]):
             error_msg = f"[red]Invalid provider Token[/]"
             
         self.status_message.update(error_msg)
+
+    def enter_error(self, config: OverlayConfig):
 
         
         

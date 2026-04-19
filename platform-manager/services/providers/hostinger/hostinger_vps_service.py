@@ -2,7 +2,7 @@ from services.base_vps import BaseVPSService
 from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
 from models.status import ResponseStatus
-from custom_widgets.state_overlay import OverlayConfig
+from custom_widgets import OverlayConfig
 
 class HostingerVPSService(BaseVPSService):
     def __init__(self, app):

@@ -4,7 +4,7 @@ from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
 from models.status import ResponseStatus
-from custom_widgets.state_overlay import StateOverlay, OverlayConfig
+from custom_widgets import StateOverlay, OverlayConfig
 from custom_widgets.sidebar import NavigationSidebar
 
 class DashboardScreen(BaseScreen):

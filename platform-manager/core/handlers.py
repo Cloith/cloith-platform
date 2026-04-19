@@ -1,4 +1,4 @@
-from custom_widgets.state_overlay import OverlayConfig
+from custom_widgets import OverlayConfig
 from models.status import ResponseStatus
 
 class ClientRequestHandler:
