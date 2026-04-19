@@ -3,7 +3,8 @@ from textual.app import ComposeResult
 from textual.containers import  Container
 from textual.widgets import Static, OptionList, Button
 from models.status import ResponseStatus
-from custom_widgets import StateOverlay, OverlayConfig
+from custom_widgets import StateOverlay
+from models import  OverlayConfig
 
 class VPSView(Static):
     DEFAULT_CSS = """

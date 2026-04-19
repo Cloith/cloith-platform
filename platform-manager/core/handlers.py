@@ -1,5 +1,5 @@
-from custom_widgets import OverlayConfig
-from models.status import ResponseStatus
+from models import OverlayConfig
+from models import ResponseStatus
 
 class ClientRequestHandler:
 
@@ -7,13 +7,13 @@ class ClientRequestHandler:
 
         if response == ResponseStatus.NETWORK_ERROR:
             config = OverlayConfig(
-                message="[red]No Internet Connection[/]\n\nPlease check your network and try again.",
+                message="[bold red]No Internet Connection[/]\n\nPlease check your network and try again.",
                 show_retry=True
             )
             return config
         elif response == ResponseStatus.TIMEOUT:
             config = OverlayConfig(
-                message="[yellow]Request Timed Out[/]\n\nHostinger is taking too long to respond.",
+                message="[bold yellow]Request Timed Out[/]",
                 show_retry=True
             )
             return config
@@ -26,25 +26,34 @@ class ClientRequestHandler:
         elif response == ResponseStatus.MASTER_PASSWORD_PROMPT:
             config = OverlayConfig(
                 message="""[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
-                show_auth=  True
+                show_auth=  True,
+                show_unlock=True
                 )
             return config
         elif response == ResponseStatus.ITEM_MISSING:
             config = OverlayConfig(
                 message=f"[red]Missing Vault Item[/]\n\n We couldn't find item in your vault.\n Please [blue]authorize[/] a new token.",
                 mode="provider", 
-                show_auth=True
+                show_auth=True,
+                show_unlock=True
             )
             return config
         elif response == ResponseStatus.TOKEN_INVALID:
             config = OverlayConfig(
-                message=f"""Your [bold orange]{self.app.vps_service.provider_name.title()} token[/] is [red]invalid[/]\n\n\n Please [blue]authorize[/] to continue.""",
+                message=f"""Your [bold orange]{self.app.vps_service.provider_name.title()} token[/] is [red]invalid[/]\n Please [blue]update[/] your token to continue.""",
                 mode="provider",
-                show_auth=True
+                show_update=True
             )
             return config
         elif response == ResponseStatus.TOKEN_MISSING:
             config = OverlayConfig(
-                message = f"""[red]Missing Token[/]\n\n [green]{self.app.vps_service.provider_name.title()} token[/] is [red]missing from vault[/]\n\n\n"""
+                message = f"""[green]{self.app.vps_service.provider_name.title()} token[/] is [red]missing from vault[/]\n\n\n Please go to the secret manager to create the token""",
+                show_secret_manager=True
+            )
+            return config
+        elif response == ResponseStatus.WRONG_MASTER_PASSWORD:
+            config = OverlayConfig(
+                message = f"""[bold orange]Master Password[/] is [red]incorrect[/]""",
+                show_unlock=True,
             )
             return config

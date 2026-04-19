@@ -3,8 +3,8 @@ from textual.widgets import Static, ProgressBar, Label
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
-from models.status import ResponseStatus
-from custom_widgets import StateOverlay, OverlayConfig
+from models import ResponseStatus, OverlayConfig
+from custom_widgets import StateOverlay
 from custom_widgets.sidebar import NavigationSidebar
 
 class DashboardScreen(BaseScreen):

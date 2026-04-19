@@ -12,8 +12,9 @@ class ResponseStatus(str, Enum):
     # Vault Specific
     LOCKED = "locked"
     NEED_2FA = "need_2fa"
+    INVALID_OTP = "invalid_otp"
     ITEM_MISSING = "item_missing"
-    WRONG_PASSWORD = "wrong_password"
+    WRONG_MASTER_PASSWORD = "wrong_master_password"
     WRONG_EMAIL = "wrong_email"
     MASTER_PASSWORD_PROMPT = "master_password_prompt"
     

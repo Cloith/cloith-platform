@@ -5,9 +5,7 @@ from textual.widgets import Input, Label, Button, LoadingIndicator
 from textual.containers import Container, Horizontal
 from custom_widgets import PasswordInput
 from models.status import ResponseStatus
-from custom_widgets import Over
-
-
+from models import OverlayConfig
 
 class PasswordModal(ModalScreen[str]):
     """A pop-up modal for user input prompts"""
@@ -18,7 +16,7 @@ class PasswordModal(ModalScreen[str]):
     }
 
     #modal-container {
-        height: 13;
+        max-height: 16;
         width: 50;
         border: round $accent;
         align: center middle;
@@ -48,12 +46,16 @@ class PasswordModal(ModalScreen[str]):
     #modal-container.loading #button-container {
         display: none;
     }
+
+    #retry-btn {
+        display: none;
+    }
     """
 
-    def __init__(self, mode):
+    def __init__(self, mode, config: OverlayConfig):
         super().__init__()
         self.mode = mode
-        
+        self.config = config   
 
     @property
     def current_config(self):
@@ -81,24 +83,31 @@ class PasswordModal(ModalScreen[str]):
             with Horizontal(id="button-container"):
                 yield Button("Cancel", variant="error", id="cancel-btn")
                 yield Button("Unlock", variant="success", id="unlock-btn")
+                yield Button("Retry", variant="primary", id="retry-btn")
+                yield Button("Update", variant="success", id="update-btn")
             with Container(id="loading-container"):
                 yield LoadingIndicator(id="loading-animation")
 
     def on_mount(self) -> None:
         self.container = self.query_one("#modal-container")
         self.status_message = self.query_one("PasswordInput #status-message")
+        self.config.message=""
+        self.enter_error()
 
     def update_text(self, text: str):
         self.status_message.update(text)
 
     @on(Input.Submitted, "PasswordInput #password")
     @on(Button.Pressed, "#unlock-btn")
+    @on(Button.Pressed, "#update-btn")
+    @on(Button.Pressed, "#retry-btn")
     def unlock_button(self) -> None:
         password = self.query_one("PasswordInput").trigger_submit()
 
         if not password:
             return
         self.query_one("#modal-container").add_class("loading")
+        self.status_message.update("[bold blue]Unlocking Vault[/]\n\n\nPlease wait")
 
         self.call_service(password)
     
@@ -110,22 +119,18 @@ class PasswordModal(ModalScreen[str]):
     async def call_service(self, value: str) -> None:
         service_func = self.current_config["service"]
         result = await service_func(value)
-        error_msg=""
 
-        if result in (ResponseStatus.SUCCESS):
+        self.query_one("#modal-container").remove_class("loading")
+
+        if result == ResponseStatus.SUCCESS:
             self.dismiss(result)
-        elif result == ResponseStatus.WRONG_PASSWORD:
-            self.query_one("#modal-container").remove_class("loading")
-            error_msg = "[red]Incorrect Master Password[/]"
-        elif result == ResponseStatus.TOKEN_INVALID:
-            self.query_one("#modal-container").remove_class("loading")
-            error_msg = f"[red]Invalid provider Token[/]"
-            
-        self.status_message.update(error_msg)
+        else:
+            self.config = result
+            self.enter_error()
 
-    def enter_error(self, config: OverlayConfig):
-
-        
-        
-
-   
+    def enter_error(self):
+        self.status_message.update(self.config.message)
+        self.query_one("#update-btn").display = self.config.show_update
+        self.query_one("#retry-btn").display = self.config.show_retry
+        self.query_one("#unlock-btn").display = self.config.show_unlock
+        self.query_one("#update-btn").display = self.config.show_update

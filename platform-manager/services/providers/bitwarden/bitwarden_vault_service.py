@@ -2,10 +2,9 @@ import pexpect
 import json
 import threading
 import re
-from models.status import ResponseStatus
+from models import ResponseStatus, OverlayConfig
 from services import BaseVaultService
 from services.providers.bitwarden import BitwardenClient
-from custom_widgets import OverlayConfig
 
 class BitwardenVaultService(BaseVaultService):
     def __init__(self, app):
@@ -63,7 +62,7 @@ class BitwardenVaultService(BaseVaultService):
                     return
 
             elif next_step == 2:
-                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_PASSWORD, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_MASTER_PASSWORD, None))
                 return
             elif next_step == 3:
                 self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_EMAIL, None))
@@ -105,14 +104,12 @@ class BitwardenVaultService(BaseVaultService):
     async def unlock(self, password: str) -> bool:
         """Unlocks the vault and updates the global session token."""
         result = await self.client.call("unlock", password, "--raw")
-
-        if result == ResponseStatus.WRONG_PASSWORD:
-            return result
         
         if isinstance(result, str) and len(result) > 10: 
             self.app.vault_session = result.strip()
             return ResponseStatus.SUCCESS
-        return result
+        else:
+            return result
     
     async def update_provider_token(self, token_name: str, token_value: str) -> ResponseStatus:
         """Explicitly updates the password field of a provider token item."""

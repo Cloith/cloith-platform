@@ -7,8 +7,8 @@ from screens import BaseScreen
 from .views import ProviderView, ProvisioningView, ImportView, VPSView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
-from models.deployment_recipe import DeploymentRecipe
-from custom_widgets import StateOverlay, OverlayConfig
+from models import DeploymentRecipe, OverlayConfig
+from custom_widgets import StateOverlay
 
 class ProvisioningManagerScreen(BaseScreen):
     CSS_PATH = [

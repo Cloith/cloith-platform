@@ -46,10 +46,12 @@ class BitwardenClient:
             
             if process.returncode != 0:
                 error_msg = full_stderr.decode().strip()
-                response = ResponseStatus.UNKNOWN_ERROR # Default
+                response = ResponseStatus.UNKNOWN_ERROR
 
-                if "decryption operation failed" in error_msg or "provided key is not the expected type" in error_msg:
-                    response = ResponseStatus.WRONG_PASSWORD
+                if "EAI_AGAIN" in error_msg or "getaddrinfo" in error_msg:
+                    response = ResponseStatus.NETWORK_ERROR
+                elif "decryption operation failed" in error_msg or "provided key is not the expected type" in error_msg:
+                    response = ResponseStatus.WRONG_MASTER_PASSWORD
                 elif "vault is locked" in error_msg.lower():
                     response = ResponseStatus.MASTER_PASSWORD_PROMPT
                 elif "not found" in error_msg.lower():
@@ -63,5 +65,5 @@ class BitwardenClient:
                 return stdout.decode().strip()
                 
         except Exception as e:
-            ClientRequestHandler.get_config(self, response=ResponseStatus.UNKNOWN_ERROR)
+            return ClientRequestHandler.get_config(self, response=ResponseStatus.UNKNOWN_ERROR)
     
