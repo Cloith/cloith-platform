@@ -99,8 +99,7 @@ class LoginScreen(BaseScreen):
         
         if status_code == ResponseStatus.SUCCESS:
             self.app.bw_session = session_key
-            vault_service = get_vault_service("bitwarden", self.app)
-            self.app.push_screen(DashboardScreen(vault_service))
+            self.app.push_screen(DashboardScreen(self.app.vault_service))
         elif status_code == ResponseStatus.WRONG_MASTER_PASSWORD:
             self.status_text.update("[bold red]Incorrect Email or Password[/bold red]")
         elif status_code == ResponseStatus.INVALID_OTP:

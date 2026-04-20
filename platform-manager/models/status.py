@@ -16,7 +16,7 @@ class ResponseStatus(str, Enum):
     ITEM_MISSING = "item_missing"
     WRONG_MASTER_PASSWORD = "wrong_master_password"
     WRONG_EMAIL = "wrong_email"
-    INVALID_SESSION_TOKEN = "INVALID_SESSION_TOKEN"
+    INVALID_SESSION_TOKEN = "invalid_session_token"
     
     # VPS / Provider Specific
     PROVIDER_TOKEN_MISSING = "token_missing"

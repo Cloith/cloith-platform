@@ -66,7 +66,7 @@ class PasswordModal(ModalScreen[str]):
                 "title": f'Enter New {self.app.provider_service.provider_name.title()} API Token',
                 "button": True,
                 "placeholder": f"{self.app.provider.provider_name.title()} API Token",
-                "service": self.app.provider.check_token
+                "service": self.app.provider_service.check_token
             }
         # Default/Vault mode
         return {
@@ -141,4 +141,3 @@ class PasswordModal(ModalScreen[str]):
         self.query_one("#update-btn").display = config.show_update
         self.query_one("#retry-btn").display = config.show_retry
         self.query_one("#unlock-btn").display = config.show_unlock
-        self.query_one("#update-btn").display = config.show_update

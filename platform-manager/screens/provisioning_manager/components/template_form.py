@@ -16,6 +16,7 @@ class TemplateForm(Static):
     def on_mount(self) -> None:
         self.post_message(DescriptionUpdate("Select a template from the list to view its description"))
         self.new_buttons = []
+        self.template_descriptions = {}
         self.fetch_templates()
     
     @work(exclusive=True, name="template_fetcher")

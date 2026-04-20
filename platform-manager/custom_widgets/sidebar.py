@@ -32,11 +32,11 @@ class NavigationSidebar(Static):
         width: 100%;
     }
 
-    NavigationSidebar.expand #nav-container {
-        opacity: 100%;
-        visibility: visible;
-        transition: width 300ms in_out_cubic;
-    }
+NavigationSidebar.expand #nav-container {
+    opacity: 100%;
+    visibility: visible;
+    transition: opacity 500ms in_out_cubic;
+}
 
     #sidebar-header {
         content-align: center middle;
@@ -93,8 +93,16 @@ class NavigationSidebar(Static):
         elif nav_id == "nav-provisioning":
             self.app.switch_screen(ProvisioningManagerScreen())
 
-    async def flash_provisioning_button(self, button_name: str) -> None:
-        button = self.query_one(f"#{button_name}")
+    async def flash_provisioning_button(self, button_id: str) -> None:
+        """Flash a navigation button to draw attention.
+        
+        Args:
+            button_id: The element ID (e.g., "nav-provisioning")
+        """
+        try:
+            button = self.query_one(f"#{button_id}")
+        except Exception:
+            return
         if "expand" not in self.classes:
             self.add_class("expand")
         for _ in range(4): 

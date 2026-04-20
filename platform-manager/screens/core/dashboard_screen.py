@@ -68,7 +68,7 @@ class DashboardScreen(BaseScreen):
 
         elif result == ResponseStatus.UNKNOWN_ERROR:
             config = ConfigClass(
-                message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
+                message = """[red]Unknown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
                 show_retry = True
             )
             self.overlay.enter_error(config)

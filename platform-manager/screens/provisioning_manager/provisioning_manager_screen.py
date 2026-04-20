@@ -83,7 +83,7 @@ class ProvisioningManagerScreen(BaseScreen):
             self.switch_view(ImportView())
             self.view_title.update("CHOOSE YOUR TEMPLATE")   
             
-        elif button_id == "provisioning-button":
+        elif button_id == "provisioning-btn":
             self.switch_view(ProvisioningView())
             self.view_title.update("COMPLETE THE FORMS")
 
@@ -115,4 +115,5 @@ class ProvisioningManagerScreen(BaseScreen):
         self.query_one("#panels").disabled = not has_source
         
         if has_source:
-            self.view_title.update(f"CONFIGURING: [bold]{self.recipe.provider.upper()}[/]")
+            provider_name = self.recipe.provider or "UNKNOWN"
+            self.view_title.update(f"CONFIGURING: [bold]{provider_name.upper()}[/]")

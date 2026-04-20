@@ -19,7 +19,7 @@ class ServiceResponseHandler():
                 "retry": True
             },
             ResponseStatus.UNKNOWN_ERROR: {
-                "msg": "[yellow]Unkown Error[/]\n\nPlease Try Again",
+                "msg": "[yellow]Unknown Error[/]\n\nPlease Try Again",
                 "retry": True
             },
             ResponseStatus.PROVIDER_TOKEN_MISSING: {
@@ -64,7 +64,7 @@ class ServiceResponseHandler():
                 "retry": True
             },
             ResponseStatus.UNKNOWN_ERROR: {
-                "msg": "[yellow]Unkown Error[/]",
+                "msg": "[yellow]Unknown Error[/]",
                 "retry": True
             },
             ResponseStatus.PROVIDER_API_ERROR: {
@@ -84,7 +84,7 @@ class ServiceResponseHandler():
                 "auth": True
             },
             ResponseStatus.WRONG_MASTER_PASSWORD: {
-                "msg": "[b red]Master Password is incorrect",
+                "msg": "[b red]Master Password is incorrect[/]",
                 "unlock": True
             }
         }
@@ -92,6 +92,9 @@ class ServiceResponseHandler():
     def get_config(self, response: ResponseStatus, type: str) -> ConfigClass:
         error_map = self.modal_error_data if type == "modal" else self.overlay_error_data
         data = error_map.get(response)
+
+        if data is None:
+            raise ValueError(f"Unhandled response status: {response}")
 
         return ConfigClass(
             message=data["msg"],

@@ -36,10 +36,13 @@ class ImportView(Static):
         self.scan_templates()
 
     def scan_templates(self):
-        p = Path("./templates")
+        p = Path(__file__).parent.parent.parent.parent / "templates"
         if p.exists():
-            templates = [d.name for d in p.iterdir() if d.is_dir()]
-            self.query_one("#template-options").add_options(templates)
+            try:
+                templates = [d.name for d in p.iterdir() if d.is_dir()]
+                self.query_one("#template-options").add_options(templates)
+            except PermissionError:
+                pass  # Handle gracefully or log
 
     # def on_option_list_option_highlighted(self, event: OptionList.OptionHighlighted) -> None:
     #     """Update the README view when the user moves the selection highlight."""

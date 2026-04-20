@@ -13,4 +13,4 @@ class DeploymentRecipe:
     @property
     def has_provider(self) -> bool:
         """Returns True if a provider and VPS are selected."""
-        return bool(self.provider)
+        return bool(self.provider and self.vps_id)
