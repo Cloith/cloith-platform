@@ -2,7 +2,7 @@ import pexpect
 import json
 import threading
 import re
-from models import ResponseStatus, ConfigClass
+from models import ResponseStatus
 from services import BaseVaultService
 from services.providers.bitwarden import BitwardenClient
 

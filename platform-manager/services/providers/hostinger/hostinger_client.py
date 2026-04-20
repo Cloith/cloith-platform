@@ -8,7 +8,7 @@ class HostingerClient:
 
     async def request(self, method: str, endpoint: str, **kwargs):
         if not self.app.provider_token:
-            token_name = f"{self.app.vps_service.provider_name}_token"
+            token_name = f"{self.app.provider_service.provider_name}_token"
             vault_res = await self.app.vault_service.get_token(token_name)
             if isinstance(vault_res, dict):
                 self.app.provider_token = vault_res.get("login", {}).get("password")

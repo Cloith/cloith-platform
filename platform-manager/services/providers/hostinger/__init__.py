@@ -1,2 +1,2 @@
 from .hostinger_client import HostingerClient
-from .hostinger_vps_service import HostingerService
+from .hostinger_provider_service import HostingerProviderService

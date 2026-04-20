@@ -9,7 +9,7 @@ from screens.core import LoginScreen
 from screens.core import DashboardScreen
 from screens.provisioning_manager import ProvisioningManagerScreen
 from services.service_factory import get_vault_service
-from services.providers.hostinger import HostingerTemplateService
+
 
 console = Console()
 
@@ -19,8 +19,7 @@ class PlatformManager(App):
         self.provider_token = None
         self.vault_session = None
         self.vault_service = None
-        self.vps_service = None
-        self.template_service = HostingerTemplateService(self.app)
+        self.provider_service = None
 
     def on_mount(self) -> None:
         vault_service = get_vault_service("bitwarden", self)

@@ -1,11 +1,11 @@
-from services.base_vps import BaseVPSService
+from services.base_provider import BaseProviderService
 from services.base_vault import BaseVaultService
-from services.providers.hostinger import HostingerService
+from services.providers.hostinger import HostingerProviderService
 from services.providers.bitwarden import BitwardenVaultService
 
-def get_provider_service(provider_name: str, app) -> BaseVPSService:
+def get_provider_service(provider_name: str, app) -> BaseProviderService:
     if provider_name == "hostinger":
-        return HostingerService(app)
+        return HostingerProviderService(app)
     else:
         raise ValueError(f"Unknown provider: {provider_name}")
 

@@ -7,7 +7,7 @@ class ServiceResponseHandler():
 
     @property
     def overlay_error_data(self):
-        provider = self.app.vps_service.provider_name.title()
+        provider = self.app.provider_service.provider_name.title()
 
         return {
             ResponseStatus.NETWORK_ERROR: {

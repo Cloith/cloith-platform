@@ -60,7 +60,7 @@ class VPSView(Static):
 
     async def fetch_vps_list(self):
         self.overlay.enter_loading("fetching vps list, pleas wait...")
-        result = await self.app.vps_service.get_all_vps()
+        result = await self.app.provider_service.get_all_vps()
 
         if isinstance(result, ResponseStatus):
             self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))

@@ -1,9 +1,9 @@
-from services.base_vps import BaseVPSService
+from services.base_provider import BaseProviderService
 from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
 from models import ResponseStatus, ConfigClass
 
-class HostingerService(BaseVPSService):
+class HostingerProviderService(BaseProviderService):
     def __init__(self, app):
         self.app = app
         self.client = HostingerClient(app)
@@ -52,7 +52,7 @@ class HostingerService(BaseVPSService):
             return result
 
         if not isinstance(result, ConfigClass):
-            token_name = f"{self.app.vps_service.provider_name}_token"
+            token_name = f"{self.app.provider_service.provider_name}_token"
             result =  await self.app.vault_service.update_provider_token(token_name, token_value)
 
             if not (result, ConfigClass):

@@ -20,7 +20,7 @@ class TemplateForm(Static):
     
     @work(exclusive=True, name="template_fetcher")
     async def fetch_templates(self) -> None:
-        vps_list = await self.app.template_service.get_all_templates()
+        vps_list = await self.app.provider_service.get_all_templates()
         return vps_list
         
 

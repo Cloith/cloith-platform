@@ -3,7 +3,7 @@ from textual.widgets import (
 )
 from textual.containers import VerticalScroll
 from textual.app import ComposeResult
-from services.providers.hostinger import HostingerService
+from services.providers.hostinger import HostingerProviderService
 
 
 class ProviderView(Static):
@@ -41,6 +41,6 @@ class ProviderView(Static):
             self.screen.recipe.provider = "Hostinger"
             self.screen.mutate_reactive(ProvisioningManagerScreen.recipe)
             
-            self.app.vps_service = HostingerService(self.app)
+            self.app.provider_service = HostingerProviderService(self.app)
         else:
             self.app.notify("Coming Soon!")

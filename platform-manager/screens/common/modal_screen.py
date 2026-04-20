@@ -63,10 +63,10 @@ class PasswordModal(ModalScreen[str]):
         """Calculates config values dynamically when accessed."""
         if self.mode == "provider":
             return {
-                "title": f'Enter New {self.app.vps_service.provider_name.title()} API Token',
+                "title": f'Enter New {self.app.provider_service.provider_name.title()} API Token',
                 "button": True,
-                "placeholder": f"{self.app.vps_service.provider_name.title()} API Token",
-                "service": self.app.vps_service.check_token
+                "placeholder": f"{self.app.provider.provider_name.title()} API Token",
+                "service": self.app.provider.check_token
             }
         # Default/Vault mode
         return {
