@@ -16,10 +16,12 @@ class ResponseStatus(str, Enum):
     ITEM_MISSING = "item_missing"
     WRONG_MASTER_PASSWORD = "wrong_master_password"
     WRONG_EMAIL = "wrong_email"
-    MASTER_PASSWORD_PROMPT = "master_password_prompt"
+    INVALID_SESSION_TOKEN = "INVALID_SESSION_TOKEN"
     
     # VPS / Provider Specific
-    TOKEN_MISSING = "token_missing"
-    TOKEN_INVALID = "token_invalid"
+    PROVIDER_TOKEN_MISSING = "token_missing"
+    PROVIDER_TOKEN_INVALID = "token_invalid"
     TOKEN_MODAL_PROMPT = "token_modal_prompt"
-    API_ERROR = "api_error"
+    PROVIDER_API_ERROR = "api_error"
+    PROVIDER_RATE_LIMITED = "provider_rate_limited"
+    PROVIDER_PERMISSION_DENIED = "provider_permission_denied"

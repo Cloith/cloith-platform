@@ -3,7 +3,7 @@ from textual.widgets import Static, ProgressBar, Label
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, Vertical
 from screens import BaseScreen
-from models import ResponseStatus, OverlayConfig
+from models import ResponseStatus, ConfigClass
 from custom_widgets import StateOverlay
 from custom_widgets.sidebar import NavigationSidebar
 
@@ -59,7 +59,7 @@ class DashboardScreen(BaseScreen):
 
         if result == ResponseStatus.ITEM_MISSING:
 
-            config = OverlayConfig(
+            config = ConfigClass(
                 message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
             )
             self.overlay.enter_error(config)
@@ -67,14 +67,14 @@ class DashboardScreen(BaseScreen):
             self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
 
         elif result == ResponseStatus.UNKNOWN_ERROR:
-            config = OverlayConfig(
+            config = ConfigClass(
                 message = """[red]Unkown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
                 show_retry = True
             )
             self.overlay.enter_error(config)
             
         elif result == ResponseStatus.MASTER_PASSWORD_PROMPT:
-            config = OverlayConfig(
+            config = ConfigClass(
                 message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
                 show_auth = True
             )

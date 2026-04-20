@@ -1,7 +1,6 @@
 import asyncio
 import json
 from models.status import ResponseStatus
-from core.handlers import ClientRequestHandler
 
 class BitwardenClient:
     def __init__(self, app):
@@ -18,7 +17,7 @@ class BitwardenClient:
 
         if not is_exempt:
             if not self.app.vault_session or self.app.vault_session == "":
-                return ResponseStatus.MASTER_PASSWORD_PROMPT
+                return ResponseStatus.INVALID_SESSION_TOKEN
             else:
                 cmd.extend(["--session", self.app.vault_session])
 
@@ -33,7 +32,7 @@ class BitwardenClient:
                 chunk = await asyncio.wait_for(process.stderr.read(1024), timeout=1.0)
                 if b"Master password" in chunk:
                     process.kill()
-                    return ResponseStatus.MASTER_PASSWORD_PROMPT
+                    return ResponseStatus.INVALID_SESSION_TOKEN
                 elif b"You are not logged in." in chunk:
                     return ResponseStatus.UNKNOWN_ERROR
                 
@@ -53,11 +52,11 @@ class BitwardenClient:
                 elif "decryption operation failed" in error_msg or "provided key is not the expected type" in error_msg:
                     response = ResponseStatus.WRONG_MASTER_PASSWORD
                 elif "vault is locked" in error_msg.lower():
-                    response = ResponseStatus.MASTER_PASSWORD_PROMPT
+                    response = ResponseStatus.INVALID_SESSION_TOKEN
                 elif "not found" in error_msg.lower():
-                    response = ResponseStatus.TOKEN_MISSING
+                    response = ResponseStatus.ITEM_MISSING
                 
-                return ClientRequestHandler.get_config(self, response=response)
+                return response
             try:
                 result = json.loads(stdout.decode())
                 return result
@@ -65,5 +64,5 @@ class BitwardenClient:
                 return stdout.decode().strip()
                 
         except Exception as e:
-            return ClientRequestHandler.get_config(self, response=ResponseStatus.UNKNOWN_ERROR)
+            return  ResponseStatus.UNKNOWN_ERROR
     

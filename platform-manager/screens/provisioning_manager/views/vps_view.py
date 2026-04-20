@@ -4,7 +4,8 @@ from textual.containers import  Container
 from textual.widgets import Static, OptionList, Button
 from models.status import ResponseStatus
 from custom_widgets import StateOverlay
-from models import  OverlayConfig
+from models import  ConfigClass
+from core.handlers import ServiceResponseHandler
 
 class VPSView(Static):
     DEFAULT_CSS = """
@@ -61,8 +62,8 @@ class VPSView(Static):
         self.overlay.enter_loading("fetching vps list, pleas wait...")
         result = await self.app.vps_service.get_all_vps()
 
-        if isinstance(result, OverlayConfig):
-            self.overlay.enter_error(result)
+        if isinstance(result, ResponseStatus):
+            self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))
         else:
             self.populate_list(result)          
 
@@ -71,7 +72,7 @@ class VPSView(Static):
         option_list.clear_options()
 
         if not vps_data:
-            config = OverlayConfig(
+            config = ConfigClass(
                 message = (
                 "[bold orange]No Active Instances Found[/]\n\n\n"
                 "We couldn't find any VPS linked to your account. Please check if:\n\n"

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class OverlayConfig:
+class ConfigClass:
     message: str
     mode: str = "vault"
     show_retry: bool = False
@@ -9,4 +9,5 @@ class OverlayConfig:
     show_unlock: bool = False
     show_update: bool = False
     show_buy: bool = False
+    show_create: bool = False
     button_label: str = "Authorize"

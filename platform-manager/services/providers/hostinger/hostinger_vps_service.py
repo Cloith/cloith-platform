@@ -1,7 +1,7 @@
 from services.base_vps import BaseVPSService
 from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
-from models import ResponseStatus, OverlayConfig
+from models import ResponseStatus, ConfigClass
 
 class HostingerVPSService(BaseVPSService):
     def __init__(self, app):
@@ -15,25 +15,27 @@ class HostingerVPSService(BaseVPSService):
     async def get_all_vps(self) -> list[VPSData]:
         result = await self.client.request("GET", "/virtual-machines")
 
-        if not isinstance(result, OverlayConfig):
-            vps_objects = []
-            for v in result:
-                vps_objects.append(VPSData(
-                    id=str(v.get("id")),
-                    name=v.get("hostname", "Unknown"),
-                    status=v.get("state", "unknown").upper(),
-                    ip=(v.get("ipv4") or [{}])[0].get("address", "N/A"),
-                    cpu_cores=v.get("cpus", 0),
-                    ram_gb=v.get("memory", 0) / 1024,
-                    disk_gb=v.get("disk", 0) / 1024,
-                    os_name=v.get("template", {}).get("name", "N/A"),
-                    description=v.get("template", {}).get("description", ""),
-                    provider="hostinger",
-                    raw_data=v 
-                ))
-                return vps_objects
-        else:
+        if isinstance(result, ResponseStatus):
             return result
+        
+        vps_objects = []
+        for v in result:
+            vps_objects.append(VPSData(
+                id=str(v.get("id")),
+                name=v.get("hostname", "Unknown"),
+                status=v.get("state", "unknown").upper(),
+                ip=(v.get("ipv4") or [{}])[0].get("address", "N/A"),
+                cpu_cores=v.get("cpus", 0),
+                ram_gb=v.get("memory", 0) / 1024,
+                disk_gb=v.get("disk", 0) / 1024,
+                os_name=v.get("template", {}).get("name", "N/A"),
+                description=v.get("template", {}).get("description", ""),
+                provider="hostinger",
+                raw_data=v 
+            ))
+        
+        return vps_objects
+
     
     async def check_token(self, token_value: str) -> ResponseStatus:
         """Validates the token and updates the app state if successful."""
@@ -43,11 +45,14 @@ class HostingerVPSService(BaseVPSService):
         
         result = await self.client.request("GET", "/virtual-machines")
 
-        if not isinstance(result, OverlayConfig):
+        if isinstance(result, ResponseStatus):
+            return result
+
+        if not isinstance(result, ConfigClass):
             token_name = f"{self.app.vps_service.provider_name}_token"
             result =  await self.app.vault_service.update_provider_token(token_name, token_value)
 
-            if not (result, OverlayConfig):
+            if not (result, ConfigClass):
                 return ResponseStatus.SUCCESS
             else:
                 return result

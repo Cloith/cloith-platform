@@ -4,7 +4,7 @@ from textual.containers import Vertical, Horizontal
 from textual.app import ComposeResult
 from textual.message import Message
 from screens.common import PasswordModal
-from models import ResponseStatus, OverlayConfig
+from models import ResponseStatus, ConfigClass
 
 class StateOverlay(Vertical):
     """A reusable overlay for Loading, Error, and Auth states."""
@@ -47,7 +47,7 @@ class StateOverlay(Vertical):
         self.query_one("#overlay-indicator").display = True
         self.query_one("#overlay-text").update(message)
 
-    def enter_error(self, config: OverlayConfig):
+    def enter_error(self, config: ConfigClass):
         self.mode = config.mode
         self.config = config
         self.add_class("-visible", "-show-buttons")
@@ -71,6 +71,7 @@ class StateOverlay(Vertical):
     
     @work
     async def handle_authorization(self):
+        
         result = await self.app.push_screen_wait(PasswordModal(self.mode, self.config))
 
         if result == ResponseStatus.SUCCESS:

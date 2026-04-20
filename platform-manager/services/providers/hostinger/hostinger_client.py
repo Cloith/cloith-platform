@@ -1,6 +1,5 @@
 import httpx
 from models.status import ResponseStatus
-from core.handlers import ClientRequestHandler
 
 class HostingerClient:
     def __init__(self, app):
@@ -15,7 +14,7 @@ class HostingerClient:
                 self.app.provider_token = vault_res.get("login", {}).get("password")
                 return await self.request(method, endpoint, **kwargs)
         
-            return ClientRequestHandler.get_config(self, response=vault_res)
+            return vault_res
         
         url = f"{self.base_url}{endpoint}"
         headers = {
@@ -30,17 +29,14 @@ class HostingerClient:
                 if response.status_code == 200:
                     return response.json()
                 elif response.status_code == 401:
-                    response =  ResponseStatus.TOKEN_INVALID
+                    response =  ResponseStatus.PROVIDER_TOKEN_INVALID
                 elif response.status_code >= 400:
-                    response =  ResponseStatus.API_ERROR
+                    response =  ResponseStatus.PROVIDER_API_ERROR
 
         except httpx.TimeoutException:
             response =  ResponseStatus.TIMEOUT
-        
         except httpx.NetworkError:
             response =  ResponseStatus.NETWORK_ERROR
-            
         except Exception:
             response =  ResponseStatus.UNKNOWN_ERROR
-        
-        return ClientRequestHandler.get_config(self, response=response)
+        return response

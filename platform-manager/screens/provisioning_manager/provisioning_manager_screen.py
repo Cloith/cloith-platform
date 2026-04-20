@@ -7,7 +7,7 @@ from screens import BaseScreen
 from .views import ProviderView, ProvisioningView, ImportView, VPSView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
-from models import DeploymentRecipe, OverlayConfig
+from models import DeploymentRecipe, ConfigClass
 from custom_widgets import StateOverlay
 
 class ProvisioningManagerScreen(BaseScreen):
@@ -47,7 +47,7 @@ class ProvisioningManagerScreen(BaseScreen):
         self.query_one("#description-panel").display=False
         self.view_title = self.query_one("#view-title")
         self.overlay = self.query_one("#overlay")
-        config = OverlayConfig(
+        config = ConfigClass(
             message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
         )
         self.overlay.enter_error(config)

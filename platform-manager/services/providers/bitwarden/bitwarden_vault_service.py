@@ -2,7 +2,7 @@ import pexpect
 import json
 import threading
 import re
-from models import ResponseStatus, OverlayConfig
+from models import ResponseStatus, ConfigClass
 from services import BaseVaultService
 from services.providers.bitwarden import BitwardenClient
 
@@ -96,34 +96,38 @@ class BitwardenVaultService(BaseVaultService):
         result = await self.get_item(token_name)
 
         if result == ResponseStatus.ITEM_MISSING:
-            return ResponseStatus.TOKEN_MISSING
+            return ResponseStatus.PROVIDER_TOKEN_MISSING
         else:
             return result
     
     
-    async def unlock(self, password: str) -> bool:
+    async def unlock(self, password: str) -> ResponseStatus:
         """Unlocks the vault and updates the global session token."""
         result = await self.client.call("unlock", password, "--raw")
-        
-        if isinstance(result, str) and len(result) > 10: 
-            self.app.vault_session = result.strip()
-            return ResponseStatus.SUCCESS
-        else:
+
+        if isinstance(result, ResponseStatus):
             return result
+        
+        self.app.vault_session = result.strip()
+        return ResponseStatus.SUCCESS
+  
     
     async def update_provider_token(self, token_name: str, token_value: str) -> ResponseStatus:
         """Explicitly updates the password field of a provider token item."""
         item_json = await self.get_item(token_name)
         
-        if not isinstance(item_json, dict):
+        if isinstance(item_json, ResponseStatus):
             return item_json
 
         item_json["login"]["password"] = token_value
 
         encoded_item = json.dumps(item_json)
         result = await self.client.call("edit", "item", item_json["id"], input_data=encoded_item)
+
+        if isinstance(item_json, ResponseStatus):
+            return item_json
         
-        if result is not OverlayConfig:
-            await self.client.call("sync")
-            return ResponseStatus.SUCCESS
-        return result
+        await self.client.call("sync")
+        return ResponseStatus.SUCCESS
+        
+  
