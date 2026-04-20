@@ -3,7 +3,7 @@ from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
 from models import ResponseStatus, ConfigClass
 
-class HostingerVPSService(BaseVPSService):
+class HostingerService(BaseVPSService):
     def __init__(self, app):
         self.app = app
         self.client = HostingerClient(app)
@@ -11,6 +11,9 @@ class HostingerVPSService(BaseVPSService):
     @property
     def provider_name(self) -> str:
         return "hostinger"
+    
+    async def get_all_templates(self):
+        return await self.client.request("GET", "/templates")
 
     async def get_all_vps(self) -> list[VPSData]:
         result = await self.client.request("GET", "/virtual-machines")
