@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from models.vps import VPSData
-from enum import Enum
 
-class BaseVPSService(ABC):
+class BaseProviderService(ABC):
     @property
     @abstractmethod
     def provider_name(self) -> str:
-        """Returns the name of the provider for UI labels."""
+        """Must Returns the name of the provider for UI labels."""
         pass
 
     @abstractmethod

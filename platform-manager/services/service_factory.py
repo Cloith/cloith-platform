@@ -1,6 +1,5 @@
 from services.base_vps import BaseVPSService
 from services.base_vault import BaseVaultService
-from services.base_template import BaseTemplateService
 from services.providers.hostinger import HostingerService
 from services.providers.bitwarden import BitwardenVaultService
 
