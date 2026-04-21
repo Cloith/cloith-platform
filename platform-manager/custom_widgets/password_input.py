@@ -4,7 +4,6 @@ from textual.widgets import Input, Button, Static
 from textual.validation import Length
 from textual.app import ComposeResult
 
-
 class PasswordInput(Static):
     DEFAULT_CSS = """
     #password-wrapper {
@@ -64,11 +63,15 @@ class PasswordInput(Static):
     }
     """
 
+    def __init__(self, placeholder):
+        super().__init__()
+        self.placeholder = placeholder
+
     def compose(self) -> ComposeResult:
         with Container(id="input-container"):
             with Horizontal(id="password-wrapper"):
                 yield Input(
-                    placeholder="Master Password",
+                    placeholder=f"{self.placeholder}",
                     password=True,
                     id="password",
                     validators=[
@@ -102,17 +105,12 @@ class PasswordInput(Static):
         toggle_btn.label = "○" if pw_input.password else "●"
         pw_input.focus()
     
-    @on(Input.Submitted, "#password")
-    def on_button_pressed(self) -> None:
-        password = self.query_one("#password", Input).value
-
-        if not password:
-            self.status_text.update("[bold red]Password field must not be empty[/bold red]")
-            return
     
+    @on(Input.Submitted, "#password")
     def trigger_submit(self):
         """Logic to run when a parent button is pressed."""
         password = self.query_one(Input).value
+
         if not password:
             self.status_text.update("[bold red]Password field must not be empty[/bold red]")
         return password

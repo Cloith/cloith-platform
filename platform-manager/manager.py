@@ -3,30 +3,31 @@ import os
 import sys
 from rich.console import Console
 from textual.app import App
+from textual.events import Resize
 from screens.core import LoadingScreen
 from screens.core import LoginScreen
 from screens.core import DashboardScreen
 from screens.provisioning_manager import ProvisioningManagerScreen
-from screens.provisioning_manager.components import VPSPickerScreen
 from services.service_factory import get_vault_service
+
 
 console = Console()
 
 class PlatformManager(App):
     def __init__(self) -> None:
         super().__init__()
-        self.app.provider_token = None
-        self.app.vault_session = None
-        self.app.vault_service = None
-        self.app.vps_service = None
-        self.app.template_service = None
+        self.provider_token = None
+        self.vault_session = None
+        self.vault_service = None
+        self.provider_service = None
 
     def on_mount(self) -> None:
-        
-       
-        vault_service = get_vault_service("bitwarden", self.app)
-        self.app.vault_service = vault_service
+        vault_service = get_vault_service("bitwarden", self)
+        self.vault_service = vault_service
         self.push_screen(ProvisioningManagerScreen())
+
+    def on_resize(self, event: Resize) -> None:
+        self.refresh()
 
     @staticmethod
     def acquire_lock():

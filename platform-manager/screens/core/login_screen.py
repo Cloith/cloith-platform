@@ -5,18 +5,14 @@ from textual.containers import Vertical, Container
 from textual.validation import Integer, Function
 from screens.core import DashboardScreen
 from screens import BaseScreen
-from services.base_vault import BaseVaultService, VaultStatus
+from models.status import ResponseStatus
 from custom_widgets.password_input import PasswordInput
 from services.service_factory import get_vault_service
 
 
 class LoginScreen(BaseScreen):
     """A secure login screen for the Platform Manager."""
-    CSS_PATH = ["tcss/base.tcss", "tcss/login_screen.tcss"]
-    
-    def __init__(self, vault_service: BaseVaultService):
-        super().__init__()
-        self.vault_service = vault_service
+    CSS_PATH = "tcss/login_screen.tcss"
     
     def setup_content(self) -> ComposeResult:
         with Vertical(id="main-container"):
@@ -69,7 +65,7 @@ class LoginScreen(BaseScreen):
         
         self.button_container.add_class("searching")
         self.status_text.update("[bold yellow]Validating Credentials...[/bold yellow]")
-        self.vault_service.run_login_thread(email, password, self.ask_otp, self.handle_login_result)
+        self.app.vault_service.run_login_thread(email, password, self.ask_otp, self.handle_login_result)
 
     def ask_otp(self):
         """Safe UI transformation (called via call_from_thread)"""
@@ -94,20 +90,19 @@ class LoginScreen(BaseScreen):
         self.button_container.add_class("searching")
 
         self.app.otp_code = otp
-        self.vault_service._otp_event.set()
+        self.app.vault_service._otp_event.set()
 
     def handle_login_result(self, result: tuple[int, str | None]):
         """This runs on the MAIN THREAD automatically via call_from_thread"""
         status_code, session_key = result
         self.button_container.remove_class("searching")
         
-        if status_code == VaultStatus.SUCCESS:
+        if status_code == ResponseStatus.SUCCESS:
             self.app.bw_session = session_key
-            vault_service = get_vault_service("bitwarden", self.app)
-            self.app.push_screen(DashboardScreen(vault_service))
-        elif status_code == VaultStatus.WRONG_PASSWORD:
+            self.app.push_screen(DashboardScreen(self.app.vault_service))
+        elif status_code == ResponseStatus.WRONG_MASTER_PASSWORD:
             self.status_text.update("[bold red]Incorrect Email or Password[/bold red]")
-        elif status_code == VaultStatus.INVALID_OTP:
+        elif status_code == ResponseStatus.INVALID_OTP:
             self.reset_ui_to_login()
             self.status_text.update("[bold red]Incorrect OTP[/bold red]")
         
@@ -116,5 +111,4 @@ class LoginScreen(BaseScreen):
         self.main_container.remove_class("ask-otp")
         self.button_container.remove_class("searching")
         password = self.password_input
-        password.value = ""
-        
+        password.value = ""   

@@ -1,20 +1,4 @@
 from abc import ABC, abstractmethod
-from enum import IntEnum
-
-class VaultStatus(IntEnum):
-    SUCCESS = 1
-    NEED_2FA = 2
-    WRONG_PASSWORD = 3
-    WRONG_EMAIL = 4
-    INVALID_OTP = 5
-    LOCKED = 6
-    TIMEOUT = 7
-    UNKNOWN_ERROR = 8
-    ALREADY_LOGGED_IN = 9
-    MASTER_PASSWORD_PROMPT = 10
-    ITEM_MISSING = 11
-    CANCELLED = 12 
-    
 
 class BaseVaultService(ABC):
     @property
@@ -39,7 +23,7 @@ class BaseVaultService(ABC):
         pass
 
     @abstractmethod
-    async def get_item(self, item_name: str) -> dict | str:
+    async def get_token(self, item_name: str) -> dict | str:
         pass
 
     # @abstractmethod

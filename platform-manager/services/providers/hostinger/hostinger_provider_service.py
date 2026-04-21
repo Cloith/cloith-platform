@@ -1,10 +1,9 @@
-from services.base_vps import BaseVPSService
+from services.base_provider import BaseProviderService
 from services.providers.hostinger import HostingerClient
 from models.vps import VPSData
-from services.base_vps import VPSStatus
-from services.base_vault import VaultStatus
+from models import ResponseStatus, ConfigClass
 
-class HostingerVPSService(BaseVPSService):
+class HostingerProviderService(BaseProviderService):
     def __init__(self, app):
         self.app = app
         self.client = HostingerClient(app)
@@ -12,13 +11,16 @@ class HostingerVPSService(BaseVPSService):
     @property
     def provider_name(self) -> str:
         return "hostinger"
+    
+    async def get_all_templates(self):
+        return await self.client.request("GET", "/templates")
 
     async def get_all_vps(self) -> list[VPSData]:
         result = await self.client.request("GET", "/virtual-machines")
 
-        if result == VPSStatus.TOKEN_MISSING: return result
-        elif result == VPSStatus.TOKEN_INVALID: return result
-
+        if isinstance(result, ResponseStatus):
+            return result
+        
         vps_objects = []
         for v in result:
             vps_objects.append(VPSData(
@@ -34,6 +36,20 @@ class HostingerVPSService(BaseVPSService):
                 provider="hostinger",
                 raw_data=v 
             ))
+        
         return vps_objects
+
+    
+    async def check_token(self) -> ResponseStatus:
+        """Validates the inputted token"""
+        
+        result = await self.client.request("GET", "/virtual-machines")
+
+        if isinstance(result, ResponseStatus):
+            return result
+        else:
+            return ResponseStatus.SUCCESS
+            
+
     
         

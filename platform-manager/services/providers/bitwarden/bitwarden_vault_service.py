@@ -1,8 +1,9 @@
 import pexpect
+import json
 import threading
 import re
+from models import ResponseStatus
 from services import BaseVaultService
-from services import VaultStatus
 from services.providers.bitwarden import BitwardenClient
 
 class BitwardenVaultService(BaseVaultService):
@@ -54,50 +55,99 @@ class BitwardenVaultService(BaseVaultService):
                 sub_step = child.expect([pexpect.EOF, "invalid new device otp", pexpect.TIMEOUT])
                 
                 if sub_step == 1: 
-                    self.app.call_from_thread(result_callback, (VaultStatus.INVALID_OTP, None))
+                    self.app.call_from_thread(result_callback, (ResponseStatus.INVALID_OTP, None))
                     return
                 if sub_step == 2:
-                    self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
+                    self.app.call_from_thread(result_callback, (ResponseStatus.TIMEOUT, None))
                     return
 
             elif next_step == 2:
-                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_PASSWORD, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_MASTER_PASSWORD, None))
                 return
             elif next_step == 3:
-                self.app.call_from_thread(result_callback, (VaultStatus.WRONG_EMAIL, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.WRONG_EMAIL, None))
                 return
             elif next_step == 4:
-                self.app.call_from_thread(result_callback, (VaultStatus.TIMEOUT, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.TIMEOUT, None))
                 return
             
             output = child.before
             match = re.search(r'BW_SESSION="([^"]+)"', output)
             if match:
                 session_key = match.group(1)
-                self.app.call_from_thread(result_callback, (VaultStatus.SUCCESS, session_key))
+                self.app.call_from_thread(result_callback, (ResponseStatus.SUCCESS, session_key))
                 return
             else:
-                self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
+                self.app.call_from_thread(result_callback, (ResponseStatus.UNKNOWN_ERROR, None))
                 return
         except pexpect.exceptions.ExceptionPexpect as e:
-            self.app.call_from_thread(result_callback, (VaultStatus.UNKNOWN_ERROR, None))
+            self.app.call_from_thread(result_callback, (ResponseStatus.UNKNOWN_ERROR, None))
             return
         finally:
             if child.isalive():
                 child.close()
     
-    async def get_item(self, item_name: str) -> dict | str:
+    async def get_item(self, item_name: str) -> dict | ResponseStatus:
+        """Checks inside the vault and retrieve the inputted item"""
         return await self.client.call("get", "item", item_name)
     
-    async def unlock(self, password: str) -> bool:
+    async def get_token(self, token_name: str) -> dict | ResponseStatus:
+        """Seacrh and fetches inputted token"""
+        result = await self.get_item(token_name)
+
+        if result == ResponseStatus.ITEM_MISSING:
+            return ResponseStatus.PROVIDER_TOKEN_MISSING
+        else:
+            return result
+    
+    
+    async def unlock(self, password: str) -> ResponseStatus:
         """Unlocks the vault and updates the global session token."""
         result = await self.client.call("unlock", password, "--raw")
+
+        if isinstance(result, ResponseStatus):
+            return result
         
-        if isinstance(result, str) and len(result) > 10: 
-            self.app.vault_session = result.strip()
-            return VaultStatus.SUCCESS
-        return result
+        self.app.vault_session = result.strip()
+        return ResponseStatus.SUCCESS
     
-        
-        
+    async def encode_data(self, item_json: dict, token_value:str) -> str:
+        """Encode an edited json for bitwarden input"""
+        item_json["login"]["password"] = token_value
+        edited_json = json.dumps(item_json)
     
+        return await self.client.call("encode", input_data=edited_json)
+    
+    async def update_provider_token(self, token_value: str) -> ResponseStatus:
+        """Explicitly updates the password field of a provider token item with auto verification"""
+        original_token = self.app.provider_token
+        self.app.provider_token = token_value
+
+        check_result = await self.app.provider_service.check_token()
+        if check_result is not ResponseStatus.SUCCESS:
+            self.app.provider_token = original_token
+            return check_result
+        
+        token_name = f"{self.app.provider_service.provider_name}_token"
+        item_json = await self.get_item(token_name)
+        if isinstance(item_json, ResponseStatus):
+            return item_json
+        
+        encoded_string = await self.encode_data(item_json, token_value)
+        
+        if isinstance(encoded_string, ResponseStatus):
+            return encoded_string
+        
+        edit_result = await self.client.call("edit", "item", item_json["id"], encoded_string)
+
+        if isinstance(edit_result, ResponseStatus):
+            return edit_result
+        
+        sync_result = await self.client.call("sync")
+
+        if isinstance(sync_result, ResponseStatus):
+                return sync_result
+        
+        return ResponseStatus.SUCCESS
+        
+  

@@ -6,7 +6,7 @@ from textual.app import ComposeResult
 from textual.worker import Worker
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 
-class TemplateTab(Static):
+class TemplateForm(Static):
  
     def compose(self) -> ComposeResult:
         yield Input(placeholder="Search bar", id="search-bar")
@@ -16,16 +16,14 @@ class TemplateTab(Static):
     def on_mount(self) -> None:
         self.post_message(DescriptionUpdate("Select a template from the list to view its description"))
         self.new_buttons = []
+        self.template_descriptions = {}
         self.fetch_templates()
     
     @work(exclusive=True, name="template_fetcher")
     async def fetch_templates(self) -> None:
-        try:
-            vps_list = await self.app.template_service.get_all_templates()
-            
-            return vps_list
-        except Exception as e:
-            self.notify(f"Failed to fetch templates: {e}", severity="error")
+        vps_list = await self.app.provider_service.get_all_templates()
+        return vps_list
+        
 
     @on(Worker.StateChanged)
     def handle_template_result(self, event: Worker.StateChanged) -> None:
@@ -75,10 +73,3 @@ class TemplateTab(Static):
         if selected_button:
             self.new_desc = self.template_descriptions.get(selected_button.id, "No description found.")
             self.post_message(ButtonDescriptionUpdate(self.new_desc))
-
-
-        
-
-
-           
-   
