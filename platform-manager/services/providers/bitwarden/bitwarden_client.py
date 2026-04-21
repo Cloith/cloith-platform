@@ -8,7 +8,7 @@ class BitwardenClient:
         self.base_command = "bw"
         self.session_exempt_commands = ["unlock", "login"]
 
-    async def call(self, *args: str) -> dict | str | ResponseStatus | None:
+    async def call(self, *args: str, input_data: str | None=None) -> dict | str | ResponseStatus | None:
         """Centralized CLI handler similar to Hostinger 'request' method."""
 
         cmd = [self.base_command] + list(args)
@@ -28,6 +28,9 @@ class BitwardenClient:
                 stderr=asyncio.subprocess.PIPE,
                 stdin=asyncio.subprocess.PIPE
             )
+
+            input_bytes = input_data.encode() if input_data else None
+
             try:
                 chunk = await asyncio.wait_for(process.stderr.read(1024), timeout=1.0)
                 if b"Master password" in chunk:
@@ -40,7 +43,10 @@ class BitwardenClient:
             except asyncio.TimeoutError:
                 stored_stderr = b""
 
-            stdout, stderr_remaining = await asyncio.wait_for(process.communicate(), timeout=5.0)
+            stdout, stderr_remaining = await asyncio.wait_for(
+                process.communicate(input=input_bytes),
+                timeout=5.0
+            )
             full_stderr = stored_stderr + stderr_remaining
             
             if process.returncode != 0:

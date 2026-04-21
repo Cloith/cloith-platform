@@ -40,28 +40,15 @@ class HostingerProviderService(BaseProviderService):
         return vps_objects
 
     
-    async def check_token(self, token_value: str) -> ResponseStatus:
-        """Validates the token and updates the app state if successful."""
-
-        original_token = self.app.provider_token
-        self.app.provider_token = token_value
+    async def check_token(self) -> ResponseStatus:
+        """Validates the inputted token"""
         
         result = await self.client.request("GET", "/virtual-machines")
 
         if isinstance(result, ResponseStatus):
             return result
-
-        if not isinstance(result, ConfigClass):
-            token_name = f"{self.app.provider_service.provider_name}_token"
-            result =  await self.app.vault_service.update_provider_token(token_name, token_value)
-
-            if not (result, ConfigClass):
-                return ResponseStatus.SUCCESS
-            else:
-                return result
         else:
-            self.app.provider_token = original_token
-            return result
+            return ResponseStatus.SUCCESS
             
 
     

@@ -65,8 +65,8 @@ class PasswordModal(ModalScreen[str]):
             return {
                 "title": f'Enter New {self.app.provider_service.provider_name.title()} API Token',
                 "button": True,
-                "placeholder": f"{self.app.provider.provider_name.title()} API Token",
-                "service": self.app.provider_service.check_token
+                "placeholder": f"{self.app.provider_service.provider_name.title()} API Token",
+                "service": self.app.vault_service.update_provider_token
             }
         # Default/Vault mode
         return {

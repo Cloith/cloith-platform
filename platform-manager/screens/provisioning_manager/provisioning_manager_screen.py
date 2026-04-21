@@ -114,6 +114,6 @@ class ProvisioningManagerScreen(BaseScreen):
         
         self.query_one("#panels").disabled = not has_source
         
-        if has_source:
-            provider_name = self.recipe.provider or "UNKNOWN"
-            self.view_title.update(f"CONFIGURING: [bold]{provider_name.upper()}[/]")
+        # if has_source:
+        #     provider_name = self.recipe.provider or "UNKNOWN"
+        #     self.view_title.update(f"CONFIGURING: [bold]{provider_name.upper()}[/]")

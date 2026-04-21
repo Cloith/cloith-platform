@@ -115,10 +115,3 @@ class VPSView(Static):
             
         else:
             self.notify("Please select a VPS from the list first.", severity="warning")
-
-            
-           
-
-            
-
-        

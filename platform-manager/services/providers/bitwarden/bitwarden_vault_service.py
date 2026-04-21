@@ -110,24 +110,44 @@ class BitwardenVaultService(BaseVaultService):
         
         self.app.vault_session = result.strip()
         return ResponseStatus.SUCCESS
-  
     
-    async def update_provider_token(self, token_name: str, token_value: str) -> ResponseStatus:
-        """Explicitly updates the password field of a provider token item."""
-        item_json = await self.get_item(token_name)
-        
-        if isinstance(item_json, ResponseStatus):
-            return item_json
-
+    async def encode_data(self, item_json: dict, token_value:str) -> str:
+        """Encode an edited json for bitwarden input"""
         item_json["login"]["password"] = token_value
+        edited_json = json.dumps(item_json)
+    
+        return await self.client.call("encode", input_data=edited_json)
+    
+    async def update_provider_token(self, token_value: str) -> ResponseStatus:
+        """Explicitly updates the password field of a provider token item with auto verification"""
+        original_token = self.app.provider_token
+        self.app.provider_token = token_value
 
-        encoded_item = json.dumps(item_json)
-        result = await self.client.call("edit", "item", item_json["id"], input_data=encoded_item)
-
+        check_result = await self.app.provider_service.check_token()
+        if check_result is not ResponseStatus.SUCCESS:
+            self.app.provider_token = original_token
+            return check_result
+        
+        token_name = f"{self.app.provider_service.provider_name}_token"
+        item_json = await self.get_item(token_name)
         if isinstance(item_json, ResponseStatus):
             return item_json
         
-        await self.client.call("sync")
+        encoded_string = await self.encode_data(item_json, token_value)
+        
+        if isinstance(encoded_string, ResponseStatus):
+            return encoded_string
+        
+        edit_result = await self.client.call("edit", "item", item_json["id"], encoded_string)
+
+        if isinstance(edit_result, ResponseStatus):
+            return edit_result
+        
+        sync_result = await self.client.call("sync")
+
+        if isinstance(sync_result, ResponseStatus):
+                return sync_result
+        
         return ResponseStatus.SUCCESS
         
   
