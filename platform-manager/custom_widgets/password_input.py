@@ -63,7 +63,7 @@ class PasswordInput(Static):
     }
     """
 
-    def __init__(self, placeholder):
+    def __init__(self, placeholder: str):
         super().__init__()
         self.placeholder = placeholder
 

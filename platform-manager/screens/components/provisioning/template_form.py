@@ -4,12 +4,17 @@ from textual.widgets import (
 )
 from textual.app import ComposeResult
 from textual.worker import Worker
+from textual.containers import Container
+from custom_widgets.state_overlay import StateOverlay
+from core.handlers import ServiceResponseHandler
+from models.status import ResponseStatus
 from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
 
 class TemplateForm(Static):
  
     def compose(self) -> ComposeResult:
-        yield Input(placeholder="Search bar", id="search-bar")
+        yield StateOverlay(id="overlay")
+        yield Input(placeholder="Search bar", id="search-bar")    
         with RadioSet():
             None
     
@@ -17,34 +22,36 @@ class TemplateForm(Static):
         self.post_message(DescriptionUpdate("Select a template from the list to view its description"))
         self.new_buttons = []
         self.template_descriptions = {}
-        self.fetch_templates()
+        self.overlay = self.query_one("#overlay")
+        self.run_worker(self.fetch_templates())
     
-    @work(exclusive=True, name="template_fetcher")
+   
     async def fetch_templates(self) -> None:
-        vps_list = await self.app.provider_service.get_all_templates()
-        return vps_list
-        
+        self.overlay.enter_loading("fetching os template list, pleas wait...")
+        result = await self.app.provider_service.get_all_templates()
 
-    @on(Worker.StateChanged)
-    def handle_template_result(self, event: Worker.StateChanged) -> None:
-        if event.worker.name == "template_fetcher" and event.worker.is_finished:
-            result = event.worker.result
-            if isinstance(result, list):
-                self.template_descriptions = {
-                    f"os-{tpl.get('id')}": tpl.get("description", "No description available.")
-                    for tpl in result
-                }
-                self.new_buttons = [
-                    RadioButton(
-                        tpl.get("name", "Unknown OS"),
-                        id=f"os-{tpl.get('id')}",
-                        classes="os-buttons"
-                    )
-                    for tpl in result
-                ]
-                self.populate_list(self.new_buttons)
-            else:
-                self.notify(f"Error fetching templates: {result}", severity="error")
+        if isinstance(result, ResponseStatus):
+            self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))
+        else:
+            self.overlay.hide_loading()
+            self.template_descriptions = {
+                f"os-{tpl.get('id')}": tpl.get("description", "No description available.")
+                for tpl in result
+            }
+            self.new_buttons = [
+                RadioButton(
+                    tpl.get("name", "Unknown OS"),
+                    id=f"os-{tpl.get('id')}",
+                    classes="os-buttons"
+                )
+                for tpl in result
+            ]
+            self.populate_list(self.new_buttons)
+        
+            
+    @on(StateOverlay.RetryRequested)
+    def restart_request(self) -> None:
+        self.run_worker(self.fetch_templates())
 
     def populate_list(self, buttons_to_show: list[RadioButton]) -> None:
         radio_set = self.query_one(RadioSet)
@@ -71,5 +78,5 @@ class TemplateForm(Static):
         """Updates the static text whenever an OS RadioButton is toggled."""
         selected_button = event.pressed
         if selected_button:
-            self.new_desc = self.template_descriptions.get(selected_button.id, "No description found.")
-            self.post_message(ButtonDescriptionUpdate(self.new_desc))
+            new_desc = self.template_descriptions.get(selected_button.id, "No description found.")
+            self.post_message(DescriptionUpdate(new_desc))

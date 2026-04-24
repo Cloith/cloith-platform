@@ -11,6 +11,7 @@ class PasswordPolicy:
     allowed_symbols: Optional[Set[str]] = None
     only_latin: bool = False
     check_leak: bool = False
+    placeholder_value: str = None
 
     def get_requirements_data(self) -> list[dict]:
         """Returns a list of requirement definitions based on the policy."""

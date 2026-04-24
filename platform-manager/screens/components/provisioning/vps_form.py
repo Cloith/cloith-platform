@@ -7,40 +7,40 @@ from custom_widgets import StateOverlay
 from models import  ConfigClass
 from core.handlers import ServiceResponseHandler
 
-class VPSView(Static):
-    DEFAULT_CSS = """
-    VPSView {
-        height: 100%;
-        width: 100%;
-    }
+class VPSForm(Static):
+    # DEFAULT_CSS = """
+    # VPSTab {
+    #     height: 100%;
+    #     width: 100%;
+    # }
 
-    #main-container {
-        height: 100%;
-        align: center middle;
-        display: block;
-    }
+    # #main-container {
+    #     height: 100%;
+    #     align: center middle;
+    #     display: block;
+    # }
 
-    #main-content {
-        align: center middle;
-    }
+    # #main-content {
+    #     align: center middle;
+    # }
 
-    #list-container {
-        height: 90%;
-    }
+    # #list-container {
+    #     height: 90%;
+    # }
 
-    #vps-list {
-        height: 1fr;
-    }
+    # #vps-list {
+    #     height: 1fr;
+    # }
 
-    #button-container {
-        align: center middle;
-        height: 5;
-    }
+    # #button-container {
+    #     align: center middle;
+    #     height: 5;
+    # }
 
-    #overlay {
-        height: 1fr;
-    }
-    """
+    # #overlay {
+    #     height: 1fr;
+    # }
+    # """
 
     def compose(self) -> ComposeResult:
         with Container(id="main-container"):

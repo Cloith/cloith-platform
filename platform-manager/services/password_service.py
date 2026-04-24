@@ -4,10 +4,12 @@ import string
 from models.password import PasswordPolicy
 
 class PasswordService:
+    
     def __init__(self, policy: PasswordPolicy):
         self.policy = policy
 
     def validate_rules(self, password: str) -> dict[str, bool]:
+        """it checks the input password if it satisfies the rules"""
         checks = {}
         
         if self.policy.min_length:
@@ -37,6 +39,7 @@ class PasswordService:
         return checks
 
     async def is_password_leaked(self, password: str) -> bool:
+        """calls an external api to check if password is leaked in public database"""
         sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
         prefix, suffix = sha1_hash[:5], sha1_hash[5:]
         url = f"https://api.pwnedpasswords.com/range/{prefix}"

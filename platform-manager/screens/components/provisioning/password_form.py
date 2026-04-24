@@ -5,13 +5,13 @@ from textual.widgets import (
 from textual.containers import Vertical, Horizontal, Container
 from textual.app import ComposeResult
 from services.password_service import PasswordService
-from models.password import PasswordPolicy
+from models.password import PasswordPolicy, PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
 from custom_widgets.rich_spinner import LoadingSpinner
 from custom_widgets.password_input import PasswordInput
 from screens import BaseScreen
 
 
-class PolicyPasswordForm(BaseScreen):
+class PolicyPasswordForm(Static):
     def __init__(self, policy: PasswordPolicy):
         super().__init__()
         self.policy = policy
@@ -20,8 +20,12 @@ class PolicyPasswordForm(BaseScreen):
         self.leak_message = " Password must not be leaked publicly"
         
     
-    def setup_content(self)-> ComposeResult:
-        yield PasswordInput()
+    def compose(self)-> ComposeResult:
+        if self.policy == PANEL_PASSWORD_POLICY:
+            placeholder = "ENTER PNAEL PASSWORD"
+        else:
+            placeholder = "ENTER VPS PASSWORD"
+        yield PasswordInput(placeholder=placeholder)
         with Vertical(id="password-requirements"):
             for req in self.policy.get_requirements_data():
                 yield Static(

@@ -41,12 +41,18 @@ class StateOverlay(Vertical):
 
 
 
-    def enter_loading(self, message: str = "Fetching Data..."):
+    def enter_loading(self, message: str):
+        """displays a loading animation with the inputed text below it"""
         self.add_class("-visible")
         self.remove_class("-show-buttons")
         self.query_one("#overlay-indicator").display = True
         self.query_one("#overlay-text").update(message)
 
+    def hide_loading(self):
+        """hides the loading animation""" 
+        self.remove_class("-visible")
+        self.remove_class("-show-buttons")
+        
     def enter_error(self, config: ConfigClass):
         self.mode = config.mode
         self.config = config

@@ -4,7 +4,7 @@ from textual.reactive import reactive
 from textual.widgets import Static, RadioButton, Button, Markdown
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from screens import BaseScreen
-from .views import ProviderView, ProvisioningView, ImportView, VPSView
+from .views import ProviderView, ProvisioningView, ImportView
 from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
 from models import DeploymentRecipe, ConfigClass
@@ -27,14 +27,13 @@ class ProvisioningManagerScreen(BaseScreen):
                 with Container(id="panels"):
                     yield StateOverlay(id="overlay")
                     yield VerticalScroll(
-                        Button("VPS Selection", id="vps-btn", classes="selection-buttons"),
                         Button("Provisioning(required)", id="provisioning-btn", classes="selection-buttons"),
-                        Button("Requirements", id="requirements-btn", classes="selection-buttons"),
+                        Button("Secrets", id="requirements-btn", classes="selection-buttons"),
                         Button("Deploy", id="deploy-btn", classes="selection-buttons"),
                         id = "panel-scroll"
                     )
                 with VerticalScroll(id="description-panel"):
-                    yield Markdown("", id="description-text")
+                    yield Static("", id="description-text")
             with Vertical(id="forms-panel"):
                 yield Static("SELECT YOUR PROVIDER", id="view-title")
                 with Container(id="active-form-container"): 
@@ -86,10 +85,6 @@ class ProvisioningManagerScreen(BaseScreen):
         elif button_id == "provisioning-btn":
             self.switch_view(ProvisioningView())
             self.view_title.update("COMPLETE THE FORMS")
-
-        elif button_id == "vps-btn":
-            self.switch_view(VPSView())
-            self.view_title.update("SELECT YOUR VPS")    
             
     def switch_view(self, new_view: Static) -> None:
         """Removes the current form and mounts a new one."""
