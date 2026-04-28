@@ -31,6 +31,8 @@ class PasswordPolicy:
         if self.allowed_symbols:
             symbols_str = " ".join(sorted(self.allowed_symbols))
             reqs.append({"id": "symbols", "text": f" Allowed symbols: {symbols_str}"})
+        if self.check_leak:
+            reqs.append({"id": "check_leak", "text": f" Must not be leaked publicly"})
         
         return reqs
 

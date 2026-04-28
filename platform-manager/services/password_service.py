@@ -35,10 +35,13 @@ class PasswordService:
             if self.policy.allowed_symbols:
                 allowed_chars += "".join(self.policy.allowed_symbols)
             checks["latin_only"] = all(c in allowed_chars for c in password)
+        
+        if self.policy.check_leak:
+            checks["check_leak"] = False
 
         return checks
 
-    async def is_password_leaked(self, password: str) -> bool:
+    async def is_password_leaked(password: str) -> bool:
         """calls an external api to check if password is leaked in public database"""
         sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
         prefix, suffix = sha1_hash[:5], sha1_hash[5:]
