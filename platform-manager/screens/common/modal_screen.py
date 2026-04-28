@@ -97,11 +97,6 @@ class PasswordModal(ModalScreen[str]):
         self.enter_error(self.config)
         self.status_message.update("")
 
-
-
-    def update_text(self, text: str):
-        self.status_message.update(text)
-
     @on(Input.Submitted, "PasswordInput #password")
     @on(Button.Pressed, "#unlock-btn")
     @on(Button.Pressed, "#update-btn")

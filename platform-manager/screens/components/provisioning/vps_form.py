@@ -6,41 +6,9 @@ from models.status import ResponseStatus
 from custom_widgets import StateOverlay
 from models import  ConfigClass
 from core.handlers import ServiceResponseHandler
+from services.textual_message_bus import GlobalRetryRequested
 
 class VPSForm(Static):
-    # DEFAULT_CSS = """
-    # VPSTab {
-    #     height: 100%;
-    #     width: 100%;
-    # }
-
-    # #main-container {
-    #     height: 100%;
-    #     align: center middle;
-    #     display: block;
-    # }
-
-    # #main-content {
-    #     align: center middle;
-    # }
-
-    # #list-container {
-    #     height: 90%;
-    # }
-
-    # #vps-list {
-    #     height: 1fr;
-    # }
-
-    # #button-container {
-    #     align: center middle;
-    #     height: 5;
-    # }
-
-    # #overlay {
-    #     height: 1fr;
-    # }
-    # """
 
     def compose(self) -> ComposeResult:
         with Container(id="main-container"):
@@ -54,7 +22,7 @@ class VPSForm(Static):
         self.run_worker(self.fetch_vps_list())
         self.overlay = self.query_one("#overlay")
     
-    @on(StateOverlay.RetryRequested)
+
     def restart_request(self) -> None:
         self.run_worker(self.fetch_vps_list())
 

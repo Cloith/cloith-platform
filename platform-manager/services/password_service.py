@@ -1,7 +1,7 @@
 import hashlib
 import httpx
 import string
-from models.password import PasswordPolicy
+from models import PasswordPolicy, ResponseStatus
 
 class PasswordService:
     
@@ -48,12 +48,13 @@ class PasswordService:
             try:
                 response = await client.get(url, timeout=5.0)
 
-                if response.status_code != 200:
-                    return False
-
-                hashes = (line.split(':') for line in response.text.splitlines())
-                return any(h[0] == suffix for h in hashes)
+                if response.status_code == 200:
+                    hashes = (line.split(':') for line in response.text.splitlines())
+                    return any(h[0] == suffix for h in hashes)
+                else:
+                    return ResponseStatus.UNKNOWN_ERROR
+                
             except Exception:
-                return False
+                return ResponseStatus.UNKNOWN_ERROR
             
     

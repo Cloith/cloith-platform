@@ -8,7 +8,7 @@ from textual.containers import Container
 from custom_widgets.state_overlay import StateOverlay
 from core.handlers import ServiceResponseHandler
 from models.status import ResponseStatus
-from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
+from services.textual_message_bus import DescriptionUpdate, GlobalRetryRequested
 
 class TemplateForm(Static):
  
@@ -25,10 +25,15 @@ class TemplateForm(Static):
         self.overlay = self.query_one("#overlay")
         self.run_worker(self.fetch_templates())
     
+    def restart_request(self) -> None:
+        self.run_worker(self.fetch_templates())
+    
    
     async def fetch_templates(self) -> None:
         self.overlay.enter_loading("fetching os template list, pleas wait...")
         result = await self.app.provider_service.get_all_templates()
+
+        self.app.refresh()
 
         if isinstance(result, ResponseStatus):
             self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))
@@ -46,18 +51,13 @@ class TemplateForm(Static):
                 )
                 for tpl in result
             ]
-            self.populate_list(self.new_buttons)
-        
-            
-    @on(StateOverlay.RetryRequested)
-    def restart_request(self) -> None:
-        self.run_worker(self.fetch_templates())
+            await self.populate_list(self.new_buttons)
 
-    def populate_list(self, buttons_to_show: list[RadioButton]) -> None:
+    async def populate_list(self, buttons_to_show: list[RadioButton]) -> None:
         radio_set = self.query_one(RadioSet)
-        radio_set.query("RadioButton").remove()
+        await radio_set.query("RadioButton").remove()
         if buttons_to_show:
-            radio_set.mount(*buttons_to_show)
+            await radio_set.mount(*buttons_to_show)
 
     @on(Input.Changed, "#search-bar")
     def handle_search(self, event: Input.Changed) -> None:

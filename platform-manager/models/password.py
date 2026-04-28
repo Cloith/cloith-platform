@@ -50,5 +50,5 @@ VPS_PASSWORD_POLICY = PasswordPolicy(
     require_number=True,
     allowed_symbols=set("-().&@?'#,/;+"),
     only_latin=True,
-    check_leak=False,
+    check_leak=True,
 )

@@ -6,6 +6,7 @@ from screens import BaseScreen
 from models import ResponseStatus, ConfigClass
 from custom_widgets import StateOverlay
 from custom_widgets.sidebar import NavigationSidebar
+from core.handlers import ServiceResponseHandler
 
 class DashboardScreen(BaseScreen):
     CSS = """
@@ -57,28 +58,12 @@ class DashboardScreen(BaseScreen):
         self.overlay.enter_loading("Fetching Data, Please wait...")
         result = await self.app.vault_service.get_item("template_data")
 
-        if result == ResponseStatus.ITEM_MISSING:
-
-            config = ConfigClass(
-                message = """[orange]No active infrastructure detected[/] \n\n Use the [yellow bold]Provisioning Manager[/] to get started."""
-            )
-            self.overlay.enter_error(config)
-            
-            self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
-
-        elif result == ResponseStatus.UNKNOWN_ERROR:
-            config = ConfigClass(
-                message = """[red]Unknown Error[/] \n\n Something went wrong.\n Please check your connection and [blue]try again.[/]""",
-                show_retry = True
-            )
-            self.overlay.enter_error(config)
-            
-        elif result == ResponseStatus.MASTER_PASSWORD_PROMPT:
-            config = ConfigClass(
-                message = """[red]Authentication Required[/] \n\n Something went wrong while accessing your vault.\n Please [blue]authorize[/] to continue.""",
-                show_auth = True
-            )
-            self.overlay.enter_error(config)
+        if isinstance(result, ResponseStatus):
+            self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))
+            if result == ResponseStatus.ITEM_MISSING:
+                 self.run_worker(self.sidebar.flash_provisioning_button("nav-provisioning"))
+        else:
+            None    
 
     @on(StateOverlay.RetryRequested)
     def restart_request(self) -> None:

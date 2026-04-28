@@ -7,7 +7,8 @@ class ServiceResponseHandler():
 
     @property
     def overlay_error_data(self):
-        provider = self.app.provider_service.provider_name.title()
+        if self.app.provider_service:
+            provider = self.app.provider_service.provider_name.title()
 
         return {
             ResponseStatus.NETWORK_ERROR: {
@@ -48,6 +49,12 @@ class ServiceResponseHandler():
                     ),
                 "auth": True,
                 "unlock": True
+            },
+            ResponseStatus.ITEM_MISSING: {
+                "msg": (
+                    "[orange]No active infrastructure detected[/]\n\n"
+                    "Use the [yellow bold]Provisioning Manager[/] to get started."
+                    )
             }
         }
 

@@ -2,9 +2,9 @@ from textual import work
 from textual.widgets import Static, LoadingIndicator, Button
 from textual.containers import Vertical, Horizontal
 from textual.app import ComposeResult
-from textual.message import Message
 from screens.common import PasswordModal
 from models import ResponseStatus, ConfigClass
+from services.textual_message_bus import GlobalRetryRequested
 
 class StateOverlay(Vertical):
     """A reusable overlay for Loading, Error, and Auth states."""
@@ -25,10 +25,6 @@ class StateOverlay(Vertical):
         margin: 1;
     }
     """
-
-    class RetryRequested(Message):
-        """Sent when 'Try Again' is pressed."""
-        pass
 
     def compose(self) -> ComposeResult:
         yield LoadingIndicator(id="overlay-indicator")
@@ -69,7 +65,7 @@ class StateOverlay(Vertical):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "retry-btn":
-            self.post_message(self.RetryRequested())
+            self.global_message_sender()
         elif event.button.id in ("auth-btn", "update-btn"):
             self.handle_authorization()
         elif event.button.id == "buy-btn":
@@ -77,8 +73,27 @@ class StateOverlay(Vertical):
     
     @work
     async def handle_authorization(self):
-        
+        """
+        Handles the modal password prompt and triggers a global refresh 
+        across all app screens upon successful authentication.
+        """
         result = await self.app.push_screen_wait(PasswordModal(self.mode, self.config))
 
         if result == ResponseStatus.SUCCESS:
-            self.post_message(self.RetryRequested())
+            self.global_message_sender()
+
+    def global_message_sender(self):
+        """
+        Iterates through the current screen stack and broadcasts a 
+        GlobalRetryRequested message to all active screens.
+
+        This ensures that background screens (like the Provisioning Manager or Dashboard)
+        wake up and refresh their data once the vault is unlocked, without
+        requiring the user to manually click 'Retry' on every tab.
+        
+        It explicitly skips the PasswordModal to avoid sending refresh 
+        requests to a screen that is in the process of closing.
+        """
+        for screen in self.app.screen_stack:
+            if screen.__class__.__name__ != "PasswordModal":
+                screen.post_message(GlobalRetryRequested())

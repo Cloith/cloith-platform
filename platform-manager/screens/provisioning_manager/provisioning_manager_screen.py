@@ -9,8 +9,11 @@ from services.textual_message_bus import DescriptionUpdate
 from custom_widgets.sidebar import NavigationSidebar
 from models import DeploymentRecipe, ConfigClass
 from custom_widgets import StateOverlay
+from services.service_factory import get_vault_service
+from services.textual_message_bus import GlobalRetryRequested
 
-class ProvisioningManagerScreen(BaseScreen):
+
+class ProvisioningManagerScreen(BaseScreen):   
     CSS_PATH = [
         "tcss/provisioning_manager_screen.tcss"
         ]
@@ -43,6 +46,7 @@ class ProvisioningManagerScreen(BaseScreen):
         
                     
     def on_mount(self) -> None:
+
         self.query_one("#description-panel").display=False
         self.view_title = self.query_one("#view-title")
         self.overlay = self.query_one("#overlay")
@@ -50,6 +54,18 @@ class ProvisioningManagerScreen(BaseScreen):
             message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
         )
         self.overlay.enter_error(config)
+
+    @on(GlobalRetryRequested)
+    def handle_global_request(self, event: GlobalRetryRequested) -> None:
+        """
+        Acts as the dispatcher for the screen. When a global retry is requested,
+        it finds all child forms and triggers their refresh logic.
+        """
+        for widget in self.query():
+            if hasattr(widget, "restart_request"):
+                widget.restart_request()
+            
+
 
     @on(RadioButton.Changed, "#description-button")
     def description_button(self) -> None:
@@ -84,7 +100,7 @@ class ProvisioningManagerScreen(BaseScreen):
             
         elif button_id == "provisioning-btn":
             self.switch_view(ProvisioningView())
-            self.view_title.update("COMPLETE THE FORMS")
+            self.view_title.update("PROVISIONING SETUP")
             
     def switch_view(self, new_view: Static) -> None:
         """Removes the current form and mounts a new one."""
@@ -99,6 +115,7 @@ class ProvisioningManagerScreen(BaseScreen):
 
     def watch_recipe(self, old_recipe: DeploymentRecipe, new_recipe: DeploymentRecipe) -> None:
         """This runs whenever the recipe object is swapped or updated."""
+        self.app.refresh()
         self.update_ui_state()
 
     def update_ui_state(self) -> None:

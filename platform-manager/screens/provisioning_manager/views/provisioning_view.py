@@ -5,7 +5,7 @@ from textual.widgets import (
 from textual.containers import Container, Vertical
 from textual.app import ComposeResult
 from screens.components.provisioning import TemplateForm, VPSForm, PolicyPasswordForm
-from services.textual_message_bus import DescriptionUpdate, ButtonDescriptionUpdate
+from services.textual_message_bus import DescriptionUpdate
 from models.password import PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
 
 class ProvisioningView(Static):

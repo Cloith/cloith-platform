@@ -15,6 +15,8 @@ class BitwardenVaultService(BaseVaultService):
     @property
     def provider_name(self) -> str:
         return "bitwarden"
+    
+
 
     def run_login_thread(self, email, password, callback, result_callback):
         """Spawns the worker thread manually."""
@@ -107,8 +109,8 @@ class BitwardenVaultService(BaseVaultService):
 
         if isinstance(result, ResponseStatus):
             return result
-        
         self.app.vault_session = result.strip()
+
         return ResponseStatus.SUCCESS
     
     async def encode_data(self, item_json: dict, token_value:str) -> str:
