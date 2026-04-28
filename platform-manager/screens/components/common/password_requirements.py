@@ -37,6 +37,8 @@ class PasswordRequirementList(Static):
         super().__init__(**kwargs)
         self.policy = policy
         self.password_service = PasswordService(policy)
+        req_data = next(i for i in self.policy.get_requirements_data() if i["id"] == "check_leak")
+        self.original_content = req_data["text"]
         
 
     def compose(self) -> ComposeResult:
@@ -94,14 +96,14 @@ class PasswordRequirementList(Static):
         calls the password service for checking if the inputed password is leaked publicly
         also displays a loading clock animation while performing the validation
         """
+        widget = self.query_one("#check_leak")
         self.skip = skip
         
         if not skip:
             self.skip = False
             self.query_one("#check_leak_icon").display = False
             self.query_one("#check_leak_spinner").display = True
-            widget = self.query_one("#check_leak")
-            original_content = str(widget.content)
+            
             widget.update("Checking public record... please wait")
 
             leak = await PasswordService.is_password_leaked(password=password)
@@ -111,14 +113,16 @@ class PasswordRequirementList(Static):
 
             if self.skip:
                 self.query_one("#check_leak_icon").update("[b red]✖[/]")
+                widget.update(f"{self.original_content}")
                 return
 
             if leak == ResponseStatus.UNKNOWN_ERROR:
                 self.query_one("#check_leak_icon").update("[b yellow]⚠[/]")
-                widget.update("Leak check failed [u b]Retry?[/]") 
+                widget.update("Password check failed [u b]Retry?[/]") 
             elif leak:
                 widget.update("This password is leaked")
-                self.query_one("#check_leak_icon").update("[b red]✖[/]")
+                self.query_one("#check_leak_icon").update("[b red]✖ [/]")
             else:
                 self.query_one("#check_leak_icon").update("[b green]✔ [/]")
-                widget.update(f"{original_content}")
+                widget.update(f"{self.original_content}")
+        
