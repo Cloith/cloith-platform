@@ -1,7 +1,7 @@
 from textual import on
 from textual.app import ComposeResult
 from textual.reactive import reactive
-from textual.widgets import Static, RadioButton, Button, Markdown
+from textual.widgets import Static, RadioButton, Button, Markdown, Input
 from textual.containers import Container, Vertical, Horizontal, VerticalScroll
 from screens import BaseScreen
 from .views import ProviderView, ProvisioningView, ImportView
@@ -54,6 +54,15 @@ class ProvisioningManagerScreen(BaseScreen):
             message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
         )
         self.overlay.enter_error(config)
+
+    def action_retry_leak(self, policy_name: str) -> None:
+        """This will be triggered from the static widget from the PasswordRequirementLIst class"""
+        
+        target_list = self.query_one(f"#{policy_name}_requirements")
+        
+        password_input = self.query_one(f"#{policy_name}_password_input #password", Input)
+    
+        target_list.check_for_leak(password=password_input.value, skip=False)
 
     @on(GlobalRetryRequested)
     def handle_global_request(self, event: GlobalRetryRequested) -> None:

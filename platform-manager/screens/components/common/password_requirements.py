@@ -62,6 +62,8 @@ class PasswordRequirementList(Static):
                             classes="req-invalid"
                         )
 
+    def on_mount(self):
+        pass
     def update_requirements_widgets(self, pw: str) -> None:
         """Refreshes the UI icons and colors based on validation results."""
         self.checks = self.password_service.validate_rules(pw)
@@ -117,8 +119,9 @@ class PasswordRequirementList(Static):
                 return
 
             if leak == ResponseStatus.UNKNOWN_ERROR:
-                self.query_one("#check_leak_icon").update("[b yellow]⚠[/]")
-                widget.update("Password check failed [u b]Retry?[/]") 
+                self.query_one("#check_leak_icon").update("[b yellow]⚠ [/]")
+                policy_name = self.policy.name
+                widget.update(f"Password check failed [@click=screen.retry_leak('{policy_name}')][u b]Retry?[/][/]")
             elif leak:
                 widget.update("This password is leaked")
                 self.query_one("#check_leak_icon").update("[b red]✖ [/]")

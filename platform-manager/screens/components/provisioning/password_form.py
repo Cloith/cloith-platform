@@ -21,13 +21,13 @@ class PolicyPasswordForm(Static):
             placeholder = "ENTER PANEL PASSWORD"
         else:
             placeholder = "ENTER VPS PASSWORD"
-        yield PasswordInput(placeholder=placeholder)
-        yield PasswordRequirementList(self.policy, id="requirements-list")
+        yield PasswordInput(placeholder=placeholder, id=f"{self.policy.name}_password_input")
+        yield PasswordRequirementList(self.policy, id=f"{self.policy.name}_requirements")
         with Horizontal(id="enter-button-container"):
             yield Button.success("ENTER", id="enter-button")
     
     def on_mount(self):
-        self.req_update = self.query_one("#requirements-list", PasswordRequirementList)
+        self.req_update = self.query_one(f"#{self.policy.name}_requirements", PasswordRequirementList)
 
     @on(Input.Changed, "PasswordInput #password")
     async def validate_password(self, event: Input.Changed) -> None:

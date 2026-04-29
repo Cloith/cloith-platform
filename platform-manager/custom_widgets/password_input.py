@@ -63,8 +63,8 @@ class PasswordInput(Static):
     }
     """
 
-    def __init__(self, placeholder: str):
-        super().__init__()
+    def __init__(self, placeholder: str, **kwargs):
+        super().__init__(**kwargs)
         self.placeholder = placeholder
 
     def compose(self) -> ComposeResult:

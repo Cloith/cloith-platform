@@ -3,6 +3,7 @@ from typing import Optional, Set
 
 @dataclass(frozen=True)
 class PasswordPolicy:
+    name: str
     min_length: int
     max_length: Optional[int] = None
     require_upper: bool = False
@@ -37,6 +38,7 @@ class PasswordPolicy:
         return reqs
 
 PANEL_PASSWORD_POLICY = PasswordPolicy(
+    name="panel",
     min_length=12,
     require_upper=True,
     require_lower=True,
@@ -45,6 +47,7 @@ PANEL_PASSWORD_POLICY = PasswordPolicy(
 )
 
 VPS_PASSWORD_POLICY = PasswordPolicy(
+    name="vps",
     min_length=12,
     max_length=50,
     require_upper=True,
