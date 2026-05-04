@@ -53,6 +53,7 @@ ProvisioningManagerScreen {
 #description-panel {
     align: center middle;
     border: ascii $accent;
+    padding: 4 4;
 }
 
 #panels {

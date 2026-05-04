@@ -1,16 +1,24 @@
-from textual import on, work
+from textual import on
 from textual.widgets import (
     Static, RadioButton, Input, RadioSet
 )
 from textual.app import ComposeResult
-from textual.worker import Worker
-from textual.containers import Container
 from custom_widgets.state_overlay import StateOverlay
 from core.handlers import ServiceResponseHandler
 from models.status import ResponseStatus
-from services.textual_message_bus import DescriptionUpdate, GlobalRetryRequested
+from services.textual_message_bus import DescriptionUpdate
 
 class TemplateForm(Static):
+    DEFAULT_CSS = """
+        RadioSet > RadioButton.-selected {
+            color: $accent;
+            background: transparent;
+            text-style: bold italic;
+        }
+        RadioButton.-on > .radio-button--dot {
+            color: $primary;
+        }
+    """
  
     def compose(self) -> ComposeResult:
         yield StateOverlay(id="overlay")
@@ -38,6 +46,7 @@ class TemplateForm(Static):
         if isinstance(result, ResponseStatus):
             self.overlay.enter_error(ServiceResponseHandler(self.app).get_config(response=result, type="overlay"))
         else:
+            await self.app.vault_service.get_token("hostinger_token")
             self.overlay.hide_loading()
             self.template_descriptions = {
                 f"os-{tpl.get('id')}": tpl.get("description", "No description available.")
@@ -65,13 +74,13 @@ class TemplateForm(Static):
         search_value = event.value.strip().lower()
         
         if not search_value:
-            self.populate_list(self.new_buttons)
+            self.run_worker(self.populate_list(self.new_buttons))
         else:
             filtered_templates = [
                 btn for btn in self.new_buttons
                 if search_value in str(btn.label).lower()
             ]
-            self.populate_list(filtered_templates)
+            self.run_worker(self.populate_list(filtered_templates))
 
     @on(RadioSet.Changed)
     def update_description_text(self, event: RadioSet.Changed) -> None:

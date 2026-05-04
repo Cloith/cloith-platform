@@ -1,13 +1,11 @@
-from textual import on, work
+from textual import on
 from textual.widgets import (
     Static, Input, Button, 
 )
-from textual.containers import Vertical, Horizontal, Container
+from textual.containers import  Horizontal
 from textual.app import ComposeResult
-from models.password import PasswordPolicy, PANEL_PASSWORD_POLICY, VPS_PASSWORD_POLICY
-from custom_widgets.rich_spinner import LoadingSpinner
+from models.password import PasswordPolicy, PANEL_PASSWORD_POLICY
 from custom_widgets.password_input import PasswordInput
-from screens import BaseScreen
 from screens.components.common.password_requirements import PasswordRequirementList
 
 

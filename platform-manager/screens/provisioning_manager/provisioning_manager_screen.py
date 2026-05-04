@@ -1,3 +1,4 @@
+import textwrap
 from textual import on
 from textual.app import ComposeResult
 from textual.reactive import reactive
@@ -46,7 +47,6 @@ class ProvisioningManagerScreen(BaseScreen):
         
                     
     def on_mount(self) -> None:
-
         self.query_one("#description-panel").display=False
         self.view_title = self.query_one("#view-title")
         self.overlay = self.query_one("#overlay")
@@ -54,15 +54,15 @@ class ProvisioningManagerScreen(BaseScreen):
             message = """[orange]No Provider detected[/] \n\n Select a [yellow bold]Provider or Import[/] first to get started"""
         )
         self.overlay.enter_error(config)
+        
 
     def action_retry_leak(self, policy_name: str) -> None:
         """This will be triggered from the static widget from the PasswordRequirementLIst class"""
-        
         target_list = self.query_one(f"#{policy_name}_requirements")
-        
         password_input = self.query_one(f"#{policy_name}_password_input #password", Input)
-    
+
         target_list.check_for_leak(password=password_input.value, skip=False)
+        
 
     @on(GlobalRetryRequested)
     def handle_global_request(self, event: GlobalRetryRequested) -> None:
@@ -95,7 +95,7 @@ class ProvisioningManagerScreen(BaseScreen):
         self.query_one("#description-text").update(message.text)
 
     @on(Button.Pressed)
-    def handle_menu_navigation(self, event: Button.Pressed) -> None:
+    async def handle_menu_navigation(self, event: Button.Pressed) -> None:
         """Main router for the sidebar buttons."""
         button_id = event.button.id
 
@@ -130,11 +130,6 @@ class ProvisioningManagerScreen(BaseScreen):
     def update_ui_state(self) -> None:
         """Central logic to enable/disable panels based on the recipe."""
         has_source = self.recipe.has_provider
-        
         self.overlay.display = not has_source
         
         self.query_one("#panels").disabled = not has_source
-        
-        # if has_source:
-        #     provider_name = self.recipe.provider or "UNKNOWN"
-        #     self.view_title.update(f"CONFIGURING: [bold]{provider_name.upper()}[/]")

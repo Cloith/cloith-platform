@@ -19,7 +19,7 @@ class PlatformManager(App):
     def __init__(self) -> None:
         super().__init__()
         self.provider_token = None
-        self.vault_session = None
+        self.vault_session = "8zXTMXFl/H4GiCBgw2izPT2Zjcm7wCZtZqfjCr0TrKKmj2UHwn6ZTrahRLjfFZLDmq6PakE/K+JX1XdeLPl+xQ=="
         self.vault_service = None
         self.provider_service = None
 

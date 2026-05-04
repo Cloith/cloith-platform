@@ -50,6 +50,10 @@ RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/sk
     && install skaffold /usr/local/bin/skaffold \
     && rm skaffold
 
+# 6.2  Create a venv that lives inside the container's persistent storage
+RUN python3 -m venv /home/vscode/venv
+ENV PATH="/home/vscode/venv/bin:$PATH"
+
 # 7. Use the Venv's Pip to install everything
 RUN pip install --no-cache-dir \
     watchdog \
