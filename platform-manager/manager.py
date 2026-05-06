@@ -2,10 +2,8 @@ import fcntl
 import os
 import sys
 from rich.console import Console
-from textual import on
 from textual.app import App
 from textual.events import Resize
-from textual.message import Message
 from screens.provisioning_manager import ProvisioningManagerScreen
 from services.service_factory import get_vault_service
 from services.textual_message_bus import GlobalRetryRequested
@@ -19,7 +17,7 @@ class PlatformManager(App):
     def __init__(self) -> None:
         super().__init__()
         self.provider_token = None
-        self.vault_session = "8zXTMXFl/H4GiCBgw2izPT2Zjcm7wCZtZqfjCr0TrKKmj2UHwn6ZTrahRLjfFZLDmq6PakE/K+JX1XdeLPl+xQ=="
+        self.vault_session = None
         self.vault_service = None
         self.provider_service = None
 

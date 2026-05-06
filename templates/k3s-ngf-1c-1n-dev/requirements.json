@@ -1,8 +1,0 @@
-{
-    "requirements": [
-        "tailscale_api_key",
-        "tailscale_auth_key",
-        "hostinger_token",
-        "username"
-    ]
-}

@@ -1,7 +1,7 @@
 from services.base_provider import BaseProviderService
 from services.base_vault import BaseVaultService
 from services.providers.hostinger import HostingerProviderService
-from services.providers.bitwarden import BitwardenVaultService
+# from services.vaults.bitwarden import BitwardenVaultService
 
 def get_provider_service(provider_name: str, app) -> BaseProviderService:
     if provider_name == "hostinger":
@@ -11,5 +11,6 @@ def get_provider_service(provider_name: str, app) -> BaseProviderService:
 
 def get_vault_service(provider_name: str, app) -> BaseVaultService:
     if provider_name == "bitwarden":
-        return BitwardenVaultService(app)
+       None
+        # return BitwardenVaultService(app)
     

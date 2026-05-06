@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: chatter-dev
-  labels:
-    env: development
-    app: chatter
