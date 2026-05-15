@@ -73,7 +73,7 @@ RUN pip install --no-cache-dir \
 ENV SHELL=/bin/bash
 
 # Configuration for Skaffold & Manager
-RUN echo 'alias manager="python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
+RUN echo 'alias manager="python3 /workspaces/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias wmanager="watchmedo auto-restart --patterns=\"*.py;*.tcss\" --recursive -- python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias webmanager="textual serve -c python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias nuke-manager="pkill -9 -f manager.py; pkill -9 -f bw; rm -f /tmp/manager.lock"' >> /home/vscode/.bashrc

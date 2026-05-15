@@ -1,6 +1,6 @@
-# System Architecture: Cloith Platform
+# System Architecture: Platform Manager
 
-This document outlines the design patterns and structural decisions governing the Cloith Platform. The architecture is designed to be **modular**, **stateless**, and **secure-by-default**.
+This document outlines the design patterns and structural decisions governing the Platform Manager. The architecture is designed to be **modular**, **stateless**, and **secure-by-default**.
 
 ---
 
@@ -44,7 +44,7 @@ The architecture is split into two distinct execution zones to maintain a **Zero
 ## 4. Implementation Details: Instance Locking
 ```python
 # snippet of the locking logic used in PlatformManager
-def acquire_lock():
+def acquire():
     """Ensures only one instance runs, with stale lock detection."""
     # Uses fcntl.flock for atomic OS-level locking
     # Validates existing PIDs to prevent orphaned locks
