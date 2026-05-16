@@ -56,6 +56,7 @@ ENV PATH="/home/vscode/venv/bin:$PATH"
 
 # 7. Use the Venv's Pip to install everything
 RUN pip install --no-cache-dir \
+    pytest \
     watchdog \
     questionary \
     rich \
