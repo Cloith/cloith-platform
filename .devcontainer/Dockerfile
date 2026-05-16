@@ -50,8 +50,13 @@ RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/sk
     && install skaffold /usr/local/bin/skaffold \
     && rm skaffold
 
+# 6.2  Create a venv that lives inside the container's persistent storage
+RUN python3 -m venv /home/vscode/venv
+ENV PATH="/home/vscode/venv/bin:$PATH"
+
 # 7. Use the Venv's Pip to install everything
 RUN pip install --no-cache-dir \
+    pytest \
     watchdog \
     questionary \
     rich \
@@ -69,7 +74,7 @@ RUN pip install --no-cache-dir \
 ENV SHELL=/bin/bash
 
 # Configuration for Skaffold & Manager
-RUN echo 'alias manager="python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
+RUN echo 'alias manager="python3 /workspaces/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias wmanager="watchmedo auto-restart --patterns=\"*.py;*.tcss\" --recursive -- python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias webmanager="textual serve -c python3 /workspaces/cloith-platform/platform-manager/manager.py"' >> /home/vscode/.bashrc \
     && echo 'alias nuke-manager="pkill -9 -f manager.py; pkill -9 -f bw; rm -f /tmp/manager.lock"' >> /home/vscode/.bashrc

@@ -1,0 +1,154 @@
+/*-------------------provisioning_manager---------------------*/
+ProvisioningManagerScreen {
+    width: 100%;
+    height: 100%;
+}
+
+#main-container {
+    height: 100%;
+    width: 100%;
+}
+
+#title {
+    background: $foreground;
+    text-style: bold;
+    content-align: center middle;
+    color: $background;
+    height: 1;
+}
+
+#initial-options {
+    height: 1;
+    border: none;
+    background: $accent;
+}
+
+.initial-btn {
+    width: 1fr;
+    height: 1;
+    border: none;
+    margin: 0 1;
+    padding: 0;
+}
+
+#view-title {
+    background: $secondary;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#selection-panel {
+    content-align: center middle;
+    align: center middle;
+}
+
+#panel-scroll {
+    align: center middle;
+}
+
+.selection-buttons {
+    padding: 1;
+}
+
+#description-panel {
+    align: center middle;
+    border: ascii $accent;
+    padding: 4 4;
+}
+
+#panels {
+    margin: 0;
+    background: $background;
+    height: 1fr;
+    border: hkey $accent;
+    align: center middle;
+}
+
+#provisioning-button {
+    color: $warning;
+}
+
+#description-button-container {
+    align: center bottom;
+    height: 1;
+    width: 13;
+    border: none;
+    dock: bottom;
+}
+
+#description-button {
+    width: auto;
+    border: none;
+}
+
+#forms-panel {
+    align: center middle;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+/*-------------------provisioning_manager---------------------*/
+RadioSet {
+    height: 1fr;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.radio-buttons {
+    width: 1fr;
+}
+
+.selection-buttons {
+    width: 1fr;
+}
+
+#enter-button-container {
+    align: center bottom;
+    height: 4;
+}
+
+TabbedContent {
+    height: 1fr;
+}
+
+#leak-animation {
+    width: 3;
+    height: 3;
+}
+
+#leak-message {
+    display: none;
+}
+
+#leak-animation-container {
+    display: none;
+}
+
+.check-for-leak #leak-message {
+    display: block;
+}
+
+.show-animation #leak-animation-container {
+    display: block;
+}
+
+#forms-panel {
+    width: 1fr;
+    height: 1fr;
+}
+
+#active-form-container {
+    width: 100%;
+    height: 1fr;
+    align: center middle;
+}
+
+/*-------------------provisioning_view---------------------*/
+#template-container {
+    width: 1fr;
+    height: 1fr;
+    align: center middle;
+    border: none;
+}
+/*-------------------provisioning_view---------------------*/
+
